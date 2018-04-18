@@ -4,58 +4,93 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import Card, { CardActions, CardContent } from 'material-ui/Card';
-import Toolbar from 'material-ui/Toolbar';
+import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
-import Button from 'material-ui/Button';
-import IconButton from 'material-ui/IconButton';
-import MenuIcon from 'material-ui-icons/Menu';
+import Chip from 'material-ui/Chip';
+import Paper from 'material-ui/Paper';
 
-const styles = {
+import ChannelCard from './ChannelCard.js'
+
+const styles = theme => ({
   root: {
-    flexGrow: 1,
+    margin: 12
   },
-  flex: {
-    flex: 1,
-  },
-  menuButton: {
-    marginLeft: -12,
-    marginRight: 20,
-  },
+});
+
+function ChannelGroup(props) {
+  return (Object.keys(props.channels).map(key => {
+    return (
+      <Grid item xs={3}>
+        <ChannelCard channel={props.channels[key]}/>
+      </Grid>
+    );
+  }));
+}
+
+function Channels(props) {
+  const {classes} = props;
+
+  let channelsByPeer = sortChannels(props.channels, props.connections);
+
+  console.log(channelsByPeer);
+  let peerChannels = Object.keys(channelsByPeer).map(key => {
+      return (
+        <div className={classes.root}>
+        <Grid container>
+          <Grid item xs={1}>
+            <Typography variant="subheading">
+              Peer:{key}
+            </Typography>
+            {channelsByPeer[key].connected &&
+            <Chip
+              label="Connected"
+              className={classes.chip}
+            />
+            }
+          </Grid>
+         <ChannelGroup channels={channelsByPeer[key].channels}/>
+
+        </Grid>
+        </div>
+      );
+    }
+  );
+
+  return (
+    <div>
+      {peerChannels}
+    </div>
+  );
+}
+
+Channels.propTypes = {
+  classes: PropTypes.object.isRequired,
 };
 
 
-function Channels(props) {
-  let channelElements = props.channels.map(c => {
-    return (
-      <Card>
-        <CardContent>
-          {c.PeerIdx}
-        </CardContent>
-      </Card>
-    )
-
+function sortChannels(channels, connections) {
+  // assign each connected peer into a map with the peer Idx as the key (peer numbers are 1 based)
+  let peers = {};
+  connections.forEach(conn => {
+    peers[conn.PeerNumber] = conn;
   });
 
+  /*
+   this will be an array map keyed by PeerIdx where each element is a map as follows:
+   channels: map of channel data keyed by ChannelIdx
+   connected: true or false indicated whether peer is currently connected
+   */
+  let channelsByPeer = {};
+  channels.forEach(channel => {
+    let entry = (channelsByPeer[channel.PeerIdx] != null ? channelsByPeer[channel.PeerIdx] : {});
+    entry['connected'] = peers[channel.PeerIdx] != null;
+    let item = (entry.channels != null ? entry.channels : {});
+    item[channel.CIdx] = channel;
+    entry.channels = item;
+    channelsByPeer[channel.PeerIdx] = entry;
+  });
 
-
-  const { classes } = props;
-  return (
-    <Card>
-      <Toolbar>
-        <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="title" color="inherit" className={classes.flex}>
-          Channels
-        </Typography>
-      </Toolbar>
-      <CardContent>
-        {channelElements}
-      </CardContent>
-
-    </Card>
-  )
+  return channelsByPeer;
 }
 
-export default withStyles(styles)(ChannelCard);
+export default withStyles(styles)(Channels);

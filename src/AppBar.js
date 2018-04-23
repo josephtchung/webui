@@ -27,13 +27,12 @@ function LitAppBar(props) {
     <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
-            <MenuIcon />
-          </IconButton>
           <Typography variant="title" color="inherit" className={classes.flex}>
             Lit Node {props.address}
           </Typography>
-          <Button color="inherit">Login</Button>
+          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
+            <MenuIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
     </div>

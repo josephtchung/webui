@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import CssBaseline from 'material-ui/CssBaseline';
 import LitAfClient from './LitClient'
 import LitAppBar from './AppBar'
+import Balances from './Balances'
 import Channels from './Channels'
+
+var triedReconnect = false;
 
 class App extends Component {
 
@@ -11,22 +14,28 @@ class App extends Component {
     this.state = {
       Connections: [],
       MyPKH: "",
-
       Channels: [],
-      LisPorts: {},
+      Adr: "",
+      LisIpPorts: null,
+      Txos: [],
+      Balances: [],
     };
   }
 
+  /*
+   * Update all the UI states by calling individual async updates
+   * Note that we unpack the replies into their individual keyword items
+   */
   update () {
     this.updateListConnections();
     this.updateChannelList();
     this.updateListeningPorts();
+    this.updateTxoList();
+    this.updateBalances();
   }
 
   updateListConnections() {
     lc.send('LitRPC.ListConnections').then(reply => {
-
-      this.setState({foo: reply});
       let connections = reply.Connections !== null ? reply.Connections : [];
       this.setState(
         {
@@ -44,6 +53,12 @@ class App extends Component {
       let channels = reply.Channels !== null ? reply.Channels : [];
       // channels = channels.filter(chan => chan.PeerIdx == this.state.selectedPeerIdx);
       this.setState({Channels: channels});
+
+      // TODO -- just testing this here!
+      if (!triedReconnect) {
+        triedReconnect = true;
+        this.openChannelConnections(this.state.Channels, this.state.Connections);
+      }
     })
       .catch(err => {
         console.error(err);
@@ -52,12 +67,34 @@ class App extends Component {
 
   updateListeningPorts() {
     lc.send('LitRPC.GetListeningPorts').then(reply => {
-      this.setState({LisPorts: reply});
+      let adr = reply.Adr !== null ? reply.Adr : "";
+      this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
     })
       .catch(err => {
         console.error(err);
       });
   }
+
+  updateTxoList() {
+    lc.send('LitRPC.TxoList').then(reply => {
+      let txos = reply.Txos !== null ? reply.Txos : [];
+      this.setState({Txos: txos});
+    })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  updateBalances() {
+    lc.send('LitRPC.Balance').then(reply => {
+      let balances = reply.Balances !== null ? reply.Balances : [];
+      this.setState({Balances: balances});
+    })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
 
   listen() {
     lc.send('LitRPC.Listen').then(reply => {
@@ -72,7 +109,7 @@ class App extends Component {
    * Connect to a previously connected peer by giving its index, e.g. con 2 in lit-af
    */
   connectByIndex(index) {
-    lc.send('LitRPC.Connect', index).then(reply => {
+    lc.send('LitRPC.Connect', {'LNAddr': index.toString()}).then(reply => {
       this.updateListConnections()
     })
       .catch(err => {
@@ -87,7 +124,7 @@ class App extends Component {
     channels.forEach(channel => {
         if (!channel.Closed) {
           let connection = connections.find(e => {
-            e.PeerNumber == channel.PeerIdx;
+            return(e.PeerNumber === channel.PeerIdx);
           });
           // if we can't find the connection then it's not open so we can try to reopen
           if (connection == null) {
@@ -98,13 +135,31 @@ class App extends Component {
     );
   }
 
+  /*
+   * click handler for submitting a channel Payment
+   */
+  handleChannelPaySubmit(channel, amount) {
+    lc.send('LitRPC.Push', {'ChanIdx': channel.CIdx, 'Amt': Math.round(parseFloat(amount) * 100000)}).then(reply => {
+      this.updateBalances();
+      this.updateChannelList();
+    })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
 
   render() {
     return (
       <div className="App">
         <CssBaseline />
-        <LitAppBar address={this.state.LisPorts.Adr}/>
-        <Channels channels={this.state.Channels} connections={this.state.Connections}/>
+        <LitAppBar address={this.state.Adr}/>
+        <Balances balances={this.state.Balances} />
+        <Channels
+          channels={this.state.Channels}
+          connections={this.state.Connections}
+          handleSubmit={this.handleChannelPaySubmit.bind(this)}
+        />
       </div>
     );
   }

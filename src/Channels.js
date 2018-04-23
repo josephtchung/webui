@@ -13,18 +13,44 @@ import ChannelCard from './ChannelCard.js'
 
 const styles = theme => ({
   root: {
-    margin: 12
+    marginTop: 8,
+  },
+  peerGroup: {
+    marginTop: 8,
+    padding: 10,
+    backgroundColor: 'lightBlue',
+  },
+  peerInfo: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  chip: {
+    marginLeft: theme.spacing.unit
   },
 });
 
 function ChannelGroup(props) {
-  return (Object.keys(props.channels).map(key => {
-    return (
-      <Grid item xs={3}>
-        <ChannelCard channel={props.channels[key]}/>
-      </Grid>
-    );
-  }));
+  let channels = [];
+  let disabledChannels = [];
+
+  // render enabled channels first (though the entire channel group may be disabled
+  Object.keys(props.channels).map(key => {
+    if (!props.disabled && !props.channels[key].Closed) {
+      channels.push(
+        <Grid item xs={3} key={key}>
+          <ChannelCard channel={props.channels[key]} handleSubmit={props.handleSubmit}/>
+        </Grid>
+      );
+    } else {
+      disabledChannels.push(
+        <Grid item xs={3} key={key}>
+          <ChannelCard disabled channel={props.channels[key]}/>
+        </Grid>
+      )
+    }
+  });
+
+  return (channels.concat(disabledChannels));
 }
 
 function Channels(props) {
@@ -32,34 +58,41 @@ function Channels(props) {
 
   let channelsByPeer = sortChannels(props.channels, props.connections);
 
-  console.log(channelsByPeer);
   let peerChannels = Object.keys(channelsByPeer).map(key => {
       return (
-        <div className={classes.root}>
-        <Grid container>
-          <Grid item xs={1}>
-            <Typography variant="subheading">
-              Peer:{key}
-            </Typography>
-            {channelsByPeer[key].connected &&
-            <Chip
-              label="Connected"
-              className={classes.chip}
-            />
-            }
+        <div className={classes.peerGroup} key={key}>
+          <Grid container>
+            <Grid item xs={12}>
+              <Grid container>
+                <Grid item xs={12} className={classes.peerInfo}>
+                  <Typography variant="subheading">
+                    Peer:{key}
+                  </Typography>
+                  {channelsByPeer[key].connected &&
+                  <Chip
+                    label="Connected"
+                    className={classes.chip}
+                  />
+                  }
+                </Grid>
+                <ChannelGroup
+                  disabled = {!channelsByPeer[key].connected}
+                  channels={channelsByPeer[key].channels}
+                  handleSubmit={props.handleSubmit}
+                />
+              </Grid>
+            </Grid>
           </Grid>
-         <ChannelGroup channels={channelsByPeer[key].channels}/>
-
-        </Grid>
         </div>
       );
     }
   );
 
   return (
-    <div>
+    <div className={classes.root}>
       {peerChannels}
     </div>
+
   );
 }
 

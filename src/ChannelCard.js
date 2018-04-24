@@ -7,11 +7,8 @@ import { withStyles } from 'material-ui/styles';
 import Card, { CardActions, CardContent, CardHeader } from 'material-ui/Card';
 import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
-import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
-import Toolbar from 'material-ui/Toolbar';
-import Slide from 'material-ui/transitions/Slide';
 import {formatCoin} from './util.js'
 import ChannelPayDialog from './ChannelPayDialog';
 import './ChannelCard.css'
@@ -44,25 +41,35 @@ const styles = theme => ({
   }
 });
 
+/*
+ * Component for displaying the actual channel balances. Text right now, but will be graphical at some point!
+ */
 const ChannelBalance = withStyles(styles)((props) => {
-
   const {classes} = props;
-
   return (
     <div className={props.highlight ? "Highlight" : ""}>
-      <Typography className={classes.balance}>
+      <Typography variant="body2" className={classes.balance}>
         Your Balance: {formatCoin(props.myBalance, props.coinType)}
-      </Typography>
-      <Typography className={classes.balance}>
-        Their Balance: {formatCoin(props.capacity - props.myBalance, props.coinType)}
       </Typography>
       <Typography className={classes.balance} color="textSecondary">
         Capacity: {formatCoin(props.capacity, props.coinType)}
+      </Typography>
+      <Typography className={classes.balance}>
+        Their Balance: {formatCoin(props.capacity - props.myBalance, props.coinType)}
       </Typography>
     </div>
   );
 });
 
+ChannelBalance.propTypes = {
+  myBalance: PropTypes.number.isRequired,
+  capacity: PropTypes.number.isRequired,
+};
+
+
+/*
+ * Main ChannelCard component
+ */
 class ChannelCard extends React.Component {
 
   state = {
@@ -136,11 +143,10 @@ class ChannelCard extends React.Component {
  }
 }
 
-
 ChannelCard.propTypes = {
   classes: PropTypes.object.isRequired,
   channel: PropTypes.object.isRequired,
-  handleSubmit: PropTypes.object.isRequired,
+  handleSubmit: PropTypes.func,
 };
 
 export default withStyles(styles)(ChannelCard);

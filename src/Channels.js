@@ -7,7 +7,6 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import Chip from 'material-ui/Chip';
-import Paper from 'material-ui/Paper';
 
 import ChannelCard from './ChannelCard.js'
 
@@ -29,6 +28,9 @@ const styles = theme => ({
   },
 });
 
+/*
+ * A group of Channel Cards that share the same peer
+ */
 function ChannelGroup(props) {
   let channels = [];
   let disabledChannels = [];
@@ -53,6 +55,9 @@ function ChannelGroup(props) {
   return (channels.concat(disabledChannels));
 }
 
+/*
+ * All the Channels, grouped by Peer
+ */
 function Channels(props) {
   const {classes} = props;
 
@@ -69,14 +74,10 @@ function Channels(props) {
                     Peer:{key}
                   </Typography>
                   {channelsByPeer[key].connected &&
-                  <Chip
-                    label="Connected"
-                    className={classes.chip}
-                  />
-                  }
+                  <Chip label="Connected" className={classes.chip}/>}
                 </Grid>
                 <ChannelGroup
-                  disabled = {!channelsByPeer[key].connected}
+                  disabled={!channelsByPeer[key].connected}
                   channels={channelsByPeer[key].channels}
                   handleSubmit={props.handleSubmit}
                 />
@@ -92,7 +93,6 @@ function Channels(props) {
     <div className={classes.root}>
       {peerChannels}
     </div>
-
   );
 }
 

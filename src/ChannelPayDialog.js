@@ -50,7 +50,6 @@ export default class ChannelPayDialog extends React.Component {
             <DialogContentText>
               Enter the amount to pay (in mBTC)
             </DialogContentText>
-            <form>
             <Input
               autoFocus
               id="amount"
@@ -59,7 +58,6 @@ export default class ChannelPayDialog extends React.Component {
               fullWidth
               onChange={this.handleChange('amount')}
             />
-            </form>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose} color="primary">

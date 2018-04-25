@@ -22,16 +22,13 @@ function Balances(props) {
     return (
       <Grid item xs={3} key={index}>
         <Card raised={true}>
-          <CardHeader title={coinTypeString(balance.CoinType)} />
+          <CardHeader title={formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)} />
           <CardContent>
             <Typography className={classes.balance}>
               Channel: {formatCoin(balance.ChanTotal, balance.CoinType)}
             </Typography>
             <Typography className={classes.balance}>
               Txo: {formatCoin(balance.TxoTotal, balance.CoinType)}
-            </Typography>
-            <Typography variant="body2" className={classes.balance}>
-              Total: {formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)}
             </Typography>
           </CardContent>
         </Card>
@@ -41,6 +38,11 @@ function Balances(props) {
   return (
     <div className={classes.root}>
       <Grid container>
+        <Grid item xs={12}>
+          <Typography variant="title">
+            Balances
+          </Typography>
+        </Grid>
         {balances}
       </Grid>
     </div>

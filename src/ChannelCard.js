@@ -11,7 +11,7 @@ import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
 import {formatCoin} from './util.js'
 import ChannelPayDialog from './ChannelPayDialog';
-import './ChannelCard.css'
+import './ChannelCard.css' // highlight css style (@keyframes can't be done in MUI styles)
 
 const styles = theme => ({
   tool: {
@@ -52,10 +52,10 @@ const ChannelBalance = withStyles(styles)((props) => {
         Your Balance: {formatCoin(props.myBalance, props.coinType)}
       </Typography>
       <Typography className={classes.balance} color="textSecondary">
-        Capacity: {formatCoin(props.capacity, props.coinType)}
-      </Typography>
-      <Typography className={classes.balance}>
         Their Balance: {formatCoin(props.capacity - props.myBalance, props.coinType)}
+      </Typography>
+      <Typography className={classes.balance} color="textSecondary">
+        Capacity: {formatCoin(props.capacity, props.coinType)}
       </Typography>
     </div>
   );
@@ -77,19 +77,22 @@ class ChannelCard extends React.Component {
     highlight: false,
   };
 
-  handleChannelPaySubmit(amount) {
-    this.props.handleSubmit(this.props.channel, amount);
+  // handler to pass down to ChannelPayDialog that passes the payment up!
+  handlePaySubmit(amount) {
+    // note that the func passed down through props needs the channel
+    this.props.handlePaySubmit(this.props.channel, amount);
   }
 
+  // Notice when a new balance is coming in so we can trigger the highlight animation
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps);
-    console.log(this.state);
-    if (nextProps.channel.MyBalance !== this.state.myBalance) {
+    if (this.state.myBalance == 0) { // don't highlight if it's the first real balance
+      this.setState ({myBalance: nextProps.channel.MyBalance});
+    } else if (nextProps.channel.MyBalance !== this.state.myBalance) {
       this.setState ({
         myBalance: nextProps.channel.MyBalance,
         highlight: true
       });
-      setTimeout(()=>{this.setState({highlight: false})}, 500); // bit kludgey!
+      setTimeout(()=>{this.setState({highlight: false})}, 400); // bit icky, but reset the highlight state
     }
   }
 
@@ -117,7 +120,7 @@ class ChannelCard extends React.Component {
 
      payButton =
        <div className={classes.pay}>
-         <ChannelPayDialog handleSubmit={this.handleChannelPaySubmit.bind(this)}/>
+         <ChannelPayDialog handlePaySubmit={this.handlePaySubmit.bind(this)}/>
        </div>
    }
 
@@ -146,7 +149,7 @@ class ChannelCard extends React.Component {
 ChannelCard.propTypes = {
   classes: PropTypes.object.isRequired,
   channel: PropTypes.object.isRequired,
-  handleSubmit: PropTypes.func,
+  handlePaySubmit: PropTypes.func,
 };
 
 export default withStyles(styles)(ChannelCard);

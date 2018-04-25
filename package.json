@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/icons": "^1.0.0-beta.43",
+    "Q": "^1.0.0",
+    "ajv": "^6.4.0",
+    "material-ui": "^1.0.0-beta.38",
+    "material-ui-icons": "^1.0.0-beta.36",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1"

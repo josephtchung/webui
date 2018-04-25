@@ -25,7 +25,7 @@ export default class ChannelPayDialog extends React.Component {
   };
 
   handleSubmit = () => {
-    this.props.handleSubmit(this.state.amount);
+    this.props.handlePaySubmit(this.state.amount);
     this.setState({ open: false });
   };
 

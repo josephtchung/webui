@@ -7,8 +7,10 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import Chip from 'material-ui/Chip';
+import Button from 'material-ui/Button';
 
 import ChannelCard from './ChannelCard.js'
+import ChannelAddDialog from './ChannelAddDialog.js'
 
 const styles = theme => ({
   root: {
@@ -26,6 +28,11 @@ const styles = theme => ({
   chip: {
     marginLeft: theme.spacing.unit
   },
+  addButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 });
 
 /*
@@ -40,7 +47,7 @@ function ChannelGroup(props) {
     if (!props.disabled && !props.channels[key].Closed) {
       channels.push(
         <Grid item xs={3} key={key}>
-          <ChannelCard channel={props.channels[key]} handleSubmit={props.handleSubmit}/>
+          <ChannelCard channel={props.channels[key]} handlePaySubmit={props.handlePaySubmit}/>
         </Grid>
       );
     } else {
@@ -70,7 +77,7 @@ function Channels(props) {
             <Grid item xs={12}>
               <Grid container>
                 <Grid item xs={12} className={classes.peerInfo}>
-                  <Typography variant="subheading">
+                  <Typography variant="title">
                     Peer:{key}
                   </Typography>
                   {channelsByPeer[key].connected &&
@@ -79,8 +86,14 @@ function Channels(props) {
                 <ChannelGroup
                   disabled={!channelsByPeer[key].connected}
                   channels={channelsByPeer[key].channels}
-                  handleSubmit={props.handleSubmit}
+                  handlePaySubmit={props.handlePaySubmit}
                 />
+                <Grid item xs={3} className={classes.addButton}>
+                  <ChannelAddDialog
+                    peerIndex={key}
+                    handleAddSubmit={props.handleAddSubmit}
+                  />
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -98,6 +111,10 @@ function Channels(props) {
 
 Channels.propTypes = {
   classes: PropTypes.object.isRequired,
+  channels: PropTypes.object.isRequired,
+  disabled: PropTypes.bool,
+  handlePaySubmit: PropTypes.func.isRequired,
+  handleAddSubmit: PropTypes.func.isRequired,
 };
 
 

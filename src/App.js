@@ -148,6 +148,24 @@ class App extends Component {
       });
   }
 
+  /*
+   * click handler for funding a new channel
+   */
+  handleChannelAddSubmit(peerIdx, amount) {
+    lc.send('LitRPC.FundChannel', {
+      'Peer': parseInt(peerIdx),
+      'CoinType': 1,
+      'Capacity': Math.round(parseFloat(amount) * 100000)
+    })
+      .then(reply => {
+        this.updateChannelList();
+    })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+
 
   render() {
     return (
@@ -158,7 +176,8 @@ class App extends Component {
         <Channels
           channels={this.state.Channels}
           connections={this.state.Connections}
-          handleSubmit={this.handleChannelPaySubmit.bind(this)}
+          handlePaySubmit={this.handleChannelPaySubmit.bind(this)}
+          handleAddSubmit={this.handleChannelAddSubmit.bind(this)}
         />
       </div>
     );

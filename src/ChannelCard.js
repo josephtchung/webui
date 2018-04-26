@@ -18,7 +18,6 @@ const styles = theme => ({
     display: 'flex',
   },
   card: {
-    minWidth: 240,
   },
   cardDisabled: {
     minWidth: 240,
@@ -85,7 +84,7 @@ class ChannelCard extends React.Component {
 
   // Notice when a new balance is coming in so we can trigger the highlight animation
   componentWillReceiveProps(nextProps) {
-    if (this.state.myBalance == 0) { // don't highlight if it's the first real balance
+    if (this.state.myBalance === 0) { // don't highlight if it's the first real balance
       this.setState ({myBalance: nextProps.channel.MyBalance});
     } else if (nextProps.channel.MyBalance !== this.state.myBalance) {
       this.setState ({
@@ -125,7 +124,7 @@ class ChannelCard extends React.Component {
    }
 
    return (
-     <div>
+     <div className={classes.cardBox}>
        <Card raised={true} className={(this.props.disabled ? classes.cardDisabled : classes.card)}>
          <CardHeader title={"Channel " + this.props.channel.CIdx}
                      action={menuButton} />

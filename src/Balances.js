@@ -4,10 +4,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import Card, { CardActions, CardContent, CardHeader } from 'material-ui/Card';
+import Card, { CardContent, CardHeader } from 'material-ui/Card';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
-import {formatCoin, coinTypeString} from './util.js'
+import {formatCoin} from './util.js'
 
 
 const styles = theme => ({
@@ -51,7 +51,9 @@ function Balances(props) {
 
 Balances.propTypes = {
   classes: PropTypes.object.isRequired,
+  balances: PropTypes.array.isRequired,
 };
+
 
 
 export default withStyles(styles)(Balances);

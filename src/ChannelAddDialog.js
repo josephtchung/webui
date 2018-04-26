@@ -47,6 +47,7 @@ class CoinMenuBase extends React.Component {
 
   handleMenuItemClick = (event, index) => {
     this.setState({ selectedIndex: index, anchorEl: null });
+    this.props.onSelect(index);
   };
 
   handleClose = () => {
@@ -98,16 +99,20 @@ const CoinMenu = withStyles(coinStyles)(CoinMenuBase);
 
 const styles = theme => ({
   content: {
-    minWidth: 300,
+    minWidth: 400,
   },
   amountBox: {
     display: 'flex',
   }
 });
 
+const coinTypes = [0, 0, 1, 257]; // BTC, BTC, Testnet, Regtest TODO - figure out a better coin / denom feature
+
 class ChannelAddDialog extends React.Component {
   state = {
     open: false,
+    amount: 0,
+    coinselect: 1,
   };
 
   handleClickOpen = () => {
@@ -119,7 +124,7 @@ class ChannelAddDialog extends React.Component {
   };
 
   handleSubmit = () => {
-    this.props.handleAddSubmit(this.props.peerIndex, this.state.amount);
+    this.props.handleAddSubmit(this.props.peerIndex, coinTypes[this.state.coinselect], this.state.amount);
     this.setState({ open: false });
   };
 
@@ -128,6 +133,12 @@ class ChannelAddDialog extends React.Component {
       [name]: event.target.value,
     });
   };
+
+  handleCoinSelect(index) {
+    this.setState({
+      coinselect: index,
+    });
+  }
 
 
   render() {
@@ -148,7 +159,7 @@ class ChannelAddDialog extends React.Component {
                 Enter amount to fund
               </DialogContentText>
             <div className={classes.amountBox}>
-              <CoinMenu />
+              <CoinMenu onSelect={this.handleCoinSelect.bind(this)}/>
               <Input
                 autoFocus
                 id="amount"
@@ -164,7 +175,7 @@ class ChannelAddDialog extends React.Component {
               Cancel
             </Button>
             <Button onClick={this.handleSubmit} color="primary">
-              Pay
+              Fund
             </Button>
           </DialogActions>
         </Dialog>
@@ -172,5 +183,12 @@ class ChannelAddDialog extends React.Component {
     );
   }
 }
+
+
+ChannelAddDialog.propTypes = {
+  handleAddSubmit: PropTypes.func.isRequired,
+  peerIndex: PropTypes.string.isRequired,
+};
+
 
 export default withStyles(styles)(ChannelAddDialog);

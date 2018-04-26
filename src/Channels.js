@@ -7,10 +7,63 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import Chip from 'material-ui/Chip';
-import Button from 'material-ui/Button';
 
 import ChannelCard from './ChannelCard.js'
 import ChannelAddDialog from './ChannelAddDialog.js'
+
+const channelGroupStyles = theme => ({
+  cardBox: {
+    minWidth: 300,
+    minHeight: 200,
+  },
+  addButtonBox: {
+    minWidth: 300,
+    minHeight: 200,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
+});
+
+/*
+ * A group of Channel Cards that share the same peer
+ */
+const ChannelGroup = withStyles(channelGroupStyles)((props) => {
+
+  const {classes} = props;
+
+  let channels = [];
+  let disabledChannels = [];
+
+  // render enabled channels first (though the entire channel group may be disabled)
+  Object.keys(props.channels).forEach(key => {
+    if (!props.disabled && !props.channels[key].Closed) {
+      channels.push(
+        <Grid item xs={3} key={key} className={classes.cardBox}>
+          <ChannelCard channel={props.channels[key]} handlePaySubmit={props.handlePaySubmit}/>
+        </Grid>
+      );
+    } else {
+      disabledChannels.push(
+        <Grid item xs={3} key={key} className={classes.cardBox}>
+          <ChannelCard disabled channel={props.channels[key]}/>
+        </Grid>
+      )
+    }
+  });
+
+  disabledChannels.push(
+  <Grid item xs={3} className={classes.addButtonBox} key="AddDialog">
+    <ChannelAddDialog
+      peerIndex={props.peerIndex}
+      handleAddSubmit={props.handleAddSubmit}
+    />
+  </Grid>
+  );
+
+  return (channels.concat(disabledChannels));
+});
+
 
 const styles = theme => ({
   root: {
@@ -28,39 +81,8 @@ const styles = theme => ({
   chip: {
     marginLeft: theme.spacing.unit
   },
-  addButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }
 });
 
-/*
- * A group of Channel Cards that share the same peer
- */
-function ChannelGroup(props) {
-  let channels = [];
-  let disabledChannels = [];
-
-  // render enabled channels first (though the entire channel group may be disabled
-  Object.keys(props.channels).map(key => {
-    if (!props.disabled && !props.channels[key].Closed) {
-      channels.push(
-        <Grid item xs={3} key={key}>
-          <ChannelCard channel={props.channels[key]} handlePaySubmit={props.handlePaySubmit}/>
-        </Grid>
-      );
-    } else {
-      disabledChannels.push(
-        <Grid item xs={3} key={key}>
-          <ChannelCard disabled channel={props.channels[key]}/>
-        </Grid>
-      )
-    }
-  });
-
-  return (channels.concat(disabledChannels));
-}
 
 /*
  * All the Channels, grouped by Peer
@@ -87,13 +109,9 @@ function Channels(props) {
                   disabled={!channelsByPeer[key].connected}
                   channels={channelsByPeer[key].channels}
                   handlePaySubmit={props.handlePaySubmit}
+                  peerIndex={key}
+                  handleAddSubmit={props.handleAddSubmit}
                 />
-                <Grid item xs={3} className={classes.addButton}>
-                  <ChannelAddDialog
-                    peerIndex={key}
-                    handleAddSubmit={props.handleAddSubmit}
-                  />
-                </Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -110,8 +128,7 @@ function Channels(props) {
 }
 
 Channels.propTypes = {
-  classes: PropTypes.object.isRequired,
-  channels: PropTypes.object.isRequired,
+  channels: PropTypes.array.isRequired,
   disabled: PropTypes.bool,
   handlePaySubmit: PropTypes.func.isRequired,
   handleAddSubmit: PropTypes.func.isRequired,

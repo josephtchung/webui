@@ -6,6 +6,8 @@
  * Utility functions
  */
 
+// TODO - this isn't the right idea... have to figure out a good solution to coin types and denominations
+
 function formatCoin(amount, coinType, denomination) {
   switch (coinType) {
     case 1:

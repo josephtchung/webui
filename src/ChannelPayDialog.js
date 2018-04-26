@@ -2,6 +2,7 @@
  * Created by joe on 4/21/18.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Button from 'material-ui/Button';
 import Input from 'material-ui/Input';
 import Dialog, {
@@ -34,7 +35,6 @@ export default class ChannelPayDialog extends React.Component {
       [name]: event.target.value,
     });
   };
-
 
   render() {
     return (
@@ -72,3 +72,7 @@ export default class ChannelPayDialog extends React.Component {
     );
   }
 }
+
+ChannelPayDialog.propTypes = {
+  handlePaySubmit: PropTypes.func.isRequired,
+};

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import CssBaseline from 'material-ui/CssBaseline';
 import LitAfClient from './LitClient'
-import LitAppBar from './AppBar'
+import LitAppBar from './LitAppBar'
 import Balances from './Balances'
 import Channels from './Channels'
 
@@ -151,10 +151,10 @@ class App extends Component {
   /*
    * click handler for funding a new channel
    */
-  handleChannelAddSubmit(peerIdx, amount) {
+  handleChannelAddSubmit(peerIdx, coinType, amount) {
     lc.send('LitRPC.FundChannel', {
-      'Peer': parseInt(peerIdx),
-      'CoinType': 1,
+      'Peer': parseInt(peerIdx, 10),
+      'CoinType': coinType,
       'Capacity': Math.round(parseFloat(amount) * 100000)
     })
       .then(reply => {
@@ -192,6 +192,6 @@ class App extends Component {
 
 
 
-export let lc = new LitAfClient("localhost", 8001); // TODO - make this configureable in a useful place
+export let lc = new LitAfClient("localhost", 8001); // TODO - make this configurable in a useful place
 
 export default App;

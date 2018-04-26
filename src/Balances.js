@@ -11,8 +11,12 @@ import {formatCoin} from './util.js'
 
 
 const styles = theme => ({
-  root: {
-    margin: 8,
+  balancesGroup: {
+    marginTop: 8,
+    padding: 10,
+  },
+  cardBox: {
+    minWidth: 240,
   },
 });
 
@@ -20,7 +24,7 @@ function Balances(props) {
   const {classes} = props;
   let balances = props.balances.map((balance, index) => {
     return (
-      <Grid item xs={3} key={index}>
+      <Grid item xs={3} key={index} className={classes.cardBox}>
         <Card raised={true}>
           <CardHeader title={formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)} />
           <CardContent>
@@ -36,7 +40,7 @@ function Balances(props) {
     );
   });
   return (
-    <div className={classes.root}>
+    <div className={classes.balancesGroup}>
       <Grid container>
         <Grid item xs={12}>
           <Typography variant="title">

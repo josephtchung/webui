@@ -3,10 +3,11 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
+import {withStyles} from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import Chip from 'material-ui/Chip';
+import Zoom from 'material-ui/transitions/Zoom';
 
 import ChannelCard from './ChannelCard.js'
 import ChannelAddDialog from './ChannelAddDialog.js'
@@ -39,26 +40,32 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
   Object.keys(props.channels).forEach(key => {
     if (!props.disabled && !props.channels[key].Closed) {
       channels.push(
-        <Grid item xs={3} key={key} className={classes.cardBox}>
-          <ChannelCard channel={props.channels[key]} handlePaySubmit={props.handlePaySubmit}/>
-        </Grid>
+        <Zoom in>
+          <Grid item xs={3} key={key} className={classes.cardBox}>
+            <ChannelCard channel={props.channels[key]} handlePaySubmit={props.handlePaySubmit}/>
+          </Grid>
+        </Zoom>
       );
     } else {
       disabledChannels.push(
-        <Grid item xs={3} key={key} className={classes.cardBox}>
-          <ChannelCard disabled channel={props.channels[key]}/>
-        </Grid>
+        <Zoom in>
+          <Grid item xs={3} key={key} className={classes.cardBox}>
+            <ChannelCard disabled channel={props.channels[key]}/>
+          </Grid>
+        </Zoom>
       )
     }
   });
 
   disabledChannels.push(
-  <Grid item xs={3} className={classes.addButtonBox} key="AddDialog">
-    <ChannelAddDialog
-      peerIndex={props.peerIndex}
-      handleAddSubmit={props.handleAddSubmit}
-    />
-  </Grid>
+    <Zoom in>
+      <Grid item xs={3} className={classes.addButtonBox} key="AddDialog">
+        <ChannelAddDialog
+          peerIndex={props.peerIndex}
+          handleAddSubmit={props.handleAddSubmit}
+        />
+      </Grid>
+    </Zoom>
   );
 
   return (channels.concat(disabledChannels));

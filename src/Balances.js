@@ -7,7 +7,7 @@ import { withStyles } from 'material-ui/styles';
 import Card, { CardContent, CardHeader } from 'material-ui/Card';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
-import {formatCoin} from './util.js'
+import {formatCoin} from './CoinTypes.js'
 
 
 const styles = theme => ({

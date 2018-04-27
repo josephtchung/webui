@@ -38,28 +38,29 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
 
   // render enabled channels first (though the entire channel group may be disabled)
   Object.keys(props.channels).forEach(key => {
-    if (!props.disabled && !props.channels[key].Closed) {
+    let channel = props.channels[key];
+    if (!props.disabled && !channel.Closed) {
       channels.push(
-        <Zoom in>
-          <Grid item xs={3} key={key} className={classes.cardBox}>
-            <ChannelCard channel={props.channels[key]} handlePaySubmit={props.handlePaySubmit}/>
+        <Zoom in key={channel.CIdx}>
+          <Grid item xs={3} className={classes.cardBox}>
+            <ChannelCard channel={channel} handlePaySubmit={props.handlePaySubmit}/>
           </Grid>
         </Zoom>
       );
     } else {
       disabledChannels.push(
-        <Zoom in>
-          <Grid item xs={3} key={key} className={classes.cardBox}>
-            <ChannelCard disabled channel={props.channels[key]}/>
+        <Zoom in key={channel.CIdx}>
+          <Grid item xs={3} className={classes.cardBox}>
+            <ChannelCard disabled channel={channel}/>
           </Grid>
         </Zoom>
       )
     }
   });
-
+  // add the + button for adding an additional channel to this Peer
   disabledChannels.push(
-    <Zoom in>
-      <Grid item xs={3} className={classes.addButtonBox} key="AddDialog">
+    <Zoom in key="AddDialog">
+      <Grid item xs={3} className={classes.addButtonBox}>
         <ChannelAddDialog
           peerIndex={props.peerIndex}
           handleAddSubmit={props.handleAddSubmit}

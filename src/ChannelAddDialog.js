@@ -15,6 +15,8 @@ import Dialog, {
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import AddIcon from '@material-ui/icons/Add';
+import {coinInfo, coinTypes, coinDenominations} from './CoinTypes.js'
+
 
 
 
@@ -26,12 +28,7 @@ const coinStyles = theme => ({
   },
 });
 
-const coinOptions = [
-  'Coin Type',
-  'mBTC',
-  'mBTC-t ',
-  'mBTC-r',
-];
+const coinOptions = ['Coin Type'].concat(Object.keys(coinDenominations));
 
 class CoinMenuBase extends React.Component {
   state = {
@@ -106,7 +103,6 @@ const styles = theme => ({
   }
 });
 
-const coinTypes = [0, 0, 1, 257]; // BTC, BTC, Testnet, Regtest TODO - figure out a better coin / denom feature
 
 class ChannelAddDialog extends React.Component {
   state = {
@@ -124,7 +120,8 @@ class ChannelAddDialog extends React.Component {
   };
 
   handleSubmit = () => {
-    this.props.handleAddSubmit(this.props.peerIndex, coinTypes[this.state.coinselect], this.state.amount);
+    let coinType = coinTypes[this.state.coinselect - 1];
+    this.props.handleAddSubmit(this.props.peerIndex, coinType, Math.round(coinInfo[coinType].factor * this.state.amount));
     this.setState({ open: false });
   };
 

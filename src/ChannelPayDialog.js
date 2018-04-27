@@ -11,6 +11,7 @@ import Dialog, {
   DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
+import {coinInfo} from './CoinTypes.js'
 
 export default class ChannelPayDialog extends React.Component {
   state = {
@@ -26,7 +27,7 @@ export default class ChannelPayDialog extends React.Component {
   };
 
   handleSubmit = () => {
-    this.props.handlePaySubmit(this.state.amount);
+    this.props.handlePaySubmit(Math.round(parseFloat(this.state.amount) * coinInfo[this.props.coinType].factor));
     this.setState({ open: false });
   };
 
@@ -48,7 +49,7 @@ export default class ChannelPayDialog extends React.Component {
           <DialogTitle id="form-dialog-title">Pay to Channel</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Enter the amount to pay (in mBTC)
+              Enter the amount to pay in {coinInfo[this.props.coinType].denomination}
             </DialogContentText>
             <Input
               autoFocus
@@ -75,4 +76,5 @@ export default class ChannelPayDialog extends React.Component {
 
 ChannelPayDialog.propTypes = {
   handlePaySubmit: PropTypes.func.isRequired,
+  coinType: PropTypes.number.isRequired,
 };

@@ -139,7 +139,7 @@ class App extends Component {
    * click handler for submitting a channel Payment
    */
   handleChannelPaySubmit(channel, amount) {
-    lc.send('LitRPC.Push', {'ChanIdx': channel.CIdx, 'Amt': Math.round(parseFloat(amount) * 100000)}).then(reply => {
+    lc.send('LitRPC.Push', {'ChanIdx': channel.CIdx, 'Amt': amount}).then(reply => {
       this.updateBalances();
       this.updateChannelList();
     })

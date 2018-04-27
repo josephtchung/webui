@@ -9,7 +9,7 @@ import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
-import {formatCoin} from './util.js'
+import {formatCoin} from './CoinTypes.js'
 import ChannelPayDialog from './ChannelPayDialog';
 import './ChannelCard.css' // highlight css style (@keyframes can't be done in MUI styles)
 
@@ -119,7 +119,10 @@ class ChannelCard extends React.Component {
 
      payButton =
        <div className={classes.pay}>
-         <ChannelPayDialog handlePaySubmit={this.handlePaySubmit.bind(this)}/>
+         <ChannelPayDialog
+           handlePaySubmit={this.handlePaySubmit.bind(this)}
+           coinType={this.props.channel.CoinType}
+         />
        </div>
    }
 

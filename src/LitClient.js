@@ -15,7 +15,7 @@ class LitAfClient {
       this.rpccon.onopen = () => {
         resolve();
       }
-    })
+    });
 
     // set up the received message callback to resolve or reject the sending promise
     this.rpccon.onmessage = (message) => {

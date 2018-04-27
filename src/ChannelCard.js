@@ -3,8 +3,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import Card, { CardActions, CardContent, CardHeader } from 'material-ui/Card';
+import {withStyles} from 'material-ui/styles';
+import Card, {CardActions, CardContent, CardHeader} from 'material-ui/Card';
 import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
@@ -17,8 +17,7 @@ const styles = theme => ({
   tool: {
     display: 'flex',
   },
-  card: {
-  },
+  card: {},
   cardDisabled: {
     minWidth: 240,
     backgroundColor: 'lightGrey',
@@ -36,8 +35,7 @@ const styles = theme => ({
   pay: {
     marginLeft: 'auto',
   },
-  divider: {
-  }
+  divider: {}
 });
 
 /*
@@ -85,67 +83,73 @@ class ChannelCard extends React.Component {
   // Notice when a new balance is coming in so we can trigger the highlight animation
   componentWillReceiveProps(nextProps) {
     if (this.state.myBalance === 0) { // don't highlight if it's the first real balance
-      this.setState ({myBalance: nextProps.channel.MyBalance});
+      this.setState({myBalance: nextProps.channel.MyBalance});
     } else if (nextProps.channel.MyBalance !== this.state.myBalance) {
-      this.setState ({
+      this.setState({
         myBalance: nextProps.channel.MyBalance,
         highlight: true
       });
-      setTimeout(()=>{this.setState({highlight: false})}, 400); // bit icky, but reset the highlight state
+      setTimeout(() => {
+        this.setState({highlight: false})
+      }, 400); // bit icky, but reset the highlight state
     }
   }
 
- render () {
+  render() {
 
-   const {classes} = this.props;
+    const {classes} = this.props;
 
-   // conditional rendering if channel is closed
-   let menuButton;
-   let payButton;
-   if (this.props.disabled) {
-     menuButton =
-       <IconButton disabled className={classes.menuButton} color="inherit" aria-label="Menu">
-         <MenuIcon />
-       </IconButton>
+    // conditional rendering if channel is closed
+    let menuButton;
+    let payButton;
+    if (this.props.disabled) {
+      menuButton = (
+        <IconButton disabled className={classes.menuButton} color="inherit" aria-label="Menu">
+          <MenuIcon />
+        </IconButton>
+      );
 
-     payButton =
-       <Button disabled className={classes.pay}>Pay</Button>
+      payButton = (
+        <Button disabled className={classes.pay}>Pay</Button>
+      );
 
-   } else {
-     menuButton =
-       <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
-         <MenuIcon />
-       </IconButton>
+    } else {
+      menuButton = (
+        <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
+          <MenuIcon />
+        </IconButton>
+      );
 
-     payButton =
-       <div className={classes.pay}>
-         <ChannelPayDialog
-           handlePaySubmit={this.handlePaySubmit.bind(this)}
-           coinType={this.props.channel.CoinType}
-         />
-       </div>
-   }
+      payButton = (
+        <div className={classes.pay}>
+          <ChannelPayDialog
+            handlePaySubmit={this.handlePaySubmit.bind(this)}
+            coinType={this.props.channel.CoinType}
+          />
+        </div>
+      );
+    }
 
-   return (
-     <div className={classes.cardBox}>
-       <Card raised={true} className={(this.props.disabled ? classes.cardDisabled : classes.card)}>
-         <CardHeader title={"Channel " + this.props.channel.CIdx}
-                     action={menuButton} />
-         <CardContent>
-           <ChannelBalance
-             highlight={this.state.highlight}
-             capacity={this.props.channel.Capacity}
-             coinType={this.props.channel.CoinType}
-             myBalance={this.props.channel.MyBalance}
-           />
-         </CardContent>
-         <CardActions className={classes.action} disableActionSpacing>
-           {payButton}
-         </CardActions>
-       </Card>
-     </div>
-   );
- }
+    return (
+      <div className={classes.cardBox}>
+        <Card raised={true} className={(this.props.disabled ? classes.cardDisabled : classes.card)}>
+          <CardHeader title={"Channel " + this.props.channel.CIdx}
+                      action={menuButton}/>
+          <CardContent>
+            <ChannelBalance
+              highlight={this.state.highlight}
+              capacity={this.props.channel.Capacity}
+              coinType={this.props.channel.CoinType}
+              myBalance={this.props.channel.MyBalance}
+            />
+          </CardContent>
+          <CardActions className={classes.action} disableActionSpacing>
+            {payButton}
+          </CardActions>
+        </Card>
+      </div>
+    );
+  }
 }
 
 ChannelCard.propTypes = {

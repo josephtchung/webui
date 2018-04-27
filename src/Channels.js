@@ -157,9 +157,9 @@ function sortChannels(channels, connections) {
    */
   let channelsByPeer = {};
   channels.forEach(channel => {
-    let entry = (channelsByPeer[channel.PeerIdx] != null ? channelsByPeer[channel.PeerIdx] : {});
-    entry['connected'] = peers[channel.PeerIdx] != null;
-    let item = (entry.channels != null ? entry.channels : {});
+    let entry = (channel.PeerIdx in channelsByPeer ? channelsByPeer[channel.PeerIdx] : {});
+    entry['connected'] = peers[channel.PeerIdx] !== null;
+    let item = ('channels' in entry ? entry.channels : {});
     item[channel.CIdx] = channel;
     entry.channels = item;
     channelsByPeer[channel.PeerIdx] = entry;

@@ -5,7 +5,7 @@ import LitAppBar from './LitAppBar'
 import Balances from './Balances'
 import Channels from './Channels'
 
-var triedReconnect = false;
+let triedReconnect = false;
 
 class App extends Component {
 
@@ -127,7 +127,7 @@ class App extends Component {
             return(e.PeerNumber === channel.PeerIdx);
           });
           // if we can't find the connection then it's not open so we can try to reopen
-          if (connection == null) {
+          if (connection === null) {
             this.connectByIndex(channel.PeerIdx);
           }
         }

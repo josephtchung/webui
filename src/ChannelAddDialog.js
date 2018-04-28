@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
+import {withStyles} from 'material-ui/styles';
 import Button from 'material-ui/Button';
 import Input from 'material-ui/Input';
 import Dialog, {
@@ -12,12 +12,11 @@ import Dialog, {
   DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
-import List, { ListItem, ListItemText } from 'material-ui/List';
-import Menu, { MenuItem } from 'material-ui/Menu';
+import List, {ListItem, ListItemText} from 'material-ui/List';
+import Menu, {MenuItem} from 'material-ui/Menu';
 import AddIcon from '@material-ui/icons/Add';
+import Typography from 'material-ui/Typography';
 import {coinInfo, coinTypes, coinDenominations} from './CoinTypes.js'
-
-
 
 
 const coinStyles = theme => ({
@@ -39,21 +38,21 @@ class CoinMenuBase extends React.Component {
   button = undefined;
 
   handleClickListItem = event => {
-    this.setState({ anchorEl: event.currentTarget });
+    this.setState({anchorEl: event.currentTarget});
   };
 
   handleMenuItemClick = (event, index) => {
-    this.setState({ selectedIndex: index, anchorEl: null });
+    this.setState({selectedIndex: index, anchorEl: null});
     this.props.onSelect(index);
   };
 
   handleClose = () => {
-    this.setState({ anchorEl: null });
+    this.setState({anchorEl: null});
   };
 
   render() {
-    const { classes } = this.props;
-    const { anchorEl } = this.state;
+    const {classes} = this.props;
+    const {anchorEl} = this.state;
 
     return (
       <div className={classes.root}>
@@ -95,12 +94,20 @@ class CoinMenuBase extends React.Component {
 const CoinMenu = withStyles(coinStyles)(CoinMenuBase);
 
 const styles = theme => ({
+  buttonBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  caption: {
+    margin: 4,
+  },
   content: {
     minWidth: 400,
   },
   amountBox: {
     display: 'flex',
-  }
+  },
 });
 
 
@@ -112,17 +119,17 @@ class ChannelAddDialog extends React.Component {
   };
 
   handleClickOpen = () => {
-    this.setState({ open: true });
+    this.setState({open: true});
   };
 
   handleClose = () => {
-    this.setState({ open: false });
+    this.setState({open: false});
   };
 
   handleSubmit = () => {
     let coinType = coinTypes[this.state.coinselect - 1];
     this.props.handleAddSubmit(this.props.peerIndex, coinType, Math.round(coinInfo[coinType].factor * this.state.amount));
-    this.setState({ open: false });
+    this.setState({open: false});
   };
 
   handleChange = name => event => {
@@ -139,12 +146,17 @@ class ChannelAddDialog extends React.Component {
 
 
   render() {
-    const { classes } = this.props;
+    const {classes} = this.props;
     return (
       <div>
-        <Button variant="fab" color="secondary" onClick={this.handleClickOpen}>
-          <AddIcon />
-        </Button>
+        <div className={classes.buttonBox}>
+          <Button variant="fab" color="secondary" onClick={this.handleClickOpen}>
+            <AddIcon />
+          </Button>
+          <Typography variant="caption" className={classes.caption}>
+            Add Channel
+          </Typography>
+        </div>
         <Dialog
           open={this.state.open}
           onClose={this.handleClose}
@@ -152,9 +164,9 @@ class ChannelAddDialog extends React.Component {
         >
           <DialogTitle id="form-dialog-title">Add New Channel</DialogTitle>
           <DialogContent className={classes.content}>
-              <DialogContentText>
-                Enter amount to fund
-              </DialogContentText>
+            <DialogContentText>
+              Enter amount to fund
+            </DialogContentText>
             <div className={classes.amountBox}>
               <CoinMenu onSelect={this.handleCoinSelect.bind(this)}/>
               <Input

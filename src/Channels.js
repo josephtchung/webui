@@ -11,6 +11,7 @@ import Zoom from 'material-ui/transitions/Zoom';
 
 import ChannelCard from './ChannelCard.js'
 import ChannelAddDialog from './ChannelAddDialog.js'
+import PeerAddDialog from './PeerAddDialog.js'
 
 const channelGroupStyles = theme => ({
   cardBox: {
@@ -63,7 +64,7 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
       <Grid item xs={3} className={classes.addButtonBox}>
         <ChannelAddDialog
           peerIndex={props.peerIndex}
-          handleAddSubmit={props.handleAddSubmit}
+          handleAddSubmit={props.handleChannelAddSubmit}
         />
       </Grid>
     </Zoom>
@@ -118,7 +119,7 @@ function Channels(props) {
                   channels={channelsByPeer[key].channels}
                   handlePaySubmit={props.handlePaySubmit}
                   peerIndex={key}
-                  handleAddSubmit={props.handleAddSubmit}
+                  handleChannelAddSubmit={props.handleChannelAddSubmit}
                 />
               </Grid>
             </Grid>
@@ -131,6 +132,15 @@ function Channels(props) {
   return (
     <div className={classes.root}>
       {peerChannels}
+      <div className={classes.peerGroup}>
+        <Grid container>
+          <Grid item xs={3}>
+            <PeerAddDialog
+              handleAddSubmit={props.handlePeerAddSubmit}
+              />
+          </Grid>
+        </Grid>
+      </div>
     </div>
   );
 }
@@ -139,10 +149,14 @@ Channels.propTypes = {
   channels: PropTypes.array.isRequired,
   disabled: PropTypes.bool,
   handlePaySubmit: PropTypes.func.isRequired,
-  handleAddSubmit: PropTypes.func.isRequired,
+  handleChannelAddSubmit: PropTypes.func.isRequired,
+  handlePeerAddSubmit: PropTypes.func.isRequired,
 };
 
-
+/*
+ * Takes the channels and connections from returns an object in the following format:
+ * {<Peer Index>: {connected: <true|false>, channels: {<Channel Index>: <Channel Info from Lit>}}...}
+ */
 function sortChannels(channels, connections) {
   // assign each connected peer into a map with the peer Idx as the key (peer numbers are 1 based)
   let peers = {};
@@ -158,13 +172,13 @@ function sortChannels(channels, connections) {
   let channelsByPeer = {};
   channels.forEach(channel => {
     let entry = (channel.PeerIdx in channelsByPeer ? channelsByPeer[channel.PeerIdx] : {});
-    entry['connected'] = peers[channel.PeerIdx] !== null;
+    entry['connected'] = channel.PeerIdx in peers;
     let item = ('channels' in entry ? entry.channels : {});
     item[channel.CIdx] = channel;
     entry.channels = item;
     channelsByPeer[channel.PeerIdx] = entry;
   });
-
+  console.log(channelsByPeer);
   return channelsByPeer;
 }
 

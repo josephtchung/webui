@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import CssBaseline from 'material-ui/CssBaseline';
 import LitAfClient from './LitClient'
 import LitAppBar from './LitAppBar'
@@ -26,7 +26,7 @@ class App extends Component {
    * Update all the UI states by calling individual async updates
    * Note that we unpack the replies into their individual keyword items
    */
-  update () {
+  update() {
     this.updateListConnections();
     this.updateChannelList();
     this.updateListeningPorts();
@@ -35,61 +35,66 @@ class App extends Component {
   }
 
   updateListConnections() {
-    lc.send('LitRPC.ListConnections').then(reply => {
-      let connections = reply.Connections !== null ? reply.Connections : [];
-      this.setState(
-        {
-          Connections: connections,
-          MyPKH: reply.MyPKH,
-        });
-    })
+    lc.send('LitRPC.ListConnections')
+      .then(reply => {
+        let connections = reply.Connections !== null ? reply.Connections : [];
+        this.setState(
+          {
+            Connections: connections,
+            MyPKH: reply.MyPKH,
+          });
+      })
       .catch(err => {
         console.error(err);
       });
   }
 
   updateChannelList() {
-    lc.send('LitRPC.ChannelList').then(reply => {
-      let channels = reply.Channels !== null ? reply.Channels : [];
-      // channels = channels.filter(chan => chan.PeerIdx == this.state.selectedPeerIdx);
-      this.setState({Channels: channels});
+    lc.send('LitRPC.ChannelList')
+      .then(reply => {
+        let channels = reply.Channels !== null ? reply.Channels : [];
+        // channels = channels.filter(chan => chan.PeerIdx == this.state.selectedPeerIdx);
+        this.setState({Channels: channels});
 
-      // TODO -- just testing this here!
-      if (!triedReconnect) {
-        triedReconnect = true;
-        this.openChannelConnections(this.state.Channels, this.state.Connections);
-      }
-    })
+        // TODO -- just testing this here!
+        if (!triedReconnect) {
+          triedReconnect = true;
+          this.openChannelConnections(this.state.Channels, this.state.Connections);
+        }
+      })
       .catch(err => {
         console.error(err);
       });
   }
 
   updateListeningPorts() {
-    lc.send('LitRPC.GetListeningPorts').then(reply => {
-      let adr = reply.Adr !== null ? reply.Adr : "";
-      this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
-    })
+    lc.send('LitRPC.GetListeningPorts')
+      .then(reply => {
+        let adr = reply.Adr !== null ? reply.Adr : "";
+        this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
+      })
       .catch(err => {
         console.error(err);
       });
   }
 
   updateTxoList() {
-    lc.send('LitRPC.TxoList').then(reply => {
-      let txos = reply.Txos !== null ? reply.Txos : [];
-      this.setState({Txos: txos});
-    })
+    lc.send('LitRPC.TxoList')
+      .then(reply => {
+        let txos = reply.Txos !== null ? reply.Txos : [];
+        this.setState({Txos: txos});
+      })
       .catch(err => {
         console.error(err);
       });
   }
 
   updateBalances() {
-    lc.send('LitRPC.Balance').then(reply => {
-      let balances = reply.Balances !== null ? reply.Balances : [];
-      this.setState({Balances: balances});
-    })
+    lc.send('LitRPC.Balance')
+      .then(reply => {
+        let balances = reply.Balances !== null ? reply.Balances : [];
+        this.setState({Balances: balances});
+      })
       .catch(err => {
         console.error(err);
       });
@@ -97,9 +102,10 @@ class App extends Component {
 
 
   listen() {
-    lc.send('LitRPC.Listen').then(reply => {
-      this.updateListeningPorts()
-    })
+    lc.send('LitRPC.Listen')
+      .then(reply => {
+        this.updateListeningPorts()
+      })
       .catch(err => {
         console.error(err);
       });
@@ -109,9 +115,12 @@ class App extends Component {
    * Connect to a previously connected peer by giving its index, e.g. con 2 in lit-af
    */
   connectByIndex(index) {
-    lc.send('LitRPC.Connect', {'LNAddr': index.toString()}).then(reply => {
-      this.updateListConnections()
+    lc.send('LitRPC.Connect', {
+      'LNAddr': index.toString()
     })
+      .then(reply => {
+        this.updateListConnections()
+      })
       .catch(err => {
         console.error(err);
       });
@@ -124,7 +133,7 @@ class App extends Component {
     channels.forEach(channel => {
         if (!channel.Closed) {
           let connection = connections.find(e => {
-            return(e.PeerNumber === channel.PeerIdx);
+            return (e.PeerNumber === channel.PeerIdx);
           });
           // if we can't find the connection then it's not open so we can try to reopen
           if (connection === null) {
@@ -139,10 +148,14 @@ class App extends Component {
    * click handler for submitting a channel Payment
    */
   handleChannelPaySubmit(channel, amount) {
-    lc.send('LitRPC.Push', {'ChanIdx': channel.CIdx, 'Amt': amount}).then(reply => {
-      this.updateBalances();
-      this.updateChannelList();
+    lc.send('LitRPC.Push', {
+      'ChanIdx': channel.CIdx,
+      'Amt': amount,
     })
+      .then(reply => {
+        this.updateBalances();
+        this.updateChannelList();
+      })
       .catch(err => {
         console.error(err);
       });
@@ -155,11 +168,26 @@ class App extends Component {
     lc.send('LitRPC.FundChannel', {
       'Peer': parseInt(peerIdx, 10),
       'CoinType': coinType,
-      'Capacity': Math.round(parseFloat(amount) * 100000)
+      'Capacity': Math.round(parseFloat(amount) * 100000),
     })
       .then(reply => {
         this.updateChannelList();
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  /*
+   * click handler for funding a new channel
+   */
+  handlePeerAddSubmit(address) {
+    lc.send('LitRPC.Connect', {
+      'LNAddr': address,
     })
+      .then(reply => {
+        this.updateListConnections();
+      })
       .catch(err => {
         console.error(err);
       });
@@ -170,23 +198,23 @@ class App extends Component {
       <div className="App">
         <CssBaseline />
         <LitAppBar address={this.state.Adr}/>
-        <Balances balances={this.state.Balances} />
+        <Balances balances={this.state.Balances}/>
         <Channels
           channels={this.state.Channels}
           connections={this.state.Connections}
           handlePaySubmit={this.handleChannelPaySubmit.bind(this)}
-          handleAddSubmit={this.handleChannelAddSubmit.bind(this)}
+          handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
+          handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
         />
       </div>
     );
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.listen();
     this.update();
   }
 }
-
 
 
 export let lc = new LitAfClient("localhost", 8001); // TODO - make this configurable in a useful place

@@ -144,22 +144,6 @@ class App extends Component {
     );
   }
 
-  /*
-   * click handler for submitting a channel Payment
-   */
-  handleChannelPaySubmit(channel, amount) {
-    lc.send('LitRPC.Push', {
-      'ChanIdx': channel.CIdx,
-      'Amt': amount,
-    })
-      .then(reply => {
-        this.updateBalances();
-        this.updateChannelList();
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  }
 
   /*
    * click handler for funding a new channel
@@ -193,6 +177,76 @@ class App extends Component {
       });
   }
 
+  /*
+   * click handler for submitting a channel Payment
+   */
+  handleChannelPaySubmit(channel, amount) {
+    lc.send('LitRPC.Push', {
+      'ChanIdx': channel.CIdx,
+      'Amt': amount,
+    })
+      .then(reply => {
+        this.updateBalances();
+        this.updateChannelList();
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  /*
+   * click handler for channel commands: push, close, break
+   * amount is optional and only used for push
+   */
+  handleChannelCommand(channel, command, amount) {
+    switch (command) {
+      case 'push':
+        lc.send('LitRPC.Push', {
+          'ChanIdx': channel.CIdx,
+          'Amt': amount,
+        })
+          .then(reply => {
+            this.updateBalances();
+            this.updateChannelList();
+          })
+          .catch(err => {
+            console.error(err);
+          });
+        break;
+      case 'close':
+        console.log("channel close command!");
+        /*
+        lc.send('LitRPC.CloseChannel', {
+          'ChanIdx': channel.CIdx,
+        })
+          .then(reply => {
+            this.updateChannelList();
+          })
+          .catch(err => {
+            console.error(err);
+          });
+          */
+        break;
+      case 'break':
+        console.log("channel break command!");
+        /*
+        lc.send('LitRPC.BreakChannel', {
+          'ChanIdx': channel.CIdx,
+        })
+          .then(reply => {
+            this.updateChannelList();
+          })
+          .catch(err => {
+            console.error(err);
+          });
+
+         */
+        break;
+      default:
+        console.log("Unrecognized channel command " + command);
+    }
+  }
+
   render() {
     return (
       <div className="App">
@@ -202,7 +256,7 @@ class App extends Component {
         <Channels
           channels={this.state.Channels}
           connections={this.state.Connections}
-          handlePaySubmit={this.handleChannelPaySubmit.bind(this)}
+          handleChannelCommand={this.handleChannelCommand.bind(this)}
           handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
           handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
         />

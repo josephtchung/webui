@@ -23,7 +23,7 @@ const styles = theme => ({
     alignItems: 'center',
   },
   caption: {
-    margin: 4,
+    margin: 8,
   },
   content: {
     minWidth: 500,
@@ -65,7 +65,7 @@ class PeerAddDialog extends React.Component {
             <AddIcon />
           </Button>
           <Typography variant="caption" className={classes.caption}>
-            Add Peer Connection
+            Connection
           </Typography>
         </div>
         <Dialog

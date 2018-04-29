@@ -100,7 +100,7 @@ const styles = theme => ({
     alignItems: 'center',
   },
   caption: {
-    margin: 4,
+    margin: 8,
   },
   content: {
     minWidth: 400,
@@ -154,7 +154,7 @@ class ChannelAddDialog extends React.Component {
             <AddIcon />
           </Button>
           <Typography variant="caption" className={classes.caption}>
-            Add Channel
+            Channel
           </Typography>
         </div>
         <Dialog

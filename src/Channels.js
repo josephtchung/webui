@@ -44,7 +44,7 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
       channels.push(
         <Zoom in key={channel.CIdx}>
           <Grid item xs={3} className={classes.cardBox}>
-            <ChannelCard channel={channel} handlePaySubmit={props.handlePaySubmit}/>
+            <ChannelCard channel={channel} handleChannelCommand={props.handleChannelCommand}/>
           </Grid>
         </Zoom>
       );
@@ -90,6 +90,13 @@ const styles = theme => ({
   chip: {
     marginLeft: theme.spacing.unit
   },
+  addButtonBox: {
+    minWidth: 300,
+    minHeight: 200,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 
@@ -117,7 +124,7 @@ function Channels(props) {
                 <ChannelGroup
                   disabled={!channelsByPeer[key].connected}
                   channels={channelsByPeer[key].channels}
-                  handlePaySubmit={props.handlePaySubmit}
+                  handleChannelCommand={props.handleChannelCommand}
                   peerIndex={key}
                   handleChannelAddSubmit={props.handleChannelAddSubmit}
                 />
@@ -135,9 +142,11 @@ function Channels(props) {
       <div className={classes.peerGroup}>
         <Grid container>
           <Grid item xs={3}>
-            <PeerAddDialog
-              handleAddSubmit={props.handlePeerAddSubmit}
+            <div className={classes.addButtonBox}>
+              <PeerAddDialog
+                handleAddSubmit={props.handlePeerAddSubmit}
               />
+            </div>
           </Grid>
         </Grid>
       </div>
@@ -148,7 +157,7 @@ function Channels(props) {
 Channels.propTypes = {
   channels: PropTypes.array.isRequired,
   disabled: PropTypes.bool,
-  handlePaySubmit: PropTypes.func.isRequired,
+  handleChannelCommand: PropTypes.func.isRequired,
   handleChannelAddSubmit: PropTypes.func.isRequired,
   handlePeerAddSubmit: PropTypes.func.isRequired,
 };
@@ -178,7 +187,6 @@ function sortChannels(channels, connections) {
     entry.channels = item;
     channelsByPeer[channel.PeerIdx] = entry;
   });
-  console.log(channelsByPeer);
   return channelsByPeer;
 }
 

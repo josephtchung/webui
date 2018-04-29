@@ -7,10 +7,9 @@ import {withStyles} from 'material-ui/styles';
 import Card, {CardActions, CardContent, CardHeader} from 'material-ui/Card';
 import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
-import IconButton from 'material-ui/IconButton';
-import MenuIcon from 'material-ui-icons/Menu';
 import {formatCoin} from './CoinTypes.js'
 import ChannelPayDialog from './ChannelPayDialog';
+import ChannelMenu from './ChannelMenu.js'
 import './ChannelCard.css' // highlight css style (@keyframes can't be done in MUI styles)
 
 const styles = theme => ({
@@ -21,10 +20,6 @@ const styles = theme => ({
   cardDisabled: {
     minWidth: 240,
     backgroundColor: 'lightGrey',
-  },
-  title: {
-    flex: 1,
-    fontSize: 16,
   },
   balance: {
     fontSize: 14,
@@ -74,10 +69,16 @@ class ChannelCard extends React.Component {
     highlight: false,
   };
 
-  // handler to pass down to ChannelPayDialog that passes the payment up!
+  // handler to pass down to ChannelPayDialog that invokes props.handleChannelCommand
   handlePaySubmit(amount) {
     // note that the func passed down through props needs the channel
-    this.props.handlePaySubmit(this.props.channel, amount);
+    this.props.handleChannelCommand(this.props.channel, 'push', amount);
+  }
+
+  // handler to pass down to ChannelMenu that invokes props.handleChannelCommand
+  handleChannelMenu(command) {
+    // note that the func passed down through props needs the channel
+    this.props.handleChannelCommand(this.props.channel, command);
   }
 
   // Notice when a new balance is coming in so we can trigger the highlight animation
@@ -99,27 +100,25 @@ class ChannelCard extends React.Component {
 
     const {classes} = this.props;
 
-    // conditional rendering if channel is closed
-    let menuButton;
-    let payButton;
+    let menuButton, payButton, channelStatus; // React components
+
+    // if the channel card is disabled, disable the controls and render it with the disabled style
     if (this.props.disabled) {
       menuButton = (
-        <IconButton disabled className={classes.menuButton} color="inherit" aria-label="Menu">
-          <MenuIcon />
-        </IconButton>
+        <ChannelMenu
+          disabled
+          handleChannelMenu = {this.handleChannelMenu.bind(this)}
+        />
       );
-
       payButton = (
         <Button disabled className={classes.pay}>Pay</Button>
       );
-
     } else {
       menuButton = (
-        <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
-          <MenuIcon />
-        </IconButton>
+        <ChannelMenu
+          handleChannelMenu = {this.handleChannelMenu.bind(this)}
+        />
       );
-
       payButton = (
         <div className={classes.pay}>
           <ChannelPayDialog
@@ -127,6 +126,16 @@ class ChannelCard extends React.Component {
             coinType={this.props.channel.CoinType}
           />
         </div>
+      );
+    }
+
+    // render the channel status -- TODO need to understand other statuses
+    channelStatus = null;
+    if (this.props.channel.Closed) {
+      channelStatus = (
+        <Typography>
+          Closed
+        </Typography>
       );
     }
 
@@ -144,6 +153,7 @@ class ChannelCard extends React.Component {
             />
           </CardContent>
           <CardActions className={classes.action} disableActionSpacing>
+            {channelStatus}
             {payButton}
           </CardActions>
         </Card>
@@ -155,7 +165,7 @@ class ChannelCard extends React.Component {
 ChannelCard.propTypes = {
   classes: PropTypes.object.isRequired,
   channel: PropTypes.object.isRequired,
-  handlePaySubmit: PropTypes.func,
+  handleChannelCommand: PropTypes.func,
 };
 
 export default withStyles(styles)(ChannelCard);

@@ -178,23 +178,6 @@ class App extends Component {
   }
 
   /*
-   * click handler for submitting a channel Payment
-   */
-  handleChannelPaySubmit(channel, amount) {
-    lc.send('LitRPC.Push', {
-      'ChanIdx': channel.CIdx,
-      'Amt': amount,
-    })
-      .then(reply => {
-        this.updateBalances();
-        this.updateChannelList();
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  }
-
-  /*
    * click handler for channel commands: push, close, break
    * amount is optional and only used for push
    */
@@ -214,8 +197,7 @@ class App extends Component {
           });
         break;
       case 'close':
-        console.log("channel close command!");
-        /*
+        // console.log("channel close command!");
         lc.send('LitRPC.CloseChannel', {
           'ChanIdx': channel.CIdx,
         })
@@ -225,11 +207,9 @@ class App extends Component {
           .catch(err => {
             console.error(err);
           });
-          */
         break;
       case 'break':
-        console.log("channel break command!");
-        /*
+        // console.log("channel break command!");
         lc.send('LitRPC.BreakChannel', {
           'ChanIdx': channel.CIdx,
         })
@@ -239,8 +219,6 @@ class App extends Component {
           .catch(err => {
             console.error(err);
           });
-
-         */
         break;
       default:
         console.log("Unrecognized channel command " + command);

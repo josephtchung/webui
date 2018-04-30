@@ -28,7 +28,7 @@ const channelGroupStyles = theme => ({
 });
 
 /*
- * A group of Channel Cards that share the same peer
+ * A group of Channel Cards that share the same peer (helper component for Channels)
  */
 const ChannelGroup = withStyles(channelGroupStyles)((props) => {
 
@@ -167,27 +167,29 @@ Channels.propTypes = {
  * {<Peer Index>: {connected: <true|false>, channels: {<Channel Index>: <Channel Info from Lit>}}...}
  */
 function sortChannels(channels, connections) {
-  // assign each connected peer into a map with the peer Idx as the key (peer numbers are 1 based)
-  let peers = {};
-  connections.forEach(conn => {
-    peers[conn.PeerNumber] = conn;
-  });
 
   /*
-   this will be an array map keyed by PeerIdx where each element is a map as follows:
+   result an object keyed by PeerIdx where each element is a object as follows:
    channels: map of channel data keyed by ChannelIdx
    connected: true or false indicated whether peer is currently connected
    */
-  let channelsByPeer = {};
+  let result = {};
+
+  // iterate through connections adding an entry if it's connected
+  connections.forEach(conn => {
+    result[conn.PeerNumber] = {
+      connected: true,
+      channels: {},
+    }});
+
   channels.forEach(channel => {
-    let entry = (channel.PeerIdx in channelsByPeer ? channelsByPeer[channel.PeerIdx] : {});
-    entry['connected'] = channel.PeerIdx in peers;
+    let entry = (channel.PeerIdx in result ? result[channel.PeerIdx] : {connected: false});
     let item = ('channels' in entry ? entry.channels : {});
     item[channel.CIdx] = channel;
     entry.channels = item;
-    channelsByPeer[channel.PeerIdx] = entry;
+    result[channel.PeerIdx] = entry;
   });
-  return channelsByPeer;
+  return result;
 }
 
 export default withStyles(styles)(Channels);

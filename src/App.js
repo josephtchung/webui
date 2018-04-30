@@ -152,7 +152,7 @@ class App extends Component {
     lc.send('LitRPC.FundChannel', {
       'Peer': parseInt(peerIdx, 10),
       'CoinType': coinType,
-      'Capacity': Math.round(parseFloat(amount) * 100000),
+      'Capacity': parseInt(amount, 10),
     })
       .then(reply => {
         this.updateChannelList();
@@ -163,7 +163,7 @@ class App extends Component {
   }
 
   /*
-   * click handler for funding a new channel
+   * click handler for adding new peer
    */
   handlePeerAddSubmit(address) {
     lc.send('LitRPC.Connect', {

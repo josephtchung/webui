@@ -4,6 +4,7 @@ import LitAfClient from './LitClient'
 import LitAppBar from './LitAppBar'
 import Balances from './Balances'
 import Channels from './Channels'
+import Contracts from './Contracts'
 
 let triedReconnect = false;
 
@@ -19,6 +20,8 @@ class App extends Component {
       LisIpPorts: null,
       Txos: [],
       Balances: [],
+      Contracts: [],
+      Oracles: []
     };
   }
 
@@ -32,6 +35,8 @@ class App extends Component {
     this.updateListeningPorts();
     this.updateTxoList();
     this.updateBalances();
+    this.updateContractList();
+    this.updateOraclesList();
   }
 
   updateListConnections() {
@@ -61,6 +66,29 @@ class App extends Component {
           triedReconnect = true;
           this.openChannelConnections(this.state.Channels, this.state.Connections);
         }
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  updateContractList() {
+    lc.send('LitRPC.ListContracts')
+      .then(reply => {
+        let contracts = reply.Contracts !== null ? reply.Contracts : [];
+        this.setState({Contracts: contracts});
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+
+  updateOraclesList() {
+    lc.send('LitRPC.ListOracles')
+      .then(reply => {
+        let oracles = reply.Oracles !== null ? reply.Oracles : [];
+        this.setState({Oracles: oracles});
       })
       .catch(err => {
         console.error(err);
@@ -178,6 +206,146 @@ class App extends Component {
   }
 
   /*
+   * click handler for new contract
+   */
+  handleContractAddSubmit(oracleIdx, settlementTime, dataFeedId, fundingOurs, fundingTheirs, valueAllOurs, valueAllTheirs, coinType) {
+    lc.send('LitRPC.NewContract', {})
+    .then(c => {
+      lc.send('LitRPC.SetContractOracle', { 
+        'CIdx' : c.Contract.Idx, 
+        'OIdx' : parseInt(oracleIdx, 10) 
+      })
+      .then(reply => {
+        lc.send('LitRPC.SetContractSettlementTime', { 
+          'CIdx' : c.Contract.Idx, 
+          'Time' : parseInt(settlementTime, 10)
+        })
+        .then(reply => {
+          lc.send('LitRPC.SetContractDatafeed', { 
+            'CIdx' : c.Contract.Idx, 
+            'Feed' : parseInt(dataFeedId, 10)
+          })
+          .then(reply => {
+            lc.send('LitRPC.SetContractFunding', { 
+              'CIdx' : c.Contract.Idx, 
+              'OurAmount' : fundingOurs,
+              'TheirAmount' : fundingTheirs
+            })
+            .then(reply => {
+              lc.send('LitRPC.SetContractDivision', { 
+                'CIdx' : c.Contract.Idx, 
+                'ValueFullyOurs' : parseInt(valueAllOurs, 10),
+                'ValueFullyTheirs' : parseInt(valueAllTheirs, 10)
+              })
+              .then(reply => {
+                lc.send('LitRPC.SetContractCoinType', { 
+                  'CIdx' : c.Contract.Idx, 
+                  'CoinType' : parseInt(coinType, 10)
+                })
+                .then(reply => {
+                  this.updateContractList();
+                })
+                .catch(err => {
+                  console.error(err);
+                });
+              })
+              .catch(err => {
+                console.error(err);
+              });
+            })
+            .catch(err => {
+              console.error(err);
+            });
+          })
+          .catch(err => {
+            console.error(err);
+          });
+        })
+        .catch(err => {
+          console.error(err);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+      });
+    })
+    .catch(err => {
+      console.error(err);
+    });
+  }
+
+  /*
+   * click handler for offering a contract
+   */
+  handleContractCommand(contract, command, arg1, arg2) {
+    switch(command) {
+      case 'settle':
+        var buf = Buffer.from(arg2,'hex');
+        var sig = [];
+        for (var i = 0; i < buf.length; i++) sig[i] = buf[i];
+        lc.send('LitRPC.SettleContract', {
+          'CIdx' : contract.Idx,
+          'OracleValue' : parseInt(arg1, 10),
+          'OracleSig' : sig
+        })
+        .then(reply => {
+          this.updateContractList();
+          // The peers need some time to exchange signatures. Refresh it again in a while
+          setTimeout(this.updateContractList.bind(this), 3000);
+          setTimeout(this.updateContractList.bind(this), 6000);
+          // Also update the balances in a while since whatever came out of the contract
+          // is now in our balance again
+          setTimeout(this.updateBalances.bind(this), 6000);
+        })
+        .catch(err => {
+          console.error(err);
+        });
+        break;
+      case 'offer': 
+        lc.send('LitRPC.OfferContract', {
+          'CIdx' : contract.Idx,
+          'PeerIdx' : parseInt(arg1, 10)
+        })
+        .then(reply => {
+          this.updateContractList();
+        })
+        .catch(err => {
+          console.error(err);
+        });
+        break;
+      case 'decline':
+        lc.send('LitRPC.DeclineContract', {
+          'CIdx' : contract.Idx
+        })
+        .then(reply => {
+          this.updateContractList();
+        })
+        .catch(err => {
+          console.error(err);
+        });
+        break;
+      case 'accept':
+        lc.send('LitRPC.AcceptContract', {
+          'CIdx' : contract.Idx
+        })
+        .then(reply => {
+          this.updateContractList();
+          // The peers need some time to exchange signatures. Refresh it again in a while,
+          // together with the balances since part of our balance will be moved into the
+          // contract
+          setTimeout(this.updateContractList.bind(this), 4000);
+          setTimeout(this.updateBalances.bind(this), 4000);
+        })
+        .catch(err => {
+          console.error(err);
+        });
+        break;
+      default:
+        console.log("Unrecognized contract command " + command);
+    }
+  }
+
+  /*
    * click handler for channel commands: push, close, break
    * amount is optional and only used for push
    */
@@ -238,6 +406,7 @@ class App extends Component {
           handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
           handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
         />
+        <Contracts contracts={this.state.Contracts} handleContractCommand={this.handleContractCommand.bind(this)} handleContractAddSubmit={this.handleContractAddSubmit.bind(this)} />
       </div>
     );
   }
@@ -249,6 +418,6 @@ class App extends Component {
 }
 
 
-export let lc = new LitAfClient("localhost", 8001); // TODO - make this configurable in a useful place
+export let lc = new LitAfClient("172.18.0.4", 8001); // TODO - make this configurable in a useful place
 
 export default App;

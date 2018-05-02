@@ -97,7 +97,10 @@ class ContractAddDialog extends React.Component {
             <DialogContentText>
               Select coin type
             </DialogContentText>
-            <CoinMenu onSelect={this.handleCoinSelect.bind(this)}/>
+            <CoinMenu
+              onSelect={this.handleCoinSelect.bind(this)}
+              selected={this.state.coinselect}
+            />
           </DialogContent>
           <DialogContent className={classes.content}>
             <DialogContentText>

@@ -16,9 +16,9 @@ const styles = theme => ({
   tool: {
     display: 'flex',
   },
-  card: {},
+  card: {
+  },
   cardDisabled: {
-    minWidth: 240,
     backgroundColor: 'lightGrey',
   },
   balance: {
@@ -26,6 +26,7 @@ const styles = theme => ({
   },
   actions: {
     display: 'flex',
+    justifyContent: 'space-between',
   },
   pay: {
     marginLeft: 'auto',
@@ -141,7 +142,10 @@ class ChannelCard extends React.Component {
 
     return (
       <div className={classes.cardBox}>
-        <Card raised={true} className={(this.props.disabled ? classes.cardDisabled : classes.card)}>
+        <Card
+          raised={true}
+          className={ classes.card + (this.props.disabled ? " " + classes.cardDisabled : "")
+        }>
           <CardHeader title={"Channel " + this.props.channel.CIdx}
                       action={menuButton}/>
           <CardContent>

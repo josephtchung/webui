@@ -13,35 +13,55 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import {coinInfo} from './CoinTypes.js'
 import PopUpDialog from './PopUpDialog.js'
+import {withStyles} from "material-ui/styles/index";
 
-class ChannelPayDialog extends PopUpDialog {
+const styles = theme => ({
+  content: {
+    minWidth: 500,
+  },
+});
+
+
+class BalanceSendDialog extends PopUpDialog {
 
   handleSubmit () {
-    this.props.handlePaySubmit(Math.round(parseFloat(this.state.amount) * coinInfo[this.props.coinType].factor));
+    this.props.handleSendSubmit(this.state.address, Math.round(parseFloat(this.state.amount) * coinInfo[this.props.coinType].factor));
     super.handleSubmit();
   };
 
   render() {
+    const {classes} = this.props;
+
     return (
       <div>
-        <Button onClick={this.handleClickOpen.bind(this)}>Pay</Button>
+        <Button onClick={this.handleClickOpen.bind(this)}>Send</Button>
         <Dialog
           open={this.state.open}
           onClose={this.handleClose}
           aria-labelledby="form-dialog-title"
         >
-          <DialogTitle id="form-dialog-title">Pay to Channel</DialogTitle>
-          <DialogContent>
+          <DialogTitle id="form-dialog-title">Send to Address</DialogTitle>
+          <DialogContent className={classes.content}>
             <DialogContentText>
-              Enter the amount to pay in {coinInfo[this.props.coinType].denomination}
+              Enter the amount to send in {coinInfo[this.props.coinType].denomination}
             </DialogContentText>
             <Input
               autoFocus
               id="amount"
               label="Amount"
               type="text"
-              fullWidth
               onChange={this.handleChange('amount').bind(this)}
+            />
+            <p/>
+            <DialogContentText>
+              Enter the Address to send to
+            </DialogContentText>
+            <Input
+              id="address"
+              label="Address"
+              type="text"
+              fullWidth
+              onChange={this.handleChange('address').bind(this)}
             />
           </DialogContent>
           <DialogActions>
@@ -49,7 +69,7 @@ class ChannelPayDialog extends PopUpDialog {
               Cancel
             </Button>
             <Button onClick={this.handleSubmit.bind(this)} color="primary">
-              Pay
+              Send
             </Button>
           </DialogActions>
         </Dialog>
@@ -58,9 +78,9 @@ class ChannelPayDialog extends PopUpDialog {
   }
 }
 
-ChannelPayDialog.propTypes = {
-  handlePaySubmit: PropTypes.func.isRequired,
+BalanceSendDialog.propTypes = {
+  handleSendSubmit: PropTypes.func.isRequired,
   coinType: PropTypes.number.isRequired,
 };
 
-export default ChannelPayDialog;
+export default withStyles(styles)(BalanceSendDialog);

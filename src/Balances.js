@@ -4,10 +4,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import Card, { CardContent, CardHeader } from 'material-ui/Card';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
-import {formatCoin, formatUSD} from './CoinTypes.js'
+import BalanceCard from './BalanceCard';
 
 
 const styles = theme => ({
@@ -16,7 +15,7 @@ const styles = theme => ({
     padding: 10,
   },
   cardBox: {
-    minWidth: 240,
+    minWidth: 300,
   },
 });
 
@@ -24,18 +23,12 @@ function Balances(props) {
   const {classes} = props;
   let balances = props.balances.map((balance, index) => {
     return (
-      <Grid item xs={3} key={index} className={classes.cardBox}>
-        <Card raised={true}>
-          <CardHeader title={formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType) + " (" + formatUSD(balance.ChanTotal + balance.TxoTotal, balance.CoinType, props.coinRates) + ")"} />
-          <CardContent>
-            <Typography className={classes.balance}>
-              Channel: {formatCoin(balance.ChanTotal, balance.CoinType)}
-            </Typography>
-            <Typography className={classes.balance}>
-              Txo: {formatCoin(balance.TxoTotal, balance.CoinType)}
-            </Typography>
-          </CardContent>
-        </Card>
+      <Grid item xs={4} key={index} className={classes.cardBox}>
+        <BalanceCard
+          balance={balance}
+          coinRates={props.coinRates}
+          handleSendSubmit={props.handleSendSubmit}
+        />
       </Grid>
     );
   });
@@ -56,6 +49,7 @@ function Balances(props) {
 Balances.propTypes = {
   classes: PropTypes.object.isRequired,
   balances: PropTypes.array.isRequired,
+  handleSendSubmit: PropTypes.func.isRequired,
   coinRates: PropTypes.object.isRequired,
 };
 

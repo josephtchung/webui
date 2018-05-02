@@ -228,6 +228,23 @@ class App extends Component {
   }
 
   /*
+ * click handler for traditional send to address
+ */
+  handleSendSubmit(address, amount) {
+    console.log("Send " + address + " " + amount);
+    lc.send('LitRPC.Send', {
+      'DestAddrs': [address],
+      'Amts': [amount],
+    })
+      .then(reply => {
+        this.updateBalances();
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  /*
    * click handler for new contract
    */
   handleContractAddSubmit(oracleIdx, settlementTime, dataFeedId, fundingOurs, fundingTheirs, valueAllOurs, valueAllTheirs, coinType) {
@@ -420,7 +437,11 @@ class App extends Component {
       <div className="App">
         <CssBaseline />
         <LitAppBar address={this.state.Adr}/>
-        <Balances balances={this.state.Balances} coinRates={this.state.CoinRates}/>
+        <Balances
+          balances={this.state.Balances}
+          handleSendSubmit={this.handleSendSubmit.bind(this)}
+          coinRates={this.state.CoinRates}
+        />
         <Channels
           channels={this.state.Channels}
           connections={this.state.Connections}
@@ -440,6 +461,6 @@ class App extends Component {
 }
 
 
-export let lc = new LitAfClient("172.18.0.4", 8001); // TODO - make this configurable in a useful place
+export let lc = new LitAfClient("127.0.0.1", 8001); // TODO - make this configurable in a useful place
 
 export default App;

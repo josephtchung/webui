@@ -14,6 +14,7 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import AddIcon from '@material-ui/icons/Add';
 import Typography from 'material-ui/Typography';
+import PopUpDialog from './PopUpDialog.js'
 
 
 const styles = theme => ({
@@ -31,29 +32,19 @@ const styles = theme => ({
 });
 
 
-class PeerAddDialog extends React.Component {
-  state = {
-    open: false,
-    address: "",
-  };
+class PeerAddDialog extends PopUpDialog {
 
-  handleClickOpen = () => {
-    this.setState({open: true});
-  };
+  constructor(props) {
+    super(props);
+    this.state = Object.assign(this.state,
+      {
+        address: "",
+      });
+  }
 
-  handleClose = () => {
-    this.setState({open: false});
-  };
-
-  handleSubmit = () => {
+  handleSubmit () {
     this.props.handleAddSubmit(this.state.address);
-    this.setState({open: false});
-  };
-
-  handleChange = name => event => {
-    this.setState({
-      [name]: event.target.value,
-    });
+    super.handleSubmit();
   };
 
   render() {
@@ -61,7 +52,7 @@ class PeerAddDialog extends React.Component {
     return (
       <div>
         <div className={classes.buttonBox}>
-          <Button variant="fab" color="primary" onClick={this.handleClickOpen}>
+          <Button variant="fab" color="primary" onClick={this.handleClickOpen.bind(this)}>
             <AddIcon />
           </Button>
           <Typography variant="caption" className={classes.caption}>
@@ -70,7 +61,7 @@ class PeerAddDialog extends React.Component {
         </div>
         <Dialog
           open={this.state.open}
-          onClose={this.handleClose}
+          onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Connect to New Peer</DialogTitle>
@@ -84,14 +75,14 @@ class PeerAddDialog extends React.Component {
               label="Address"
               type="text"
               fullWidth
-              onChange={this.handleChange('address')}
+              onChange={this.handleChange('address').bind(this)}
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleClose} color="primary">
+            <Button onClick={this.handleClose.bind(this)} color="primary">
               Cancel
             </Button>
-            <Button onClick={this.handleSubmit} color="primary">
+            <Button onClick={this.handleSubmit.bind(this)} color="primary">
               Connect
             </Button>
           </DialogActions>

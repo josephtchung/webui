@@ -3,6 +3,7 @@
  * Refactored into separate file by gertjaap on 5/1/18.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import List, {ListItem, ListItemText} from 'material-ui/List';
 import Menu, {MenuItem} from 'material-ui/Menu';
@@ -19,13 +20,15 @@ const coinStyles = theme => ({
 
 const coinOptions = ['Coin Type'].concat(Object.keys(coinDenominations));
 
-class CoinMenuBase extends React.Component {
-  state = {
-    anchorEl: null,
-    selectedIndex: 1,
-  };
-
-  button = undefined;
+class CoinMenu extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      anchorEl: null,
+      selectedIndex: props.selected,
+    };
+    this.button = undefined;
+  }
 
   handleClickListItem = event => {
     this.setState({anchorEl: event.currentTarget});
@@ -81,4 +84,9 @@ class CoinMenuBase extends React.Component {
   }
 }
 
-export default withStyles(coinStyles)(CoinMenuBase);
+CoinMenu.propTypes = {
+  selected: PropTypes.number.isRequired,
+};
+
+
+export default withStyles(coinStyles)(CoinMenu);

@@ -14,6 +14,7 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import AddIcon from '@material-ui/icons/Add';
 import Typography from 'material-ui/Typography';
+import PopUpDialog from './PopUpDialog.js'
 import {coinInfo, coinTypes} from './CoinTypes.js'
 import CoinMenu from './CoinMenu.js';
 
@@ -35,32 +36,22 @@ const styles = theme => ({
 });
 
 
-class ChannelAddDialog extends React.Component {
-  state = {
-    open: false,
-    amount: 0,
-    coinselect: 1,
-  };
+class ChannelAddDialog extends PopUpDialog {
 
-  handleClickOpen = () => {
-    this.setState({open: true});
-  };
+  constructor(props) {
+    super(props);
+    this.state = Object.assign(this.state,
+      {
+        amount: 0,
+        coinselect: 1,
+      });
+  }
 
-  handleClose = () => {
-    this.setState({open: false});
-  };
-
-  handleSubmit = () => {
+  handleSubmit () {
     let coinType = coinTypes[this.state.coinselect - 1];
     this.props.handleAddSubmit(this.props.peerIndex, coinType, Math.round(coinInfo[coinType].factor * this.state.amount));
-    this.setState({open: false});
-  };
-
-  handleChange = name => event => {
-    this.setState({
-      [name]: event.target.value,
-    });
-  };
+    super.handleSubmit();
+  }
 
   handleCoinSelect(index) {
     this.setState({
@@ -68,14 +59,13 @@ class ChannelAddDialog extends React.Component {
     });
   }
 
-
   render() {
     const {classes} = this.props;
     return (
       <div>
         <div className={classes.buttonBox}>
-          <Button variant="fab" color="secondary" onClick={this.handleClickOpen}>
-            <AddIcon />
+          <Button variant="fab" color="secondary" onClick={this.handleClickOpen.bind(this)}>
+            <AddIcon/>
           </Button>
           <Typography variant="caption" className={classes.caption}>
             Channel
@@ -83,7 +73,7 @@ class ChannelAddDialog extends React.Component {
         </div>
         <Dialog
           open={this.state.open}
-          onClose={this.handleClose}
+          onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Add New Channel</DialogTitle>
@@ -92,22 +82,25 @@ class ChannelAddDialog extends React.Component {
               Enter amount to fund
             </DialogContentText>
             <div className={classes.amountBox}>
-              <CoinMenu onSelect={this.handleCoinSelect.bind(this)}/>
+              <CoinMenu
+                onSelect={this.handleCoinSelect.bind(this)}
+                selected={this.state.coinselect}
+              />
               <Input
                 autoFocus
                 id="amount"
                 label="Amount"
                 type="text"
                 fullWidth
-                onChange={this.handleChange('amount')}
+                onChange={this.handleChange('amount').bind(this)}
               />
             </div>
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleClose} color="primary">
+            <Button onClick={this.handleClose.bind(this)} color="primary">
               Cancel
             </Button>
-            <Button onClick={this.handleSubmit} color="primary">
+            <Button onClick={this.handleSubmit.bind(this)} color="primary">
               Fund
             </Button>
           </DialogActions>

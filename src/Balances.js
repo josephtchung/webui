@@ -7,7 +7,7 @@ import { withStyles } from 'material-ui/styles';
 import Card, { CardContent, CardHeader } from 'material-ui/Card';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
-import {formatCoin} from './CoinTypes.js'
+import {formatCoin, formatUSD} from './CoinTypes.js'
 
 
 const styles = theme => ({
@@ -26,7 +26,7 @@ function Balances(props) {
     return (
       <Grid item xs={3} key={index} className={classes.cardBox}>
         <Card raised={true}>
-          <CardHeader title={formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)} />
+          <CardHeader title={formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType) + " (" + formatUSD(balance.ChanTotal + balance.TxoTotal, balance.CoinType, props.coinRates) + ")"} />
           <CardContent>
             <Typography className={classes.balance}>
               Channel: {formatCoin(balance.ChanTotal, balance.CoinType)}
@@ -56,6 +56,7 @@ function Balances(props) {
 Balances.propTypes = {
   classes: PropTypes.object.isRequired,
   balances: PropTypes.array.isRequired,
+  coinRates: PropTypes.object.isRequired,
 };
 
 

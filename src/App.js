@@ -5,6 +5,7 @@ import LitAppBar from './LitAppBar'
 import Balances from './Balances'
 import Channels from './Channels'
 import Contracts from './Contracts'
+import {coinInfo} from './CoinTypes'
 
 let triedReconnect = false;
 
@@ -21,7 +22,8 @@ class App extends Component {
       Txos: [],
       Balances: [],
       Contracts: [],
-      Oracles: []
+      Oracles: [],
+      CoinRates: {}
     };
   }
 
@@ -37,6 +39,26 @@ class App extends Component {
     this.updateBalances();
     this.updateContractList();
     this.updateOraclesList();
+    this.updateCoinRates();
+  }
+
+  updateCoinRates() {
+    var list = '';
+    for (let i in coinInfo) {
+      if(list.indexOf(coinInfo[i].exchangeSymbol) > -1) continue;
+      if(list !== '') list += ',';
+      list += coinInfo[i].exchangeSymbol;
+    }
+
+    fetch("https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=" + list)
+      .then(res => res.json())
+      .then((result) => {
+        var coinRates = {};
+        for (let i in coinInfo) {
+          coinRates[i] = (1 / result[coinInfo[i].exchangeSymbol]) / 100000000 * coinInfo[i].factor;
+        }
+        this.setState({ CoinRates : coinRates });
+      });
   }
 
   updateListConnections() {
@@ -398,7 +420,7 @@ class App extends Component {
       <div className="App">
         <CssBaseline />
         <LitAppBar address={this.state.Adr}/>
-        <Balances balances={this.state.Balances}/>
+        <Balances balances={this.state.Balances} coinRates={this.state.CoinRates}/>
         <Channels
           channels={this.state.Channels}
           connections={this.state.Connections}

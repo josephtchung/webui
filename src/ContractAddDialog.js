@@ -5,19 +5,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Button from 'material-ui/Button';
-import Input from 'material-ui/Input';
+import IconButton from 'material-ui/IconButton';
+
+import Input, { InputLabel, InputAdornment } from 'material-ui/Input';
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
+import Menu, {MenuItem} from 'material-ui/Menu';
+import Select from 'material-ui/Select';
 import AddIcon from '@material-ui/icons/Add';
 import Typography from 'material-ui/Typography';
-import {coinInfo, coinTypes} from './CoinTypes.js'
-import CoinMenu from './CoinMenu.js';
-
-
+import { FormControl } from 'material-ui/Form';
+import Grid from 'material-ui/Grid';
+import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
+import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
+import { DateTimePicker } from 'material-ui-pickers';
+import RefreshIcon from '@material-ui/icons/Refresh';
 const styles = theme => ({
   buttonBox: {
     display: 'flex',
@@ -37,19 +42,20 @@ const styles = theme => ({
 
 class ContractAddDialog extends React.Component {
   state = {
+    menuAnchorEl: null,
     open: false,
-    amountours: 0,
-    amounttheirs: 0,
-    valueallours:0,
-    valuealltheirs:0,
-    settlementtime: 0,
-    datafeedid: 0,
-    coinselect: 1,
-    oracleselect: 0
+    imSelling: false,
+    asset: 0,
+    priceType: 0,
+    settleDate: new Date().setTime(Math.round(Math.floor(new Date().getTime()/1000)/300)*300*1000),
+    settleUnix: 0,
+    amount: 0,
+    price: 0,
+    satPrice: 0
   };
 
-  handleClickOpen = () => {
-    this.setState({open: true});
+  handleClickOpen = (event) => {
+    this.setState({menuAnchorEl : event.target});
   };
 
   handleClose = () => {
@@ -57,8 +63,7 @@ class ContractAddDialog extends React.Component {
   };
 
   handleSubmit = () => {
-    let coinType = coinTypes[this.state.coinselect - 1];
-    this.props.handleAddSubmit(this.state.oracleselect, this.state.settlementtime, this.state.datafeedid, Math.round(coinInfo[coinType].factor * this.state.amountours), Math.round(coinInfo[coinType].factor *this.state.amounttheirs), this.state.valueallours,this.state.valuealltheirs, coinType);
+    this.props.handleCreateContract(this.state.imSelling, this.state.asset, this.state.amount, this.state.satPrice, this.state.settleUnix)
     this.setState({open: false});
   };
 
@@ -68,15 +73,82 @@ class ContractAddDialog extends React.Component {
     });
   };
 
-  handleCoinSelect(index) {
+  handleAssetSelect(event, index) {
     this.setState({
-      coinselect: index,
+      asset: index,
     });
   }
 
+  handlePopoverClose = () => {
+    this.setState({
+      menuAnchorEl: null,
+    });
+  };
+
+  handleMenuItemClick = (event, index) => {
+    this.setState({
+      menuAnchorEl: null,
+      open: true
+    });
+  }
+
+  handlePriceChange = event => {
+    var enteredPrice = parseFloat(event.target.value);
+
+    var satPrice = Math.round(enteredPrice * 100000000)
+    if(this.state.priceType !== 1) {
+      satPrice = Math.round(100000000 / enteredPrice);
+    }
+
+    this.setState({
+      price: enteredPrice,
+      satPrice : satPrice
+    });
+  }
+
+  handlePriceTypeChange = event => {
+    var enteredPriceType = event.target.value;
+
+    var price = this.state.satPrice / 100000000;
+    if(enteredPriceType !== 1) {
+      price = Math.round(100000000 / this.state.satPrice * 100) / 100;
+    }
+
+    this.setState({
+      priceType: enteredPriceType,
+      price : price
+    });
+  }
+
+  handleDateChange = (date) => {
+    var epoch = Math.floor(date.getTime()/1000);
+    epoch = Math.round(epoch/300) * 300; // round to 5 minute interval
+    date.setTime(epoch*1000);
+    this.setState({ settleUnix : epoch, settleDate: date });
+  }
+
+  refreshAsset = () => {
+
+    var asset = this.props.assets[this.state.asset];
+    if(asset != null) {
+      var promise = this.props.fetchAssetValue(asset);
+      if(promise !== null) {
+        promise.then(val => {
+          var price = val / 100000000
+          if(this.state.priceType !== 1) {
+            price = Math.round(100000000 / val * 100) / 100;
+          }
+
+          this.setState({price : price, satPrice: val});
+        });
+      }
+    }
+  }
 
   render() {
     const {classes} = this.props;
+    const {menuAnchorEl, settleDate, asset, imSelling, amount, price, priceType} = this.state;
+
     return (
       <div>
         <div className={classes.buttonBox}>
@@ -87,115 +159,128 @@ class ContractAddDialog extends React.Component {
             Contract
           </Typography>
         </div>
+        <Menu
+          id="contractType-menu"
+          anchorEl={menuAnchorEl}
+          open={Boolean(menuAnchorEl)}
+          onClose={this.handleClose}
+        >
+        <DialogTitle>
+          Contract type:
+          </DialogTitle>
+            <MenuItem selected={true} onClick={event => this.handleMenuItemClick(event)}>
+                Futures contract
+              </MenuItem>
+          </Menu>
+     
         <Dialog
           open={this.state.open}
           onClose={this.handleClose}
           aria-labelledby="form-dialog-title"
         >
-          <DialogTitle id="form-dialog-title">Add New Contract</DialogTitle>
+          <DialogTitle id="form-dialog-title">New Futures Contract</DialogTitle>
           <DialogContent className={classes.content}>
-            <DialogContentText>
-              Select coin type
-            </DialogContentText>
-            <CoinMenu
-              onSelect={this.handleCoinSelect.bind(this)}
-              selected={this.state.coinselect}
-            />
+            <Grid container spacing={8}>
+              <Grid item xs={3}>
+                <FormControl id="buyorsellfc" className={classes.formControl}>
+                  <InputLabel htmlFor="buyorsell">I am:</InputLabel>
+                  <Select 
+                  inputProps={{
+                    name: 'buyorsell',
+                    id: 'buyorsell',
+                  }} 
+                  fullWidth
+                  value={imSelling} 
+                  onChange={this.handleChange('imSelling')}>
+                    <MenuItem value={false}>Buying</MenuItem>
+                    <MenuItem value={true}>Selling</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={6}>
+                <FormControl id="amountfc" className={classes.formControl}>
+                  <InputLabel htmlFor="amount">Amount:</InputLabel>
+                  <Input
+                    name="amount"
+                    id="amount"
+               fullWidth
+                  inputProps={{style:{textAlign:'right'}}}
+                  type="text"
+                  value={amount} 
+                  onChange={this.handleChange('amount')} 
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={3}>
+                <FormControl id="assetfc" className={classes.formControl}>
+                  <InputLabel htmlFor="asset">Asset:</InputLabel>
+                  <Select 
+                    inputProps={{
+                      name: 'asset',
+                      id: 'asset',
+                    }}
+                    value={asset}
+                    onChange={this.handleChange('asset')}
+                    fullWidth>
+                    {this.props.assets.map((option, index) => (
+                      <MenuItem value={index}>{option.name}</MenuItem>
+                    ))}
+                    
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
           </DialogContent>
           <DialogContent className={classes.content}>
-            <DialogContentText>
-              Oracle ID
-            </DialogContentText>
-            <Input
-                autoFocus
-                id="oracleid"
-                label="Oracle ID"
-                type="text"
-                fullWidth
-                onChange={this.handleChange('oracleselect')}
-              />
+            <Grid container spacing={8}>
+              <Grid item xs={12}>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <DateTimePicker
+                    value={settleDate}
+                    disablePast
+                    fullWidth
+                    onChange={this.handleDateChange}
+                    label="On:"
+                  />
+                </MuiPickersUtilsProvider>
+              </Grid>
+              </Grid>
           </DialogContent>
-          <DialogContent className={classes.content}>
-            <DialogContentText>
-              Settlement Time
-            </DialogContentText>
-            <Input
-                autoFocus
-                id="settlementtime"
-                label="Settlement time"
-                type="text"
-                fullWidth
-                onChange={this.handleChange('settlementtime')}
-              />
-          </DialogContent>
-          <DialogContent className={classes.content}>
-            <DialogContentText>
-              Data Feed ID
-            </DialogContentText>
-            <Input
-                autoFocus
-                id="datafeedid"
-                label="Data feed ID"
-                type="text"
-                fullWidth
-                onChange={this.handleChange('datafeedid')}
-              />
-          </DialogContent>
-          <DialogContent className={classes.content}>
-            <DialogContentText>
-              Amount we fund
-            </DialogContentText>
-            <Input
-                autoFocus
-                id="amountours"
-                label="Amount we fund"
-                type="text"
-                fullWidth
-                onChange={this.handleChange('amountours')}
-              />
-          </DialogContent>
-          <DialogContent className={classes.content}>
-            <DialogContentText>
-              Amount they fund
-            </DialogContentText>
-            <div className={classes.amountBox}>
-              <Input
-                autoFocus
-                id="amounttheirs"
-                label="Amount they fund"
-                type="text"
-                fullWidth
-                onChange={this.handleChange('amounttheirs')}
-              />
-            </div>
-          </DialogContent>
-          <DialogContent className={classes.content}>
-            <DialogContentText>
-              Value all ours
-            </DialogContentText>
-            <Input
-                autoFocus
-                id="valueallours"
-                label="Value all ours"
-                type="text"
-                fullWidth
-                onChange={this.handleChange('valueallours')}
-              />
-          </DialogContent>
-          <DialogContent className={classes.content}>
-            <DialogContentText>
-              Value all theirs
-            </DialogContentText>
-            <div className={classes.amountBox}>
-              <Input
-                autoFocus
-                id="valuealltheirs"
-                label="Value all theirs"
-                type="text"
-                fullWidth
-                onChange={this.handleChange('valuealltheirs')}
-              />
-            </div>
+          <DialogContent>
+            <Grid container spacing={8}>
+            <Grid item xs={7}>
+              <FormControl id="pricefc" className={classes.formControl}>
+                  <InputLabel htmlFor="price">Priced at:</InputLabel>
+                  <Input id="price"
+                     inputProps={{style:{textAlign:'right'}}}
+                     
+                  type="text"
+                  value={price} 
+                  onChange={this.handlePriceChange} 
+                  endAdornment={<InputAdornment position='end'>
+                  <IconButton className={classes.button} aria-label="Fetch current price from oracle" onClick={this.refreshAsset}>
+                    <RefreshIcon />
+                  </IconButton></InputAdornment>}
+                  />
+                  
+                </FormControl>
+              </Grid>
+              <Grid item xs={5}>
+              <FormControl id="priceTypefc" className={classes.formControl}>
+                <InputLabel>&nbsp;</InputLabel>
+                  <Select 
+                    inputProps={{
+                      name: 'priceType',
+                      id: 'priceType',
+                    }} 
+                    value={priceType} 
+                    onChange={this.handlePriceTypeChange}>
+                    <MenuItem value={0}>{this.props.assets[asset] ? this.props.assets[asset].name : ""} per BTC</MenuItem>
+                    <MenuItem value={1}>BTC per {this.props.assets[asset] ? this.props.assets[asset].name : ""}</MenuItem>
+                  </Select>
+                  </FormControl>
+              </Grid>
+            </Grid>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose} color="primary">
@@ -213,7 +298,7 @@ class ContractAddDialog extends React.Component {
 
 
 ContractAddDialog.propTypes = {
-  handleAddSubmit: PropTypes.func.isRequired,
+  handleCreateContract: PropTypes.func.isRequired,
 };
 
 

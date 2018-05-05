@@ -65,7 +65,9 @@ function Contracts(props) {
             <Grid item xs={4} className={classes.addButtonBox}>
               <ContractAddDialog
                 peerIndex={props.peerIndex}
-                handleAddSubmit={props.handleContractAddSubmit}
+                handleCreateContract={props.handleCreateContract}
+                assets={props.assets}
+                fetchAssetValue={props.fetchAssetValue}
                 />
             </Grid>
           </Zoom>
@@ -77,7 +79,9 @@ function Contracts(props) {
 
 Contracts.propTypes = {
   contracts: PropTypes.array.isRequired,
-  handleContractCommand: PropTypes.func.isRequired
+  handleCreateContract: PropTypes.func.isRequired,
+  fetchAssetValue: PropTypes.func.isRequired,
+  assets: PropTypes.array.isRequired
 };
 
 export default withStyles(styles)(Contracts);

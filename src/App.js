@@ -23,6 +23,7 @@ class App extends Component {
       Balances: [],
       Contracts: [],
       Oracles: [],
+      Assets: [],
       CoinRates: {}
     };
   }
@@ -38,7 +39,7 @@ class App extends Component {
     this.updateTxoList();
     this.updateBalances();
     this.updateContractList();
-    this.updateOraclesList();
+    this.updateOraclesAndAssets();
     this.updateCoinRates();
   }
 
@@ -105,12 +106,55 @@ class App extends Component {
       });
   }
 
+  fetchAssetValue(asset) {
+    var oracle = this.state.Oracles.find(o => o.Idx === asset.oracleId);
+    if(oracle === null || oracle === undefined) return null;
 
-  updateOraclesList() {
+    return fetch(oracle.Url + "api/datasource/" + asset.datafeedId + "/value")
+    .then(res => res.json())
+    .then(res => {
+      if(res.valueError !== null && res.valueError !== undefined) {
+        throw new Error("Error fetching value: " + res.valueError);
+      }
+      return res.currentValue
+    });
+  }
+
+  // Every data feed of every oracle is considered an asset rn.
+  // Might need a more elegant solution for other types of oracle
+  // values later
+  refreshAssets() {
+    const oracles = this.state.Oracles;
+    var assets = [];
+    for(var o of oracles) {
+      if(o.Url !== null) {
+        // fetch data feeds for this oracle
+        fetch(o.Url + "api/datasources")
+        .then(res => res.json())
+        .then((result) => {
+          console.log(result);
+          for(var f of result) {
+            assets.push( {
+              name : f.name,
+              oracleId : o.Idx,
+              datafeedId : f.id
+            });
+            
+          }
+          console.log(assets);
+          this.setState({Assets: assets});
+        });
+      }
+    }
+    
+  }
+
+  updateOraclesAndAssets() {
     lc.send('LitRPC.ListOracles')
       .then(reply => {
         let oracles = reply.Oracles !== null ? reply.Oracles : [];
         this.setState({Oracles: oracles});
+        this.refreshAssets();
       })
       .catch(err => {
         console.error(err);
@@ -263,7 +307,44 @@ class App extends Component {
   }
 
   /*
-   * click handler for new contract
+   * click handler for new future contract
+   */
+  handleCreateContract(selling, assetIdx, amount, price, settleTime) {
+    // Fetch R-point
+
+    let promise = this.fetchOracleKeysForAsset(this.state.Assets[assetIdx], settleTime);
+    if(promise === null) throw new Error("Cannot determine R-Point");
+
+    var dlcFwdOffer = {};
+    promise.then(res => {
+      dlcFwdOffer.OracleA = res[0];
+      dlcFwdOffer.OracleR = res[1];
+      dlcFwdOffer.SettlementTime = settleTime;
+      dlcFwdOffer.ImBuyer = !selling;
+      dlcFwdOffer.AssetQuantity = amount;
+      dlcFwdOffer.FundAmt = amount * price;
+
+      console.log(dlcFwdOffer);
+    });
+  }
+   
+  fetchOracleKeysForAsset(asset, timeUnix) {
+    let oracle = this.state.Oracles.find(o => o.Idx === asset.oracleId);
+    if(oracle === null || oracle === undefined) return null;
+
+    return fetch(oracle.Url + "api/rpoint/" + asset.datafeedId + "/" + timeUnix.toString()) 
+    .then(res => res.json())
+    .then(res => {
+      var buf = Buffer.from(res.R,'hex');
+      var rPoint = [];
+      for (var i = 0; i < buf.length; i++) rPoint[i] = buf[i];
+
+      return [oracle.A, rPoint];
+    });
+  }
+
+  /*
+   * click handler for new contract (old)
    */
   handleContractAddSubmit(oracleIdx, settlementTime, dataFeedId, fundingOurs, fundingTheirs, valueAllOurs, valueAllTheirs, coinType) {
     lc.send('LitRPC.NewContract', {})
@@ -468,7 +549,13 @@ class App extends Component {
           handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
           handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
         />
-        <Contracts contracts={this.state.Contracts} handleContractCommand={this.handleContractCommand.bind(this)} handleContractAddSubmit={this.handleContractAddSubmit.bind(this)} />
+        <Contracts 
+          contracts={this.state.Contracts} 
+          assets={this.state.Assets}
+          fetchAssetValue={this.fetchAssetValue.bind(this)}
+          handleContractCommand={this.handleContractCommand.bind(this)} 
+          handleCreateContract={this.handleCreateContract.bind(this)} 
+        />
       </div>
     );
   }
@@ -480,6 +567,6 @@ class App extends Component {
 }
 
 
-export let lc = new LitAfClient("127.0.0.1", 8001); // TODO - make this configurable in a useful place
+export let lc = new LitAfClient("172.17.0.3", 8001); // TODO - make this configurable in a useful place
 
 export default App;

@@ -47,6 +47,14 @@ class ChannelAddDialog extends PopUpDialog {
       });
   }
 
+  resetState() {
+    this.setState({
+      amount: 0,
+      coinselect: 1,
+    });
+    super.resetState();
+  }
+
   handleSubmit () {
     let coinType = coinTypes[this.state.coinselect - 1];
     this.props.handleAddSubmit(this.props.peerIndex, coinType, Math.round(coinInfo[coinType].factor * this.state.amount));

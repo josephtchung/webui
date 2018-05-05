@@ -42,6 +42,13 @@ class PeerAddDialog extends PopUpDialog {
       });
   }
 
+  resetState() {
+    this.setState({
+      address: "",
+    });
+    super.resetState();
+  }
+
   handleSubmit () {
     this.props.handleAddSubmit(this.state.address);
     super.handleSubmit();

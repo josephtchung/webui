@@ -162,6 +162,24 @@ class App extends Component {
   }
 
   /*
+   * Create 1 or more new addresses of a given coinType. Returns a Promise
+   */
+  address(numToMake, coinType) {
+    return new Promise((resolve, reject) => {
+      lc.send('LitRPC.Address', {
+        'NumToMake': numToMake,
+        'CoinType': coinType,
+      }).then(reply => {
+          resolve(reply);
+        }
+      )
+        .catch(err => {
+          console.error(err);
+        });
+    });
+  }
+
+  /*
    * Connect to a previously connected peer by giving its index, e.g. con 2 in lit-af
    */
   connectByIndex(index) {
@@ -441,6 +459,7 @@ class App extends Component {
           balances={this.state.Balances}
           handleSendSubmit={this.handleSendSubmit.bind(this)}
           coinRates={this.state.CoinRates}
+          newAddress={this.address.bind(this)}
         />
         <Channels
           channels={this.state.Channels}

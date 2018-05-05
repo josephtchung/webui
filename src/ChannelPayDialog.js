@@ -16,6 +16,21 @@ import PopUpDialog from './PopUpDialog.js'
 
 class ChannelPayDialog extends PopUpDialog {
 
+  constructor(props) {
+    super(props);
+    this.state = Object.assign(this.state,
+      {
+        amount: 0,
+      });
+  }
+
+  resetState() {
+    this.setState({
+      amount: 0,
+    });
+    super.resetState();
+  }
+
   handleSubmit () {
     this.props.handlePaySubmit(Math.round(parseFloat(this.state.amount) * coinInfo[this.props.coinType].factor));
     super.handleSubmit();

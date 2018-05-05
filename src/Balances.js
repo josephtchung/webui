@@ -28,6 +28,7 @@ function Balances(props) {
           balance={balance}
           coinRates={props.coinRates}
           handleSendSubmit={props.handleSendSubmit}
+          newAddress={props.newAddress}
         />
       </Grid>
     );
@@ -51,6 +52,7 @@ Balances.propTypes = {
   balances: PropTypes.array.isRequired,
   handleSendSubmit: PropTypes.func.isRequired,
   coinRates: PropTypes.object.isRequired,
+  newAddress: PropTypes.func.isRequired,
 };
 
 

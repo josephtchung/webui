@@ -10,8 +10,12 @@ class PopUpDialog extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      open: false,
+      open: false
     };
+  }
+
+  // override this method to reset any states that get set by handleChange
+  resetState(state) {
   }
 
   handleClickOpen() {
@@ -20,10 +24,12 @@ class PopUpDialog extends React.Component {
 
   handleClose() {
     this.setState({open: false});
+    this.resetState();
   };
 
   handleSubmit() {
     this.setState({open: false});
+    this.resetState();
   };
 
   handleChange(name) {

@@ -51,10 +51,12 @@ class ContractAddDialog extends React.Component {
     settleUnix: 0,
     amount: 0,
     price: 0,
-    satPrice: 0
+    satPrice: 0,
+    peerIdx: 0
   };
 
   handleClickOpen = (event) => {
+    this.handleDateChange(new Date());
     this.setState({menuAnchorEl : event.target});
   };
 
@@ -63,7 +65,7 @@ class ContractAddDialog extends React.Component {
   };
 
   handleSubmit = () => {
-    this.props.handleCreateContract(this.state.imSelling, this.state.asset, this.state.amount, this.state.satPrice, this.state.settleUnix)
+    this.props.handleCreateContract(this.state.imSelling, this.state.asset, parseFloat(this.state.amount), this.state.satPrice, this.state.settleUnix, this.state.peerIdx)
     this.setState({open: false});
   };
 
@@ -120,6 +122,12 @@ class ContractAddDialog extends React.Component {
     });
   }
 
+  handlePeerChange = event => {
+    this.setState({peerIdx : event.target.value});
+
+  }
+
+
   handleDateChange = (date) => {
     var epoch = Math.floor(date.getTime()/1000);
     epoch = Math.round(epoch/300) * 300; // round to 5 minute interval
@@ -147,7 +155,7 @@ class ContractAddDialog extends React.Component {
 
   render() {
     const {classes} = this.props;
-    const {menuAnchorEl, settleDate, asset, imSelling, amount, price, priceType} = this.state;
+    const {menuAnchorEl, peerIdx, settleDate, asset, imSelling, amount, price, priceType} = this.state;
 
     return (
       <div>
@@ -279,6 +287,30 @@ class ContractAddDialog extends React.Component {
                     <MenuItem value={1}>BTC per {this.props.assets[asset] ? this.props.assets[asset].name : ""}</MenuItem>
                   </Select>
                   </FormControl>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogContent>
+            <Grid container spacing={8}>
+              <Grid item xs={12}>
+              
+                <FormControl id="peerfc" className={classes.formControl}>
+                  <InputLabel>Peer</InputLabel>
+                    <Select 
+                      inputProps={{
+                        name: 'peer',
+                        id: 'peer',
+                      }} 
+                      fullWidth
+                      value={peerIdx} 
+                      onChange={this.handlePeerChange}>
+                      {this.props.connections.map((conn, index) => (
+                        <MenuItem value={conn.PeerNumber}>{
+                          conn.Nickname === '' ? 'Peer ' + conn.PeerNumber.toString() : conn.Nickname
+                        }</MenuItem>
+                      ))}
+                    </Select>
+                </FormControl>
               </Grid>
             </Grid>
           </DialogContent>

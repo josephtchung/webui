@@ -24,6 +24,7 @@ class App extends Component {
       Contracts: [],
       Oracles: [],
       Assets: [],
+      Offers: [],
       CoinRates: {}
     };
   }
@@ -39,6 +40,7 @@ class App extends Component {
     this.updateTxoList();
     this.updateBalances();
     this.updateContractList();
+    this.updateOfferList();
     this.updateOraclesAndAssets();
     this.updateCoinRates();
   }
@@ -106,6 +108,17 @@ class App extends Component {
       });
   }
 
+  updateOfferList() {
+    lc.send('LitRPC.ListOffers')
+      .then(reply => {
+        let offers = reply.Offers !== null ? reply.Offers : [];
+        this.setState({Offers: offers});
+        console.log("Offers", offers);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
   fetchAssetValue(asset) {
     var oracle = this.state.Oracles.find(o => o.Idx === asset.oracleId);
     if(oracle === null || oracle === undefined) return null;
@@ -309,7 +322,7 @@ class App extends Component {
   /*
    * click handler for new future contract
    */
-  handleCreateContract(selling, assetIdx, amount, price, settleTime) {
+  handleCreateContract(selling, assetIdx, amount, price, settleTime, peerIdx) {
     // Fetch R-point
 
     let promise = this.fetchOracleKeysForAsset(this.state.Assets[assetIdx], settleTime);
@@ -323,8 +336,10 @@ class App extends Component {
       dlcFwdOffer.ImBuyer = !selling;
       dlcFwdOffer.AssetQuantity = amount;
       dlcFwdOffer.FundAmt = amount * price;
-
-      console.log(dlcFwdOffer);
+      dlcFwdOffer.PeerIdx = peerIdx;
+      dlcFwdOffer.CoinType = 257;
+      
+      lc.send('LitRPC.NewForwardOffer', { Offer : dlcFwdOffer })
     });
   }
    
@@ -410,6 +425,43 @@ class App extends Component {
     .catch(err => {
       console.error(err);
     });
+  }
+
+  /*
+   * handler for offer commands
+   */
+  handleOfferCommand(offer, command, arg1, arg2) {
+    switch(command) {
+      case 'decline':
+        lc.send('LitRPC.DeclineOffer', {
+          'OIdx' : offer.OIdx
+        })
+        .then(reply => {
+          this.updateOfferList();
+        })
+        .catch(err => {
+          console.error(err);
+        });
+        break;
+      case 'accept':
+        lc.send('LitRPC.AcceptOffer', {
+          'OIdx' : offer.OIdx
+        })
+        .then(reply => {
+          this.updateOfferList();
+          // The peers need some time to exchange signatures. Refresh it again in a while,
+          // together with the balances since part of our balance will be moved into the
+          // contract
+          setTimeout(this.updateContractList.bind(this), 6000);
+          setTimeout(this.updateBalances.bind(this), 6000);
+        })
+        .catch(err => {
+          console.error(err);
+        });
+        break;
+      default:
+        console.log("Unrecognized contract command " + command);
+    }
   }
 
   /*
@@ -551,9 +603,12 @@ class App extends Component {
         />
         <Contracts 
           contracts={this.state.Contracts} 
+          offers={this.state.Offers}
           assets={this.state.Assets}
+          connections={this.state.Connections}
           fetchAssetValue={this.fetchAssetValue.bind(this)}
           handleContractCommand={this.handleContractCommand.bind(this)} 
+          handleOfferCommand={this.handleOfferCommand.bind(this)} 
           handleCreateContract={this.handleCreateContract.bind(this)} 
         />
       </div>
@@ -566,7 +621,26 @@ class App extends Component {
   }
 }
 
+function getParameterByName(name, url) {
+  if (!url) url = window.location.href;
+  name = name.replace(/[\[\]]/g, "\\$&");
+  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
-export let lc = new LitAfClient("172.17.0.3", 8001); // TODO - make this configurable in a useful place
+let host = "127.0.0.1"
+let port = 8001
+let queryHost = getParameterByName("host")
+let queryPort = getParameterByName("port")
+
+if(queryHost) host = queryHost;
+if(queryPort) port = parseInt(queryPort);
+
+console.log("Connecting to LIT at " + host + ":" + port.toString())
+
+export let lc = new LitAfClient(host,port);
 
 export default App;

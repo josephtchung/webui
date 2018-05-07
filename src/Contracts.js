@@ -9,6 +9,7 @@ import Zoom from 'material-ui/transitions/Zoom';
 
 import ContractCard from './ContractCard.js'
 import ContractAddDialog from './ContractAddDialog.js'
+import OfferCard from './OfferCard.js'
 
 const styles = theme => ({
   root: {
@@ -46,6 +47,16 @@ const styles = theme => ({
 function Contracts(props) {
   const {classes} = props;
 
+  let offers = props.offers.map((offer, index) => {
+    return (
+      <Zoom in key={offer.OIdx}>
+        <Grid item xs={3} className={classes.cardBox}>
+          <OfferCard offer={offer} handleOfferCommand={props.handleOfferCommand}/>
+        </Grid>
+      </Zoom>
+    );
+  });
+
   let contracts = props.contracts.map((contract, index) => {
       return (
         <Zoom in key={contract.Idx}>
@@ -60,11 +71,12 @@ function Contracts(props) {
     <div className={classes.root}>
       <div className={classes.peerGroup}>
         <Grid container>
+          {offers}
           {contracts}
           <Zoom in key="AddDialog">
             <Grid item xs={4} className={classes.addButtonBox}>
               <ContractAddDialog
-                peerIndex={props.peerIndex}
+                connections={props.connections}
                 handleCreateContract={props.handleCreateContract}
                 assets={props.assets}
                 fetchAssetValue={props.fetchAssetValue}
@@ -79,7 +91,10 @@ function Contracts(props) {
 
 Contracts.propTypes = {
   contracts: PropTypes.array.isRequired,
+  connections: PropTypes.array.isRequired,
   handleCreateContract: PropTypes.func.isRequired,
+  handleOfferCommand: PropTypes.func.isRequired,
+  offers: PropTypes.array.isRequired,
   fetchAssetValue: PropTypes.func.isRequired,
   assets: PropTypes.array.isRequired
 };

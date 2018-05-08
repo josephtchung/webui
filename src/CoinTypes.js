@@ -54,7 +54,7 @@ const coinTypes = Object.keys(coinInfo).map(key => {
 function formatCoin(amount, coinType) {
   let info = coinInfo[coinType];
 
-  if (info === null) {
+  if (info === undefined) {
     return Number(amount).toLocaleString() + " Type " + coinType;
   }
 

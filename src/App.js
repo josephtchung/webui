@@ -694,7 +694,7 @@ class App extends Component {
       rpcRefreshReference: rpcRefreshReference,
     }, this.update.bind(this));
   }
-  
+
   componentDidMount() {
     this.resetLitConnection(this.state.rpcAddress, this.state.rpcPort, this.state.rpcRefresh);
   }

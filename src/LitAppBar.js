@@ -4,8 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
-import IconButton from 'material-ui/IconButton';
-import MenuIcon from 'material-ui-icons/Menu';
+import SettingsDialog from './SettingsDialog.js';
 
 const styles = {
   root: {
@@ -29,9 +28,12 @@ function LitAppBar(props) {
           <Typography variant="title" color="inherit" className={classes.flex}>
             Lit Node {props.address}
           </Typography>
-          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
-            <MenuIcon />
-          </IconButton>
+        <SettingsDialog
+          rpcAddress={props.rpcAddress}
+          rpcPort={props.rpcPort}
+          rpcRefresh={props.rpcRefresh}
+          handleSettingsSubmit={props.handleSettingsSubmit}
+          />
         </Toolbar>
       </AppBar>
     </div>
@@ -41,6 +43,10 @@ function LitAppBar(props) {
 LitAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
   address: PropTypes.string.isRequired,
+  rpcAddress: PropTypes.string.isRequired,
+  rpcPort: PropTypes.number.isRequired,
+  rpcRefresh: PropTypes.bool.isRequired,
+  handleSettingsSubmit: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(LitAppBar);

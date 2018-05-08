@@ -7,13 +7,25 @@ import Channels from './Channels'
 import Contracts from './Contracts'
 import {coinInfo} from './CoinTypes'
 
-let triedReconnect = false;
-
 class App extends Component {
 
   constructor(props) {
     super(props);
+
+    let host = "127.0.0.1";
+    let port = 8001;
+    let queryHost = this.getParameterByName("host");
+    let queryPort = this.getParameterByName("port");
+
+    if(queryHost) host = queryHost;
+    if(queryPort) port = parseInt(queryPort);
+
     this.state = {
+      lc: null,
+      rpcAddress: host,
+      rpcPort: port,
+      rpcRefresh: true,
+      rpcRefreshReference: -1,
       Connections: [],
       MyPKH: "",
       Channels: [],
@@ -25,8 +37,18 @@ class App extends Component {
       Oracles: [],
       Assets: [],
       Offers: [],
-      CoinRates: {}
+      CoinRates: {},
     };
+  }
+
+   getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
   }
 
   /*
@@ -34,6 +56,12 @@ class App extends Component {
    * Note that we unpack the replies into their individual keyword items
    */
   update() {
+    this.updateLit();
+    this.updateOraclesAndAssets();
+    this.updateCoinRates();
+  }
+
+  updateLit() {
     this.updateListConnections();
     this.updateChannelList();
     this.updateListeningPorts();
@@ -41,8 +69,6 @@ class App extends Component {
     this.updateBalances();
     this.updateContractList();
     this.updateOfferList();
-    this.updateOraclesAndAssets();
-    this.updateCoinRates();
   }
 
   updateCoinRates() {
@@ -65,7 +91,7 @@ class App extends Component {
   }
 
   updateListConnections() {
-    lc.send('LitRPC.ListConnections')
+    this.state.lc.send('LitRPC.ListConnections')
       .then(reply => {
         let connections = reply.Connections !== null ? reply.Connections : [];
         this.setState(
@@ -80,17 +106,11 @@ class App extends Component {
   }
 
   updateChannelList() {
-    lc.send('LitRPC.ChannelList')
+    this.state.lc.send('LitRPC.ChannelList')
       .then(reply => {
         let channels = reply.Channels !== null ? reply.Channels : [];
         // channels = channels.filter(chan => chan.PeerIdx == this.state.selectedPeerIdx);
         this.setState({Channels: channels});
-
-        // TODO -- just testing this here!
-        if (!triedReconnect) {
-          triedReconnect = true;
-          this.openChannelConnections(this.state.Channels, this.state.Connections);
-        }
       })
       .catch(err => {
         console.error(err);
@@ -98,7 +118,7 @@ class App extends Component {
   }
 
   updateContractList() {
-    lc.send('LitRPC.ListContracts')
+    this.state.lc.send('LitRPC.ListContracts')
       .then(reply => {
         let contracts = reply.Contracts !== null ? reply.Contracts : [];
         this.setState({Contracts: contracts});
@@ -109,7 +129,7 @@ class App extends Component {
   }
 
   updateOfferList() {
-    lc.send('LitRPC.ListOffers')
+    this.state.lc.send('LitRPC.ListOffers')
       .then(reply => {
         let offers = reply.Offers !== null ? reply.Offers : [];
         this.setState({Offers: offers});
@@ -145,7 +165,7 @@ class App extends Component {
         fetch(o.Url + "api/datasources")
         .then(res => res.json())
         .then((result) => {
-          console.log(result);
+          // console.log(result);
           for(var f of result) {
             assets.push( {
               name : f.name,
@@ -154,7 +174,7 @@ class App extends Component {
             });
             
           }
-          console.log(assets);
+          // console.log(assets);
           this.setState({Assets: assets});
         });
       }
@@ -163,7 +183,7 @@ class App extends Component {
   }
 
   updateOraclesAndAssets() {
-    lc.send('LitRPC.ListOracles')
+    this.state.lc.send('LitRPC.ListOracles')
       .then(reply => {
         let oracles = reply.Oracles !== null ? reply.Oracles : [];
         this.setState({Oracles: oracles});
@@ -175,7 +195,7 @@ class App extends Component {
   }
 
   updateListeningPorts() {
-    lc.send('LitRPC.GetListeningPorts')
+    this.state.lc.send('LitRPC.GetListeningPorts')
       .then(reply => {
         let adr = reply.Adr !== null ? reply.Adr : "";
         this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
@@ -186,7 +206,7 @@ class App extends Component {
   }
 
   updateTxoList() {
-    lc.send('LitRPC.TxoList')
+    this.state.lc.send('LitRPC.TxoList')
       .then(reply => {
         let txos = reply.Txos !== null ? reply.Txos : [];
         this.setState({Txos: txos});
@@ -197,7 +217,7 @@ class App extends Component {
   }
 
   updateBalances() {
-    lc.send('LitRPC.Balance')
+    this.state.lc.send('LitRPC.Balance')
       .then(reply => {
         let balances = reply.Balances !== null ? reply.Balances : [];
         this.setState({Balances: balances});
@@ -209,7 +229,7 @@ class App extends Component {
 
 
   listen() {
-    lc.send('LitRPC.Listen')
+    this.state.lc.send('LitRPC.Listen')
       .then(reply => {
         this.updateListeningPorts()
       })
@@ -223,7 +243,7 @@ class App extends Component {
    */
   address(numToMake, coinType) {
     return new Promise((resolve, reject) => {
-      lc.send('LitRPC.Address', {
+      this.state.lc.send('LitRPC.Address', {
         'NumToMake': numToMake,
         'CoinType': coinType,
       }).then(reply => {
@@ -240,7 +260,7 @@ class App extends Component {
    * Connect to a previously connected peer by giving its index, e.g. con 2 in lit-af
    */
   connectByIndex(index) {
-    lc.send('LitRPC.Connect', {
+    this.state.lc.send('LitRPC.Connect', {
       'LNAddr': index.toString()
     })
       .then(reply => {
@@ -274,7 +294,7 @@ class App extends Component {
    * click handler for funding a new channel
    */
   handleChannelAddSubmit(peerIdx, coinType, amount) {
-    lc.send('LitRPC.FundChannel', {
+    this.state.lc.send('LitRPC.FundChannel', {
       'Peer': parseInt(peerIdx, 10),
       'CoinType': coinType,
       'Capacity': parseInt(amount, 10),
@@ -291,7 +311,7 @@ class App extends Component {
    * click handler for adding new peer
    */
   handlePeerAddSubmit(address) {
-    lc.send('LitRPC.Connect', {
+    this.state.lc.send('LitRPC.Connect', {
       'LNAddr': address,
     })
       .then(reply => {
@@ -303,11 +323,27 @@ class App extends Component {
   }
 
   /*
+   * click handler for assigning a nickname
+   */
+  handlePeerNicknameSubmit(peerId, nickname) {
+      this.state.lc.send('LitRPC.AssignNickname', {
+        'Peer': peerId,
+        'Nickname': nickname,
+      })
+        .then(reply => {
+          this.updateListConnections();
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+
+  /*
  * click handler for traditional send to address
  */
   handleSendSubmit(address, amount) {
-    console.log("Send " + address + " " + amount);
-    lc.send('LitRPC.Send', {
+    // console.log("Send " + address + " " + amount);
+    this.state.lc.send('LitRPC.Send', {
       'DestAddrs': [address],
       'Amts': [amount],
     })
@@ -317,6 +353,54 @@ class App extends Component {
       .catch(err => {
         console.error(err);
       });
+  }
+
+  /*
+   * click handler for channel commands: push, close, break
+   * amount is optional and only used for push
+   */
+  handleChannelCommand(channel, command, amount) {
+    switch (command) {
+      case 'push':
+        this.state.lc.send('LitRPC.Push', {
+          'ChanIdx': channel.CIdx,
+          'Amt': amount,
+        })
+          .then(reply => {
+            this.updateBalances();
+            this.updateChannelList();
+          })
+          .catch(err => {
+            console.error(err);
+          });
+        break;
+      case 'close':
+        // console.log("channel close command!");
+        this.state.lc.send('LitRPC.CloseChannel', {
+          'ChanIdx': channel.CIdx,
+        })
+          .then(reply => {
+            this.updateChannelList();
+          })
+          .catch(err => {
+            console.error(err);
+          });
+        break;
+      case 'break':
+        // console.log("channel break command!");
+        this.state.lc.send('LitRPC.BreakChannel', {
+          'ChanIdx': channel.CIdx,
+        })
+          .then(reply => {
+            this.updateChannelList();
+          })
+          .catch(err => {
+            console.error(err);
+          });
+        break;
+      default:
+        console.error("Unrecognized channel command " + command);
+    }
   }
 
   /*
@@ -338,8 +422,8 @@ class App extends Component {
       dlcFwdOffer.FundAmt = amount * price;
       dlcFwdOffer.PeerIdx = peerIdx;
       dlcFwdOffer.CoinType = 257;
-      
-      lc.send('LitRPC.NewForwardOffer', { Offer : dlcFwdOffer })
+
+      this.state.lc.send('LitRPC.NewForwardOffer', { Offer : dlcFwdOffer })
     });
   }
    
@@ -362,36 +446,36 @@ class App extends Component {
    * click handler for new contract (old)
    */
   handleContractAddSubmit(oracleIdx, settlementTime, dataFeedId, fundingOurs, fundingTheirs, valueAllOurs, valueAllTheirs, coinType) {
-    lc.send('LitRPC.NewContract', {})
+    this.state.lc.send('LitRPC.NewContract', {})
     .then(c => {
-      lc.send('LitRPC.SetContractOracle', { 
+      this.state.lc.send('LitRPC.SetContractOracle', {
         'CIdx' : c.Contract.Idx, 
         'OIdx' : parseInt(oracleIdx, 10) 
       })
       .then(reply => {
-        lc.send('LitRPC.SetContractSettlementTime', { 
+        this.state.lc.send('LitRPC.SetContractSettlementTime', {
           'CIdx' : c.Contract.Idx, 
           'Time' : parseInt(settlementTime, 10)
         })
         .then(reply => {
-          lc.send('LitRPC.SetContractDatafeed', { 
+          this.state.lc.send('LitRPC.SetContractDatafeed', {
             'CIdx' : c.Contract.Idx, 
             'Feed' : parseInt(dataFeedId, 10)
           })
           .then(reply => {
-            lc.send('LitRPC.SetContractFunding', { 
+            this.state.lc.send('LitRPC.SetContractFunding', {
               'CIdx' : c.Contract.Idx, 
               'OurAmount' : fundingOurs,
               'TheirAmount' : fundingTheirs
             })
             .then(reply => {
-              lc.send('LitRPC.SetContractDivision', { 
+              this.state.lc.send('LitRPC.SetContractDivision', {
                 'CIdx' : c.Contract.Idx, 
                 'ValueFullyOurs' : parseInt(valueAllOurs, 10),
                 'ValueFullyTheirs' : parseInt(valueAllTheirs, 10)
               })
               .then(reply => {
-                lc.send('LitRPC.SetContractCoinType', { 
+                this.state.lc.send('LitRPC.SetContractCoinType', {
                   'CIdx' : c.Contract.Idx, 
                   'CoinType' : parseInt(coinType, 10)
                 })
@@ -433,7 +517,7 @@ class App extends Component {
   handleOfferCommand(offer, command, arg1, arg2) {
     switch(command) {
       case 'decline':
-        lc.send('LitRPC.DeclineOffer', {
+        this.state.lc.send('LitRPC.DeclineOffer', {
           'OIdx' : offer.OIdx
         })
         .then(reply => {
@@ -444,7 +528,7 @@ class App extends Component {
         });
         break;
       case 'accept':
-        lc.send('LitRPC.AcceptOffer', {
+        this.state.lc.send('LitRPC.AcceptOffer', {
           'OIdx' : offer.OIdx
         })
         .then(reply => {
@@ -473,7 +557,7 @@ class App extends Component {
         var buf = Buffer.from(arg2,'hex');
         var sig = [];
         for (var i = 0; i < buf.length; i++) sig[i] = buf[i];
-        lc.send('LitRPC.SettleContract', {
+        this.state.lc.send('LitRPC.SettleContract', {
           'CIdx' : contract.Idx,
           'OracleValue' : parseInt(arg1, 10),
           'OracleSig' : sig
@@ -492,7 +576,7 @@ class App extends Component {
         });
         break;
       case 'offer': 
-        lc.send('LitRPC.OfferContract', {
+        this.state.lc.send('LitRPC.OfferContract', {
           'CIdx' : contract.Idx,
           'PeerIdx' : parseInt(arg1, 10)
         })
@@ -504,7 +588,7 @@ class App extends Component {
         });
         break;
       case 'decline':
-        lc.send('LitRPC.DeclineContract', {
+        this.state.lc.send('LitRPC.DeclineContract', {
           'CIdx' : contract.Idx
         })
         .then(reply => {
@@ -515,7 +599,7 @@ class App extends Component {
         });
         break;
       case 'accept':
-        lc.send('LitRPC.AcceptContract', {
+        this.state.lc.send('LitRPC.AcceptContract', {
           'CIdx' : contract.Idx
         })
         .then(reply => {
@@ -531,55 +615,7 @@ class App extends Component {
         });
         break;
       default:
-        console.log("Unrecognized contract command " + command);
-    }
-  }
-
-  /*
-   * click handler for channel commands: push, close, break
-   * amount is optional and only used for push
-   */
-  handleChannelCommand(channel, command, amount) {
-    switch (command) {
-      case 'push':
-        lc.send('LitRPC.Push', {
-          'ChanIdx': channel.CIdx,
-          'Amt': amount,
-        })
-          .then(reply => {
-            this.updateBalances();
-            this.updateChannelList();
-          })
-          .catch(err => {
-            console.error(err);
-          });
-        break;
-      case 'close':
-        // console.log("channel close command!");
-        lc.send('LitRPC.CloseChannel', {
-          'ChanIdx': channel.CIdx,
-        })
-          .then(reply => {
-            this.updateChannelList();
-          })
-          .catch(err => {
-            console.error(err);
-          });
-        break;
-      case 'break':
-        // console.log("channel break command!");
-        lc.send('LitRPC.BreakChannel', {
-          'ChanIdx': channel.CIdx,
-        })
-          .then(reply => {
-            this.updateChannelList();
-          })
-          .catch(err => {
-            console.error(err);
-          });
-        break;
-      default:
-        console.log("Unrecognized channel command " + command);
+        console.error("Unrecognized contract command " + command);
     }
   }
 
@@ -587,7 +623,13 @@ class App extends Component {
     return (
       <div className="App">
         <CssBaseline />
-        <LitAppBar address={this.state.Adr}/>
+        <LitAppBar
+          address={this.state.Adr}
+          rpcAddress={this.state.rpcAddress}
+          rpcPort={this.state.rpcPort}
+          rpcRefresh={this.state.rpcRefresh}
+          handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
+        />
         <Balances
           balances={this.state.Balances}
           handleSendSubmit={this.handleSendSubmit.bind(this)}
@@ -600,6 +642,7 @@ class App extends Component {
           handleChannelCommand={this.handleChannelCommand.bind(this)}
           handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
           handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
+          handlePeerNicknameSubmit={this.handlePeerNicknameSubmit.bind(this)}
         />
         <Contracts 
           contracts={this.state.Contracts} 
@@ -608,39 +651,54 @@ class App extends Component {
           connections={this.state.Connections}
           fetchAssetValue={this.fetchAssetValue.bind(this)}
           handleContractCommand={this.handleContractCommand.bind(this)} 
-          handleOfferCommand={this.handleOfferCommand.bind(this)} 
-          handleCreateContract={this.handleCreateContract.bind(this)} 
+          handleOfferCommand={this.handleOfferCommand.bind(this)}
+          handleCreateContract={this.handleCreateContract.bind(this)}
         />
       </div>
     );
   }
 
+  /*
+   * Handler for settings Dialog
+   */
+  handleSettingsSubmit(address, port, refresh) {
+    this.resetLitConnection(address, port, refresh);
+  }
+
+  /*
+   * Resets all the host connections including refreshing.
+   */
+  resetLitConnection(address, port, refresh) {
+
+    let lc = this.state.lc;
+    let rpcRefreshReference = this.state.rpcRefreshReference;
+
+    lc = new LitAfClient(address, port);
+
+    if (this.state.rpcRefreshReference == -1) {
+      if (refresh) {
+        rpcRefreshReference = setInterval(this.updateLit.bind(this), 2000);
+      }
+    } else {
+      if (!refresh) {
+        clearInterval(this.state.rpcRefreshReference);
+        rpcRefreshReference = -1;
+      }
+    }
+
+    this.setState( {
+      rpcAddress: address,
+      rpcPort: port,
+      rpcRefresh: refresh,
+      lc: lc,
+      rpcRefreshReference: rpcRefreshReference,
+    }, this.update.bind(this));
+  }
+  
   componentDidMount() {
-    this.listen();
-    this.update();
+    this.resetLitConnection(this.state.rpcAddress, this.state.rpcPort, this.state.rpcRefresh);
   }
 }
 
-function getParameterByName(name, url) {
-  if (!url) url = window.location.href;
-  name = name.replace(/[\[\]]/g, "\\$&");
-  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-      results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return '';
-  return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
-
-let host = "127.0.0.1"
-let port = 8001
-let queryHost = getParameterByName("host")
-let queryPort = getParameterByName("port")
-
-if(queryHost) host = queryHost;
-if(queryPort) port = parseInt(queryPort);
-
-console.log("Connecting to LIT at " + host + ":" + port.toString())
-
-export let lc = new LitAfClient(host,port);
 
 export default App;

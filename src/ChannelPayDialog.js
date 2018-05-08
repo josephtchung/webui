@@ -42,7 +42,7 @@ class ChannelPayDialog extends PopUpDialog {
         <Button onClick={this.handleClickOpen.bind(this)}>Pay</Button>
         <Dialog
           open={this.state.open}
-          onClose={this.handleClose}
+          onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Pay to Channel</DialogTitle>

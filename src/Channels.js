@@ -12,6 +12,7 @@ import Zoom from 'material-ui/transitions/Zoom';
 import ChannelCard from './ChannelCard.js'
 import ChannelAddDialog from './ChannelAddDialog.js'
 import PeerAddDialog from './PeerAddDialog.js'
+import EditableField from './EditableField.js'
 
 const channelGroupStyles = theme => ({
   cardBox: {
@@ -116,7 +117,15 @@ function Channels(props) {
               <Grid container>
                 <Grid item xs={12} className={classes.peerInfo}>
                   <Typography variant="title">
-                    Peer:{key}
+                      <EditableField
+                        string = {channelsByPeer[key].nickname !== "" ?
+                          channelsByPeer[key].nickname :
+                          "Peer " + key}
+                        handleSubmit = {nickname => {
+                          props.handlePeerNicknameSubmit(parseInt(key, 10), nickname);
+                          }
+                        }
+                      />
                   </Typography>
                   {channelsByPeer[key].connected &&
                   <Chip label="Connected" className={classes.chip}/>}
@@ -160,6 +169,7 @@ Channels.propTypes = {
   handleChannelCommand: PropTypes.func.isRequired,
   handleChannelAddSubmit: PropTypes.func.isRequired,
   handlePeerAddSubmit: PropTypes.func.isRequired,
+  handlePeerNicknameSubmit: PropTypes.func.isRequired,
 };
 
 /*
@@ -169,26 +179,35 @@ Channels.propTypes = {
 function sortChannels(channels, connections) {
 
   /*
-   result an object keyed by PeerIdx where each element is a object as follows:
+   result: an object keyed by PeerIdx where each element is a object as follows:
    channels: map of channel data keyed by ChannelIdx
    connected: true or false indicated whether peer is currently connected
    */
   let result = {};
 
-  // iterate through connections adding an entry if it's connected
+  // iterate through connections adding an entry if it's connected and its Nickname
   connections.forEach(conn => {
     result[conn.PeerNumber] = {
       connected: true,
+      nickname: conn.Nickname,
       channels: {},
-    }});
+    }
+  });
 
+  // now iterate through all the channels assigning them to the appropriate Peer
   channels.forEach(channel => {
-    let entry = (channel.PeerIdx in result ? result[channel.PeerIdx] : {connected: false});
+    // find the existing entry for the PeerIdx or make a new one (not connected otherwise it would already exist)
+    let entry = (channel.PeerIdx in result ? result[channel.PeerIdx] :
+      {
+        connected: false,
+        nickname: "",
+      });
     let item = ('channels' in entry ? entry.channels : {});
     item[channel.CIdx] = channel;
     entry.channels = item;
     result[channel.PeerIdx] = entry;
   });
+
   return result;
 }
 

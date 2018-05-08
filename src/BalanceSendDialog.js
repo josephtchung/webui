@@ -24,6 +24,23 @@ const styles = theme => ({
 
 class BalanceSendDialog extends PopUpDialog {
 
+  constructor(props) {
+    super(props);
+    this.state = Object.assign(this.state,
+      {
+        amount: 0,
+        address: "",
+      });
+  }
+
+  resetState() {
+    this.setState({
+      amount: 0,
+      address: "",
+    });
+    super.resetState();
+  }
+
   handleSubmit () {
     this.props.handleSendSubmit(this.state.address, Math.round(parseFloat(this.state.amount) * coinInfo[this.props.coinType].factor));
     super.handleSubmit();

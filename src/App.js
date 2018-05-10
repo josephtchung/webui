@@ -26,6 +26,7 @@ class App extends Component {
       rpcPort: port,
       rpcRefresh: true,
       rpcRefreshReference: -1,
+      appBarColorPrimary: true,
       Connections: [],
       MyPKH: "",
       Channels: [],
@@ -625,9 +626,12 @@ class App extends Component {
         <CssBaseline />
         <LitAppBar
           address={this.state.Adr}
-          rpcAddress={this.state.rpcAddress}
-          rpcPort={this.state.rpcPort}
-          rpcRefresh={this.state.rpcRefresh}
+          settings={{
+            rpcAddress: this.state.rpcAddress,
+            rpcPort: this.state.rpcPort,
+            rpcRefresh: this.state.rpcRefresh,
+            appBarColorPrimary: this.state.appBarColorPrimary,
+          }}
           handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
         />
         <Balances
@@ -661,8 +665,11 @@ class App extends Component {
   /*
    * Handler for settings Dialog
    */
-  handleSettingsSubmit(address, port, refresh) {
-    this.resetLitConnection(address, port, refresh);
+  handleSettingsSubmit(settings) {
+    this.resetLitConnection(settings.rpcAddress, settings.rpcPort, settings.rpcRefresh);
+    this.setState( {
+      appBarColorPrimary: settings.appBarColorPrimary,
+    })
   }
 
   /*

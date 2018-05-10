@@ -48,7 +48,7 @@ class BalanceReceiveDialog extends PopUpDialog {
         <Button onClick={this.handleClickOpen.bind(this)}>Receive</Button>
         <Dialog
           open={this.state.open}
-          onClose={this.handleClose}
+          onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Receive Funds</DialogTitle>

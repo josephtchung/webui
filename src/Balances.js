@@ -15,7 +15,7 @@ const styles = theme => ({
     padding: 10,
   },
   cardBox: {
-    minWidth: 300,
+    minWidth: 450,
   },
 });
 

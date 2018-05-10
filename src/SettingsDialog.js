@@ -15,7 +15,6 @@ import Dialog, {
   DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
-import Grid from 'material-ui/Grid';
 import SettingsIcon from 'material-ui-icons/Settings';
 import PopUpDialog from './PopUpDialog.js'
 
@@ -36,21 +35,30 @@ class SettingsDialog extends PopUpDialog {
     super(props);
     this.state = Object.assign(this.state,
       {
-        rpcAddress: props.rpcAddress,
-        rpcPort: props.rpcPort,
-        rpcRefresh: props.rpcRefresh,
+        settings: props.settings,
       });
   }
 
-
-
   handleSubmit() {
-    this.props.handleSettingsSubmit(this.state.rpcAddress, this.state.rpcPort, this.state.rpcRefresh);
+    this.props.handleSettingsSubmit(this.state.settings);
     super.handleSubmit();
   };
 
-  handleCheckboxChange = name => event => {
-    this.setState({ [name]: event.target.checked });
+  // overrides PopUpDialog.handleChange
+  handleChange(name) {
+    return (event => {
+      let settings = Object.assign({}, this.state.settings);
+      settings[name] = event.target.value;
+      this.setState({settings: settings});
+    });
+  }
+
+  handleCheckboxChange(name) {
+    return (event => {
+      let settings = Object.assign({}, this.state.settings);
+      settings[name] = event.target.checked;
+      this.setState({settings: settings});
+    });
   };
 
   render() {
@@ -67,7 +75,7 @@ class SettingsDialog extends PopUpDialog {
         </IconButton>
         <Dialog
           open={this.state.open}
-          onClose={this.handleClose}
+          onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Settings</DialogTitle>
@@ -76,26 +84,38 @@ class SettingsDialog extends PopUpDialog {
                 <InputLabel htmlFor="rpcAddress">RPC Address</InputLabel>
                 <Input
                   id="rpcAddress"
-                  value={this.state.rpcAddress}
+                  value={this.state.settings.rpcAddress}
                   onChange={this.handleChange('rpcAddress').bind(this)} />
               </FormControl>
             <FormControl className={classes.formControl}>
               <InputLabel htmlFor="rpcPort">RPC Port</InputLabel>
               <Input
                 id="rpcPort"
-                value={this.state.rpcPort}
+                value={this.state.settings.rpcPort}
                 onChange={this.handleChange('rpcPort').bind(this)} />
             </FormControl>
             <FormControl className={classes.formControl}>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={this.state.rpcRefresh}
+                    checked={this.state.settings.rpcRefresh}
                     onChange={this.handleCheckboxChange('rpcRefresh')}
                     value="rpcRefresh"
                   />
                 }
                 label="Automatically Refresh"
+              />
+            </FormControl>
+            <FormControl className={classes.formControl}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={this.state.settings.appBarColorPrimary}
+                    onChange={this.handleCheckboxChange('appBarColorPrimary')}
+                    value="appBarColorPrimary"
+                  />
+                }
+                label="Primary App Bar Color"
               />
             </FormControl>
           </DialogContent>
@@ -115,10 +135,7 @@ class SettingsDialog extends PopUpDialog {
 
 SettingsDialog.propTypes = {
   handleSettingsSubmit: PropTypes.func.isRequired,
-  address: PropTypes.string.isRequired,
-  rpcAddress: PropTypes.string.isRequired,
-  rpcPort: PropTypes.number.isRequired,
-  rpcRefresh: PropTypes.bool.isRequired,
+  settings: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(SettingsDialog);

@@ -8,6 +8,8 @@ import BalanceSendDialog from './BalanceSendDialog.js'
 import BalanceReceiveDialog from './BalanceReceiveDialog.js'
 
 const styles = theme => ({
+  content: {
+  },
   balances: {},
   action: {
     display: 'flex',
@@ -32,7 +34,7 @@ class BalanceCard extends React.Component {
               balance.CoinType) + " (" + formatUSD(balance.ChanTotal + balance.TxoTotal, balance.CoinType, this.props.coinRates) + ")"
           }
         />
-        <CardContent>
+        <CardContent className={classes.content}>
           <Typography className={classes.balance}>
             Channel: {formatCoin(balance.ChanTotal, balance.CoinType)}
           </Typography>

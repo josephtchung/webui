@@ -14,6 +14,8 @@ import ChannelAddDialog from './ChannelAddDialog.js'
 import PeerAddDialog from './PeerAddDialog.js'
 import EditableField from './EditableField.js'
 
+import Blockies from 'react-blockies';
+
 const channelGroupStyles = theme => ({
   cardBox: {
     minWidth: 300,
@@ -120,10 +122,17 @@ function Channels(props) {
               <Grid container>
                 <Grid item xs={12} className={classes.peerInfo}>
                   <Typography variant="title">
+                    <Blockies
+                      seed= {key}
+                      size={10}
+                      scale={3}
+                      color="#FF5733"
+                      bgColor="#FFC300"
+                    />
                       <EditableField
                         string = {channelsByPeer[key].nickname !== "" ?
                           channelsByPeer[key].nickname :
-                          "Peer " + key}
+                          " " + "Peer " + key}
                         handleSubmit = {nickname => {
                           props.handlePeerNicknameSubmit(parseInt(key, 10), nickname);
                           }

@@ -6,6 +6,8 @@ import Balances from './Balances'
 import Channels from './Channels'
 import Contracts from './Contracts'
 import {coinInfo} from './CoinTypes'
+import ErrorDialog from './ErrorDialog'
+
 
 class App extends Component {
 
@@ -27,6 +29,7 @@ class App extends Component {
       rpcRefresh: true,
       rpcRefreshReference: -1,
       appBarColorPrimary: true,
+      errorMessage: null,
       Connections: [],
       MyPKH: "",
       Channels: [],
@@ -50,6 +53,17 @@ class App extends Component {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  /*
+   * Error Handling
+   */
+  displayError(errorMessage) {
+    this.setState({errorMessage: errorMessage});
+  }
+
+  handleErrorDialogSubmit() {
+    this.setState({errorMessage: null});
   }
 
   /*
@@ -102,7 +116,7 @@ class App extends Component {
           });
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -114,7 +128,7 @@ class App extends Component {
         this.setState({Channels: channels});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -125,7 +139,7 @@ class App extends Component {
         this.setState({Contracts: contracts});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -137,7 +151,7 @@ class App extends Component {
         console.log("Offers", offers);
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
   fetchAssetValue(asset) {
@@ -191,7 +205,7 @@ class App extends Component {
         this.refreshAssets();
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -202,7 +216,7 @@ class App extends Component {
         this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -213,7 +227,7 @@ class App extends Component {
         this.setState({Txos: txos});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -224,7 +238,7 @@ class App extends Component {
         this.setState({Balances: balances});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -235,7 +249,7 @@ class App extends Component {
         this.updateListeningPorts()
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -252,7 +266,7 @@ class App extends Component {
         }
       )
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
     });
   }
@@ -268,7 +282,7 @@ class App extends Component {
         this.updateListConnections()
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -304,7 +318,7 @@ class App extends Component {
         this.updateChannelList();
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -319,7 +333,7 @@ class App extends Component {
         this.updateListConnections();
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -335,7 +349,7 @@ class App extends Component {
           this.updateListConnections();
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
     }
 
@@ -352,7 +366,7 @@ class App extends Component {
         this.updateBalances();
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -372,7 +386,7 @@ class App extends Component {
             this.updateChannelList();
           })
           .catch(err => {
-            console.error(err);
+            this.displayError(err);
           });
         break;
       case 'close':
@@ -384,7 +398,7 @@ class App extends Component {
             this.updateChannelList();
           })
           .catch(err => {
-            console.error(err);
+            this.displayError(err);
           });
         break;
       case 'break':
@@ -396,11 +410,11 @@ class App extends Component {
             this.updateChannelList();
           })
           .catch(err => {
-            console.error(err);
+            this.displayError(err);
           });
         break;
       default:
-        console.error("Unrecognized channel command " + command);
+        this.displayError("Unrecognized channel command " + command);
     }
   }
 
@@ -484,31 +498,31 @@ class App extends Component {
                   this.updateContractList();
                 })
                 .catch(err => {
-                  console.error(err);
+                  this.displayError(err);
                 });
               })
               .catch(err => {
-                console.error(err);
+                this.displayError(err);
               });
             })
             .catch(err => {
-              console.error(err);
+              this.displayError(err);
             });
           })
           .catch(err => {
-            console.error(err);
+            this.displayError(err);
           });
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
     })
     .catch(err => {
-      console.error(err);
+      this.displayError(err);
     });
   }
 
@@ -525,7 +539,7 @@ class App extends Component {
           this.updateOfferList();
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       case 'accept':
@@ -541,7 +555,7 @@ class App extends Component {
           setTimeout(this.updateBalances.bind(this), 6000);
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       default:
@@ -573,7 +587,7 @@ class App extends Component {
           setTimeout(this.updateBalances.bind(this), 6000);
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       case 'offer': 
@@ -585,7 +599,7 @@ class App extends Component {
           this.updateContractList();
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       case 'decline':
@@ -596,7 +610,7 @@ class App extends Component {
           this.updateContractList();
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       case 'accept':
@@ -612,11 +626,11 @@ class App extends Component {
           setTimeout(this.updateBalances.bind(this), 4000);
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       default:
-        console.error("Unrecognized contract command " + command);
+        this.displayError("Unrecognized contract command " + command);
     }
   }
 
@@ -624,6 +638,10 @@ class App extends Component {
     return (
       <div className="App">
         <CssBaseline />
+        <ErrorDialog
+          errorMessage={this.state.errorMessage}
+          handleSubmit={this.handleErrorDialogSubmit.bind(this)}
+          />
         <LitAppBar
           address={this.state.Adr}
           settings={{

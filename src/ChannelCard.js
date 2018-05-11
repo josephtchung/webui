@@ -153,6 +153,12 @@ class ChannelCard extends React.Component {
           Closed
         </Typography>
       );
+    } else if (this.props.channel.Height === -1) {
+      channelStatus = (
+        <Typography>
+          Pending
+        </Typography>
+      );
     }
 
     return (

@@ -45,7 +45,10 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
       channels.push(
         <Zoom in key={channel.CIdx}>
           <Grid item xs={3} className={classes.cardBox}>
-            <ChannelCard channel={channel} handleChannelCommand={props.handleChannelCommand}/>
+            <ChannelCard
+              disabled={channel.Height === -1 ? true : false}
+              channel={channel}
+              handleChannelCommand={props.handleChannelCommand}/>
           </Grid>
         </Zoom>
       );

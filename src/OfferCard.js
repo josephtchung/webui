@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Card, {CardActions, CardContent, CardHeader} from 'material-ui/Card';
 import Button from 'material-ui/Button';
-import Chip from 'material-ui/Chip';
 import './ContractCard.css' // highlight css style (@keyframes can't be done in MUI styles)
 
 const styles = theme => ({
@@ -61,13 +60,13 @@ class OfferCard extends React.Component {
 
 
   componentWillReceiveProps(nextProps) {
-    
+
   }
 
   render() {
 
     const {classes} = this.props;
-   
+
     let acceptButton, declineButton; // React components
 
     acceptButton = (
@@ -76,7 +75,7 @@ class OfferCard extends React.Component {
     declineButton = (
       <Button className={classes.settle} onClick={this.handleDecline.bind(this)}>Decline</Button>
     );
-      
+
     console.log(this.props.contract);
 
     return (
@@ -88,7 +87,7 @@ class OfferCard extends React.Component {
             Received from peer {this.props.offer.PeerIdx}
           </CardContent>
           <CardActions className={classes.action} disableActionSpacing>
-          
+
             {acceptButton}
             {declineButton}
           </CardActions>

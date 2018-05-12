@@ -29,7 +29,9 @@ class App extends Component {
       rpcRefresh: true,
       rpcRefreshReference: -1,
       appBarColorPrimary: true,
+      hideClosedChannels: true,
       errorMessage: null,
+
       Connections: [],
       MyPKH: "",
       Channels: [],
@@ -148,7 +150,7 @@ class App extends Component {
       .then(reply => {
         let offers = reply.Offers !== null ? reply.Offers : [];
         this.setState({Offers: offers});
-        console.log("Offers", offers);
+        // console.log("Offers", offers);
       })
       .catch(err => {
         this.displayError(err);
@@ -559,7 +561,7 @@ class App extends Component {
         });
         break;
       default:
-        console.log("Unrecognized contract command " + command);
+        this.displayError("Unrecognized contract command " + command);
     }
   }
 
@@ -649,6 +651,7 @@ class App extends Component {
             rpcPort: this.state.rpcPort,
             rpcRefresh: this.state.rpcRefresh,
             appBarColorPrimary: this.state.appBarColorPrimary,
+            hideClosedChannels: this.state.hideClosedChannels,
           }}
           handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
         />
@@ -661,6 +664,7 @@ class App extends Component {
         <Channels
           channels={this.state.Channels}
           connections={this.state.Connections}
+          hideClosedChannels={this.state.hideClosedChannels}
           handleChannelCommand={this.handleChannelCommand.bind(this)}
           handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
           handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
@@ -687,6 +691,7 @@ class App extends Component {
     this.resetLitConnection(settings.rpcAddress, settings.rpcPort, settings.rpcRefresh);
     this.setState( {
       appBarColorPrimary: settings.appBarColorPrimary,
+      hideClosedChannels: settings.hideClosedChannels,
     })
   }
 

@@ -118,6 +118,18 @@ class SettingsDialog extends PopUpDialog {
                 label="Primary App Bar Color"
               />
             </FormControl>
+            <FormControl className={classes.formControl}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={this.state.settings.hideClosedChannels}
+                  onChange={this.handleCheckboxChange('hideClosedChannels')}
+                  value="hideClosedChannels"
+                />
+              }
+              label="Hide Closed Channels"
+            />
+          </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose.bind(this)} color="secondary">

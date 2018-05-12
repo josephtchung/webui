@@ -43,7 +43,13 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
   // render enabled channels first (though the entire channel group may be disabled)
   Object.keys(props.channels).forEach(key => {
     let channel = props.channels[key];
-    if (!props.disabled && !channel.Closed) {
+
+    // don't show the channel if it's closed and we're hiding
+    if (props.hideClosedChannels && channel.Closed) {
+      return;
+    }
+
+    if (!props.disabled && !channel.Closed) { // normal open channel
       channels.push(
         <Zoom in key={channel.CIdx}>
           <Grid item xs={3} className={classes.cardBox}>
@@ -54,7 +60,7 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
           </Grid>
         </Zoom>
       );
-    } else {
+    } else { // show a disabled channel
       disabledChannels.push(
         <Zoom in key={channel.CIdx}>
           <Grid item xs={3} className={classes.cardBox}>
@@ -129,6 +135,7 @@ function Channels(props) {
                       color="#FF5733"
                       bgColor="#FFC300"
                     />
+                    {" "}
                       <EditableField
                         string = {channelsByPeer[key].nickname !== "" ?
                           channelsByPeer[key].nickname :
@@ -145,6 +152,7 @@ function Channels(props) {
                 <ChannelGroup
                   disabled={!channelsByPeer[key].connected}
                   channels={channelsByPeer[key].channels}
+                  hideClosedChannels={props.hideClosedChannels}
                   handleChannelCommand={props.handleChannelCommand}
                   peerIndex={key}
                   handleChannelAddSubmit={props.handleChannelAddSubmit}
@@ -178,6 +186,7 @@ function Channels(props) {
 Channels.propTypes = {
   channels: PropTypes.array.isRequired,
   disabled: PropTypes.bool,
+  hideClosedChannels: PropTypes.bool.isRequired,
   handleChannelCommand: PropTypes.func.isRequired,
   handleChannelAddSubmit: PropTypes.func.isRequired,
   handlePeerAddSubmit: PropTypes.func.isRequired,

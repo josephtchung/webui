@@ -8,13 +8,12 @@ import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import Chip from 'material-ui/Chip';
 import Zoom from 'material-ui/transitions/Zoom';
-
+import Blockies from 'react-blockies';
+import Avatar from 'material-ui/Avatar';
 import ChannelCard from './ChannelCard.js'
 import ChannelAddDialog from './ChannelAddDialog.js'
 import PeerAddDialog from './PeerAddDialog.js'
 import EditableField from './EditableField.js'
-
-import Blockies from 'react-blockies';
 
 const channelGroupStyles = theme => ({
   cardBox: {
@@ -95,6 +94,9 @@ const styles = theme => ({
     padding: 10,
     backgroundColor: 'lightBlue',
   },
+  avatar: {
+    margin: theme.spacing.unit,
+  },
   peerInfo: {
     display: 'flex',
     alignItems: 'center',
@@ -127,24 +129,25 @@ function Channels(props) {
             <Grid item xs={12}>
               <Grid container>
                 <Grid item xs={12} className={classes.peerInfo}>
-                  <Typography variant="title">
+                  <Avatar className={classes.avatar}>
                     <Blockies
-                      seed= {key}
+                      seed={key}
                       size={10}
                       scale={3}
                       color="#FF5733"
                       bgColor="#FFC300"
                     />
-                    {" "}
-                      <EditableField
-                        string = {channelsByPeer[key].nickname !== "" ?
-                          channelsByPeer[key].nickname :
-                          " " + "Peer " + key}
-                        handleSubmit = {nickname => {
-                          props.handlePeerNicknameSubmit(parseInt(key, 10), nickname);
-                          }
-                        }
-                      />
+                  </Avatar>
+                  <Typography variant="title">
+                    <EditableField
+                      string={channelsByPeer[key].nickname !== "" ?
+                        channelsByPeer[key].nickname :
+                        " " + "Peer " + key}
+                      handleSubmit={nickname => {
+                        props.handlePeerNicknameSubmit(parseInt(key, 10), nickname);
+                      }
+                      }
+                    />
                   </Typography>
                   {channelsByPeer[key].connected &&
                   <Chip label="Connected" className={classes.chip}/>}

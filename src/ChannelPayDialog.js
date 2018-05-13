@@ -12,7 +12,7 @@ import Dialog, {
   DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
-import { FormLabel, FormControl, FormControlLabel, FormHelperText } from 'material-ui/Form';
+import { FormControl } from 'material-ui/Form';
 import {coinInfo} from './CoinTypes.js'
 import PopUpDialog from './PopUpDialog.js'
 

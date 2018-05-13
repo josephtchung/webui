@@ -20,7 +20,7 @@ class App extends Component {
     let queryPort = this.getParameterByName("port");
 
     if(queryHost) host = queryHost;
-    if(queryPort) port = parseInt(queryPort);
+    if(queryPort) port = parseInt(queryPort, 10);
 
     this.state = {
       lc: null,
@@ -189,14 +189,14 @@ class App extends Component {
               oracleId : o.Idx,
               datafeedId : f.id
             });
-            
+
           }
           // console.log(assets);
           this.setState({Assets: assets});
         });
       }
     }
-    
+
   }
 
   updateOraclesAndAssets() {
@@ -443,12 +443,12 @@ class App extends Component {
       this.state.lc.send('LitRPC.NewForwardOffer', { Offer : dlcFwdOffer })
     });
   }
-   
+
   fetchOracleKeysForAsset(asset, timeUnix) {
     let oracle = this.state.Oracles.find(o => o.Idx === asset.oracleId);
     if(oracle === null || oracle === undefined) return null;
 
-    return fetch(oracle.Url + "api/rpoint/" + asset.datafeedId + "/" + timeUnix.toString()) 
+    return fetch(oracle.Url + "api/rpoint/" + asset.datafeedId + "/" + timeUnix.toString())
     .then(res => res.json())
     .then(res => {
       var buf = Buffer.from(res.R,'hex');
@@ -466,34 +466,34 @@ class App extends Component {
     this.state.lc.send('LitRPC.NewContract', {})
     .then(c => {
       this.state.lc.send('LitRPC.SetContractOracle', {
-        'CIdx' : c.Contract.Idx, 
-        'OIdx' : parseInt(oracleIdx, 10) 
+        'CIdx' : c.Contract.Idx,
+        'OIdx' : parseInt(oracleIdx, 10)
       })
       .then(reply => {
         this.state.lc.send('LitRPC.SetContractSettlementTime', {
-          'CIdx' : c.Contract.Idx, 
+          'CIdx' : c.Contract.Idx,
           'Time' : parseInt(settlementTime, 10)
         })
         .then(reply => {
           this.state.lc.send('LitRPC.SetContractDatafeed', {
-            'CIdx' : c.Contract.Idx, 
+            'CIdx' : c.Contract.Idx,
             'Feed' : parseInt(dataFeedId, 10)
           })
           .then(reply => {
             this.state.lc.send('LitRPC.SetContractFunding', {
-              'CIdx' : c.Contract.Idx, 
+              'CIdx' : c.Contract.Idx,
               'OurAmount' : fundingOurs,
               'TheirAmount' : fundingTheirs
             })
             .then(reply => {
               this.state.lc.send('LitRPC.SetContractDivision', {
-                'CIdx' : c.Contract.Idx, 
+                'CIdx' : c.Contract.Idx,
                 'ValueFullyOurs' : parseInt(valueAllOurs, 10),
                 'ValueFullyTheirs' : parseInt(valueAllTheirs, 10)
               })
               .then(reply => {
                 this.state.lc.send('LitRPC.SetContractCoinType', {
-                  'CIdx' : c.Contract.Idx, 
+                  'CIdx' : c.Contract.Idx,
                   'CoinType' : parseInt(coinType, 10)
                 })
                 .then(reply => {
@@ -592,7 +592,7 @@ class App extends Component {
           this.displayError(err);
         });
         break;
-      case 'offer': 
+      case 'offer':
         this.state.lc.send('LitRPC.OfferContract', {
           'CIdx' : contract.Idx,
           'PeerIdx' : parseInt(arg1, 10)
@@ -670,13 +670,13 @@ class App extends Component {
           handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
           handlePeerNicknameSubmit={this.handlePeerNicknameSubmit.bind(this)}
         />
-        <Contracts 
-          contracts={this.state.Contracts} 
+        <Contracts
+          contracts={this.state.Contracts}
           offers={this.state.Offers}
           assets={this.state.Assets}
           connections={this.state.Connections}
           fetchAssetValue={this.fetchAssetValue.bind(this)}
-          handleContractCommand={this.handleContractCommand.bind(this)} 
+          handleContractCommand={this.handleContractCommand.bind(this)}
           handleOfferCommand={this.handleOfferCommand.bind(this)}
           handleCreateContract={this.handleCreateContract.bind(this)}
         />
@@ -705,7 +705,7 @@ class App extends Component {
 
     lc = new LitAfClient(address, port);
 
-    if (this.state.rpcRefreshReference == -1) {
+    if (this.state.rpcRefreshReference === -1) {
       if (refresh) {
         rpcRefreshReference = setInterval(this.updateLit.bind(this), 2000);
       }

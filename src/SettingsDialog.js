@@ -12,7 +12,6 @@ import Checkbox from 'material-ui/Checkbox';
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
 import SettingsIcon from 'material-ui-icons/Settings';

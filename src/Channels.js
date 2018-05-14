@@ -53,7 +53,7 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
         <Zoom in key={channel.CIdx}>
           <Grid item xs={3} className={classes.cardBox}>
             <ChannelCard
-              disabled={channel.Height === -1 ? true : false}
+              disabled={channel.Height <= 0 ? true : false}
               channel={channel}
               handleChannelCommand={props.handleChannelCommand}/>
           </Grid>
@@ -142,7 +142,7 @@ function Channels(props) {
                     <EditableField
                       string={channelsByPeer[key].nickname !== "" ?
                         channelsByPeer[key].nickname :
-                        " " + "Peer " + key}
+                        "Peer " + key}
                       handleSubmit={nickname => {
                         props.handlePeerNicknameSubmit(parseInt(key, 10), nickname);
                       }

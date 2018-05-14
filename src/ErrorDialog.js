@@ -47,7 +47,7 @@ class ErrorDialog extends React.Component {
 
 ErrorDialog.propTypes = {
   classes: PropTypes.object.isRequired,
-  errorMessage: PropTypes.string.isRequired,
+  errorMessage: PropTypes.string,
   handleSubmit: PropTypes.func.isRequired,
 };
 

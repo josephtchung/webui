@@ -309,7 +309,7 @@ class App extends Component {
 
   hexStringToByte(str) {
       if (!str) {
-        return new Uint8Array();
+        return [];
       }
       
       var a = [];
@@ -317,7 +317,7 @@ class App extends Component {
         a.push(parseInt(str.substr(i,2),16));
       }
       
-      return new Uint8Array(a);
+      return a;
   }
 
   /*
@@ -328,7 +328,7 @@ class App extends Component {
       'Peer': parseInt(peerIdx, 10),
       'CoinType': coinType,
       'Capacity': parseInt(amount, 10),
-      'Data': Array.from(this.hexStringToByte(data)),
+      'Data': this.hexStringToByte(data),
     })
       .then(reply => {
         this.updateChannelList();
@@ -396,7 +396,7 @@ class App extends Component {
         this.state.lc.send('LitRPC.Push', {
           'ChanIdx': channel.CIdx,
           'Amt': amount,
-          'Data': Array.from(this.hexStringToByte(data)),
+          'Data': this.hexStringToByte(data),
         })
           .then(reply => {
             this.updateBalances();

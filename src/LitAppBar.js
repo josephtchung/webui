@@ -23,15 +23,16 @@ function LitAppBar(props) {
   const { classes } = props;
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar
+        position="static"
+        color={props.settings.appBarColorPrimary ? "primary" : "secondary"}
+      >
         <Toolbar>
           <Typography variant="title" color="inherit" className={classes.flex}>
             Lit Node {props.address}
           </Typography>
         <SettingsDialog
-          rpcAddress={props.rpcAddress}
-          rpcPort={props.rpcPort}
-          rpcRefresh={props.rpcRefresh}
+          settings={props.settings}
           handleSettingsSubmit={props.handleSettingsSubmit}
           />
         </Toolbar>
@@ -43,9 +44,7 @@ function LitAppBar(props) {
 LitAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
   address: PropTypes.string.isRequired,
-  rpcAddress: PropTypes.string.isRequired,
-  rpcPort: PropTypes.number.isRequired,
-  rpcRefresh: PropTypes.bool.isRequired,
+  settings: PropTypes.object.isRequired,
   handleSettingsSubmit: PropTypes.func.isRequired,
 };
 

@@ -3,16 +3,30 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import {withStyles} from "material-ui/styles/index";
 import Button from 'material-ui/Button';
-import Input from 'material-ui/Input';
+import Input, { InputLabel } from 'material-ui/Input';
 import Dialog, {
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
+import { FormControl } from 'material-ui/Form';
 import {coinInfo} from './CoinTypes.js'
 import PopUpDialog from './PopUpDialog.js'
+
+const styles = theme => ({
+  content: {
+    margin: theme.spacing.unit,
+  },
+  formControl: {
+    marginTop: theme.spacing.unit,
+  },
+  amount: {
+    maxWidth: 200,
+  },
+});
 
 class ChannelPayDialog extends PopUpDialog {
 
@@ -37,6 +51,8 @@ class ChannelPayDialog extends PopUpDialog {
   };
 
   render() {
+    const {classes} = this.props;
+
     return (
       <div>
         <Button onClick={this.handleClickOpen.bind(this)}>Pay</Button>
@@ -46,18 +62,22 @@ class ChannelPayDialog extends PopUpDialog {
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Pay to Channel</DialogTitle>
-          <DialogContent>
+          <DialogContent className={classes.content}>
             <DialogContentText>
               Enter the amount to pay in {coinInfo[this.props.coinType].denomination}
             </DialogContentText>
-            <Input
-              autoFocus
-              id="amount"
-              label="Amount"
-              type="text"
-              fullWidth
-              onChange={this.handleChange('amount').bind(this)}
-            />
+
+            <FormControl className={classes.formControl}>
+              <InputLabel htmlFor="amount">{coinInfo[this.props.coinType].denomination}</InputLabel>
+              <Input
+                autoFocus
+                id="amount"
+                label="Amount"
+                type="text"
+                onChange={this.handleChange('amount').bind(this)}
+                className={classes.amount}
+              />
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose.bind(this)} color="primary">
@@ -78,4 +98,4 @@ ChannelPayDialog.propTypes = {
   coinType: PropTypes.number.isRequired,
 };
 
-export default ChannelPayDialog;
+export default withStyles(styles)(ChannelPayDialog);

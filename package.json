@@ -10,6 +10,8 @@
     "material-ui-icons": "^1.0.0-beta.36",
     "material-ui-pickers": "^1.0.0-rc.7",
     "react": "^16.2.0",
+    "react-blockies": "*",
+    "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1"
   },

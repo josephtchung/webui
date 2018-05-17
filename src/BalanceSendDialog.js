@@ -54,7 +54,7 @@ class BalanceSendDialog extends PopUpDialog {
         <Button onClick={this.handleClickOpen.bind(this)}>Send</Button>
         <Dialog
           open={this.state.open}
-          onClose={this.handleClose}
+          onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Send to Address</DialogTitle>

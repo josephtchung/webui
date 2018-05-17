@@ -7,12 +7,19 @@ import {withStyles} from 'material-ui/styles';
 import Card, {CardActions, CardContent, CardHeader} from 'material-ui/Card';
 import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
+import { LinearProgress } from 'material-ui/Progress';
 import {formatCoin} from './CoinTypes.js'
 import ChannelPayDialog from './ChannelPayDialog';
 import ChannelMenu from './ChannelMenu.js'
 import './ChannelCard.css' // highlight css style (@keyframes can't be done in MUI styles)
 
 const styles = theme => ({
+  progressRoot: {
+    height: 10,
+  },
+  progressColorPrimary: {
+    backgroundColor: theme.palette.secondary.light,
+  },
   tool: {
     display: 'flex',
   },
@@ -40,7 +47,15 @@ const styles = theme => ({
 const ChannelBalance = withStyles(styles)((props) => {
   const {classes} = props;
   return (
-    <div className={props.highlight ? "Highlight" : ""}>
+    <div className={(props.highlight ? "BalHighlight" : "")}>
+      <LinearProgress
+        variant="determinate"
+        value={100 * props.myBalance / props.capacity}
+        classes={{
+          root: classes.progressRoot,
+          colorPrimary: classes.progressColorPrimary,
+        }}
+        />
       <Typography variant="body2" className={classes.balance}>
         Your Balance: {formatCoin(props.myBalance, props.coinType)}
       </Typography>
@@ -93,7 +108,7 @@ class ChannelCard extends React.Component {
       });
       setTimeout(() => {
         this.setState({highlight: false})
-      }, 400); // bit icky, but reset the highlight state
+      }, 1000); // bit icky, but reset the highlight state
     }
   }
 
@@ -138,14 +153,21 @@ class ChannelCard extends React.Component {
           Closed
         </Typography>
       );
+    } else if (this.props.channel.Height <= 0) {
+      channelStatus = (
+        <Typography>
+          Pending
+        </Typography>
+      );
     }
 
     return (
-      <div className={classes.cardBox}>
+      <div>
         <Card
           raised={true}
-          className={ classes.card + (this.props.disabled ? " " + classes.cardDisabled : "")
-        }>
+          className={ classes.card + (this.props.disabled ? " " + classes.cardDisabled : "") +
+          (this.state.highlight ? " BackHighlight" : "") }
+        >
           <CardHeader title={"Channel " + this.props.channel.CIdx}
                       action={menuButton}/>
           <CardContent>

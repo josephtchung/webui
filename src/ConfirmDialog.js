@@ -27,7 +27,6 @@ class ConfirmDialog extends React.Component {
       <div>
         <Dialog
           open={this.props.open}
-          onClose={this.handleClose}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">

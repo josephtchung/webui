@@ -44,7 +44,6 @@ class EditableField extends React.Component {
   }
 
   render () {
-    const {classes} = this.props;
     let output;
 
     if (this.state.editing) {

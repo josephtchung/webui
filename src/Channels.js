@@ -8,7 +8,8 @@ import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import Chip from 'material-ui/Chip';
 import Zoom from 'material-ui/transitions/Zoom';
-
+import Blockies from 'react-blockies';
+import Avatar from 'material-ui/Avatar';
 import ChannelCard from './ChannelCard.js'
 import ChannelAddDialog from './ChannelAddDialog.js'
 import PeerAddDialog from './PeerAddDialog.js'
@@ -41,15 +42,24 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
   // render enabled channels first (though the entire channel group may be disabled)
   Object.keys(props.channels).forEach(key => {
     let channel = props.channels[key];
-    if (!props.disabled && !channel.Closed) {
+
+    // don't show the channel if it's closed and we're hiding
+    if (props.hideClosedChannels && channel.Closed) {
+      return;
+    }
+
+    if (!props.disabled && !channel.Closed) { // normal open channel
       channels.push(
         <Zoom in key={channel.CIdx}>
           <Grid item xs={3} className={classes.cardBox}>
-            <ChannelCard channel={channel} handleChannelCommand={props.handleChannelCommand}/>
+            <ChannelCard
+              disabled={channel.Height <= 0 ? true : false}
+              channel={channel}
+              handleChannelCommand={props.handleChannelCommand}/>
           </Grid>
         </Zoom>
       );
-    } else {
+    } else { // show a disabled channel
       disabledChannels.push(
         <Zoom in key={channel.CIdx}>
           <Grid item xs={3} className={classes.cardBox}>
@@ -84,6 +94,9 @@ const styles = theme => ({
     padding: 10,
     backgroundColor: 'lightBlue',
   },
+  avatar: {
+    margin: theme.spacing.unit,
+  },
   peerInfo: {
     display: 'flex',
     alignItems: 'center',
@@ -116,16 +129,25 @@ function Channels(props) {
             <Grid item xs={12}>
               <Grid container>
                 <Grid item xs={12} className={classes.peerInfo}>
+                  <Avatar className={classes.avatar}>
+                    <Blockies
+                      seed={key}
+                      size={10}
+                      scale={3}
+                      color="#FF5733"
+                      bgColor="#FFC300"
+                    />
+                  </Avatar>
                   <Typography variant="title">
-                      <EditableField
-                        string = {channelsByPeer[key].nickname !== "" ?
-                          channelsByPeer[key].nickname :
-                          "Peer " + key}
-                        handleSubmit = {nickname => {
-                          props.handlePeerNicknameSubmit(parseInt(key, 10), nickname);
-                          }
-                        }
-                      />
+                    <EditableField
+                      string={channelsByPeer[key].nickname !== "" ?
+                        channelsByPeer[key].nickname :
+                        "Peer " + key}
+                      handleSubmit={nickname => {
+                        props.handlePeerNicknameSubmit(parseInt(key, 10), nickname);
+                      }
+                      }
+                    />
                   </Typography>
                   {channelsByPeer[key].connected &&
                   <Chip label="Connected" className={classes.chip}/>}
@@ -133,6 +155,7 @@ function Channels(props) {
                 <ChannelGroup
                   disabled={!channelsByPeer[key].connected}
                   channels={channelsByPeer[key].channels}
+                  hideClosedChannels={props.hideClosedChannels}
                   handleChannelCommand={props.handleChannelCommand}
                   peerIndex={key}
                   handleChannelAddSubmit={props.handleChannelAddSubmit}
@@ -166,6 +189,7 @@ function Channels(props) {
 Channels.propTypes = {
   channels: PropTypes.array.isRequired,
   disabled: PropTypes.bool,
+  hideClosedChannels: PropTypes.bool.isRequired,
   handleChannelCommand: PropTypes.func.isRequired,
   handleChannelAddSubmit: PropTypes.func.isRequired,
   handlePeerAddSubmit: PropTypes.func.isRequired,

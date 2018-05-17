@@ -58,13 +58,19 @@ function formatCoin(amount, coinType) {
     return Number(amount).toLocaleString() + " Type " + coinType;
   }
 
-  return Number(amount / info.factor).toFixed(info.decimals).toLocaleString() + " " + info.denomination;
+  return Number(amount / info.factor).toLocaleString(undefined, {
+    minimumFractionDigits: info.decimals,
+    maximumFractionDigits: info.decimals
+  }) + " " + info.denomination;
 }
 
 function formatUSD(coinAmount, coinType, exchangeRates) {
   let info = coinInfo[coinType];
 
-  return "$ " + Number(coinAmount / info.factor * exchangeRates[coinType]).toFixed(2).toLocaleString();
+  return Number(coinAmount / info.factor * exchangeRates[coinType]).toLocaleString(undefined, {
+    style: "currency",
+    currency: "USD"
+  });
 }
 
 export {coinInfo, coinDenominations, coinTypes, formatCoin, formatUSD};

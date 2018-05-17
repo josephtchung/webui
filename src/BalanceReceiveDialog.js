@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import {withStyles} from "material-ui/styles/index";
 import Button from 'material-ui/Button';
 import Dialog, {
   DialogActions,
@@ -10,8 +11,8 @@ import Dialog, {
   DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import PopUpDialog from './PopUpDialog.js'
-import {withStyles} from "material-ui/styles/index";
 
 const styles = theme => ({
   content: {
@@ -48,7 +49,7 @@ class BalanceReceiveDialog extends PopUpDialog {
         <Button onClick={this.handleClickOpen.bind(this)}>Receive</Button>
         <Dialog
           open={this.state.open}
-          onClose={this.handleClose}
+          onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Receive Funds</DialogTitle>
@@ -56,8 +57,11 @@ class BalanceReceiveDialog extends PopUpDialog {
             <DialogContentText>
               Ask sender to send to this address:
             </DialogContentText>
-            <DialogContentText>
+            <DialogContentText variant="body2">
               {this.state.address}
+              <CopyToClipboard text={this.state.address}>
+                <Button>Copy</Button>
+              </CopyToClipboard>
             </DialogContentText>
           </DialogContent>
           <DialogActions>

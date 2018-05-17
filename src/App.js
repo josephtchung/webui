@@ -6,6 +6,8 @@ import Balances from './Balances'
 import Channels from './Channels'
 import Contracts from './Contracts'
 import {coinInfo} from './CoinTypes'
+import ErrorDialog from './ErrorDialog'
+
 
 class App extends Component {
 
@@ -18,7 +20,7 @@ class App extends Component {
     let queryPort = this.getParameterByName("port");
 
     if(queryHost) host = queryHost;
-    if(queryPort) port = parseInt(queryPort);
+    if(queryPort) port = parseInt(queryPort, 10);
 
     this.state = {
       lc: null,
@@ -26,6 +28,10 @@ class App extends Component {
       rpcPort: port,
       rpcRefresh: true,
       rpcRefreshReference: -1,
+      appBarColorPrimary: true,
+      hideClosedChannels: true,
+      errorMessage: null,
+
       Connections: [],
       MyPKH: "",
       Channels: [],
@@ -49,6 +55,17 @@ class App extends Component {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  /*
+   * Error Handling
+   */
+  displayError(errorMessage) {
+    this.setState({errorMessage: errorMessage});
+  }
+
+  handleErrorDialogSubmit() {
+    this.setState({errorMessage: null});
   }
 
   /*
@@ -101,7 +118,7 @@ class App extends Component {
           });
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -113,7 +130,7 @@ class App extends Component {
         this.setState({Channels: channels});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -124,7 +141,7 @@ class App extends Component {
         this.setState({Contracts: contracts});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -133,10 +150,10 @@ class App extends Component {
       .then(reply => {
         let offers = reply.Offers !== null ? reply.Offers : [];
         this.setState({Offers: offers});
-        console.log("Offers", offers);
+        // console.log("Offers", offers);
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
   fetchAssetValue(asset) {
@@ -172,14 +189,14 @@ class App extends Component {
               oracleId : o.Idx,
               datafeedId : f.id
             });
-            
+
           }
           // console.log(assets);
           this.setState({Assets: assets});
         });
       }
     }
-    
+
   }
 
   updateOraclesAndAssets() {
@@ -190,7 +207,7 @@ class App extends Component {
         this.refreshAssets();
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -201,7 +218,7 @@ class App extends Component {
         this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -212,7 +229,7 @@ class App extends Component {
         this.setState({Txos: txos});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -223,7 +240,7 @@ class App extends Component {
         this.setState({Balances: balances});
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -234,7 +251,7 @@ class App extends Component {
         this.updateListeningPorts()
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -251,7 +268,7 @@ class App extends Component {
         }
       )
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
     });
   }
@@ -267,7 +284,7 @@ class App extends Component {
         this.updateListConnections()
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -317,7 +334,7 @@ class App extends Component {
         this.updateChannelList();
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -332,7 +349,7 @@ class App extends Component {
         this.updateListConnections();
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -348,7 +365,7 @@ class App extends Component {
           this.updateListConnections();
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
     }
 
@@ -365,7 +382,7 @@ class App extends Component {
         this.updateBalances();
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
   }
 
@@ -385,7 +402,7 @@ class App extends Component {
             this.updateChannelList();
           })
           .catch(err => {
-            console.error(err);
+            this.displayError(err);
           });
         break;
       case 'close':
@@ -397,7 +414,7 @@ class App extends Component {
             this.updateChannelList();
           })
           .catch(err => {
-            console.error(err);
+            this.displayError(err);
           });
         break;
       case 'break':
@@ -409,11 +426,11 @@ class App extends Component {
             this.updateChannelList();
           })
           .catch(err => {
-            console.error(err);
+            this.displayError(err);
           });
         break;
       default:
-        console.error("Unrecognized channel command " + command);
+        this.displayError("Unrecognized channel command " + command);
     }
   }
 
@@ -440,12 +457,12 @@ class App extends Component {
       this.state.lc.send('LitRPC.NewForwardOffer', { Offer : dlcFwdOffer })
     });
   }
-   
+
   fetchOracleKeysForAsset(asset, timeUnix) {
     let oracle = this.state.Oracles.find(o => o.Idx === asset.oracleId);
     if(oracle === null || oracle === undefined) return null;
 
-    return fetch(oracle.Url + "api/rpoint/" + asset.datafeedId + "/" + timeUnix.toString()) 
+    return fetch(oracle.Url + "api/rpoint/" + asset.datafeedId + "/" + timeUnix.toString())
     .then(res => res.json())
     .then(res => {
       var buf = Buffer.from(res.R,'hex');
@@ -463,65 +480,65 @@ class App extends Component {
     this.state.lc.send('LitRPC.NewContract', {})
     .then(c => {
       this.state.lc.send('LitRPC.SetContractOracle', {
-        'CIdx' : c.Contract.Idx, 
-        'OIdx' : parseInt(oracleIdx, 10) 
+        'CIdx' : c.Contract.Idx,
+        'OIdx' : parseInt(oracleIdx, 10)
       })
       .then(reply => {
         this.state.lc.send('LitRPC.SetContractSettlementTime', {
-          'CIdx' : c.Contract.Idx, 
+          'CIdx' : c.Contract.Idx,
           'Time' : parseInt(settlementTime, 10)
         })
         .then(reply => {
           this.state.lc.send('LitRPC.SetContractDatafeed', {
-            'CIdx' : c.Contract.Idx, 
+            'CIdx' : c.Contract.Idx,
             'Feed' : parseInt(dataFeedId, 10)
           })
           .then(reply => {
             this.state.lc.send('LitRPC.SetContractFunding', {
-              'CIdx' : c.Contract.Idx, 
+              'CIdx' : c.Contract.Idx,
               'OurAmount' : fundingOurs,
               'TheirAmount' : fundingTheirs
             })
             .then(reply => {
               this.state.lc.send('LitRPC.SetContractDivision', {
-                'CIdx' : c.Contract.Idx, 
+                'CIdx' : c.Contract.Idx,
                 'ValueFullyOurs' : parseInt(valueAllOurs, 10),
                 'ValueFullyTheirs' : parseInt(valueAllTheirs, 10)
               })
               .then(reply => {
                 this.state.lc.send('LitRPC.SetContractCoinType', {
-                  'CIdx' : c.Contract.Idx, 
+                  'CIdx' : c.Contract.Idx,
                   'CoinType' : parseInt(coinType, 10)
                 })
                 .then(reply => {
                   this.updateContractList();
                 })
                 .catch(err => {
-                  console.error(err);
+                  this.displayError(err);
                 });
               })
               .catch(err => {
-                console.error(err);
+                this.displayError(err);
               });
             })
             .catch(err => {
-              console.error(err);
+              this.displayError(err);
             });
           })
           .catch(err => {
-            console.error(err);
+            this.displayError(err);
           });
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
       })
       .catch(err => {
-        console.error(err);
+        this.displayError(err);
       });
     })
     .catch(err => {
-      console.error(err);
+      this.displayError(err);
     });
   }
 
@@ -538,7 +555,7 @@ class App extends Component {
           this.updateOfferList();
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       case 'accept':
@@ -554,11 +571,11 @@ class App extends Component {
           setTimeout(this.updateBalances.bind(this), 6000);
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       default:
-        console.log("Unrecognized contract command " + command);
+        this.displayError("Unrecognized contract command " + command);
     }
   }
 
@@ -586,10 +603,10 @@ class App extends Component {
           setTimeout(this.updateBalances.bind(this), 6000);
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
-      case 'offer': 
+      case 'offer':
         this.state.lc.send('LitRPC.OfferContract', {
           'CIdx' : contract.Idx,
           'PeerIdx' : parseInt(arg1, 10)
@@ -598,7 +615,7 @@ class App extends Component {
           this.updateContractList();
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       case 'decline':
@@ -609,7 +626,7 @@ class App extends Component {
           this.updateContractList();
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       case 'accept':
@@ -625,11 +642,11 @@ class App extends Component {
           setTimeout(this.updateBalances.bind(this), 4000);
         })
         .catch(err => {
-          console.error(err);
+          this.displayError(err);
         });
         break;
       default:
-        console.error("Unrecognized contract command " + command);
+        this.displayError("Unrecognized contract command " + command);
     }
   }
 
@@ -637,11 +654,19 @@ class App extends Component {
     return (
       <div className="App">
         <CssBaseline />
+        <ErrorDialog
+          errorMessage={this.state.errorMessage}
+          handleSubmit={this.handleErrorDialogSubmit.bind(this)}
+          />
         <LitAppBar
           address={this.state.Adr}
-          rpcAddress={this.state.rpcAddress}
-          rpcPort={this.state.rpcPort}
-          rpcRefresh={this.state.rpcRefresh}
+          settings={{
+            rpcAddress: this.state.rpcAddress,
+            rpcPort: this.state.rpcPort,
+            rpcRefresh: this.state.rpcRefresh,
+            appBarColorPrimary: this.state.appBarColorPrimary,
+            hideClosedChannels: this.state.hideClosedChannels,
+          }}
           handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
           hexStringToByte={this.hexStringToByte.bind(this)}
         />
@@ -654,18 +679,19 @@ class App extends Component {
         <Channels
           channels={this.state.Channels}
           connections={this.state.Connections}
+          hideClosedChannels={this.state.hideClosedChannels}
           handleChannelCommand={this.handleChannelCommand.bind(this)}
           handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
           handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
           handlePeerNicknameSubmit={this.handlePeerNicknameSubmit.bind(this)}
         />
-        <Contracts 
-          contracts={this.state.Contracts} 
+        <Contracts
+          contracts={this.state.Contracts}
           offers={this.state.Offers}
           assets={this.state.Assets}
           connections={this.state.Connections}
           fetchAssetValue={this.fetchAssetValue.bind(this)}
-          handleContractCommand={this.handleContractCommand.bind(this)} 
+          handleContractCommand={this.handleContractCommand.bind(this)}
           handleOfferCommand={this.handleOfferCommand.bind(this)}
           handleCreateContract={this.handleCreateContract.bind(this)}
         />
@@ -676,8 +702,12 @@ class App extends Component {
   /*
    * Handler for settings Dialog
    */
-  handleSettingsSubmit(address, port, refresh) {
-    this.resetLitConnection(address, port, refresh);
+  handleSettingsSubmit(settings) {
+    this.resetLitConnection(settings.rpcAddress, settings.rpcPort, settings.rpcRefresh);
+    this.setState( {
+      appBarColorPrimary: settings.appBarColorPrimary,
+      hideClosedChannels: settings.hideClosedChannels,
+    })
   }
 
   /*
@@ -690,7 +720,7 @@ class App extends Component {
 
     lc = new LitAfClient(address, port);
 
-    if (this.state.rpcRefreshReference == -1) {
+    if (this.state.rpcRefreshReference === -1) {
       if (refresh) {
         rpcRefreshReference = setInterval(this.updateLit.bind(this), 2000);
       }
@@ -709,7 +739,7 @@ class App extends Component {
       rpcRefreshReference: rpcRefreshReference,
     }, this.update.bind(this));
   }
-  
+
   componentDidMount() {
     this.resetLitConnection(this.state.rpcAddress, this.state.rpcPort, this.state.rpcRefresh);
   }

@@ -290,14 +290,28 @@ class App extends Component {
   }
 
 
+  hexStringToByte(str) {
+      if (!str) {
+        return new Uint8Array();
+      }
+      
+      var a = [];
+      for (var i = 0, len = str.length; i < len; i+=2) {
+        a.push(parseInt(str.substr(i,2),16));
+      }
+      
+      return new Uint8Array(a);
+  }
+
   /*
    * click handler for funding a new channel
    */
-  handleChannelAddSubmit(peerIdx, coinType, amount) {
+  handleChannelAddSubmit(peerIdx, coinType, amount, data) {
     this.state.lc.send('LitRPC.FundChannel', {
       'Peer': parseInt(peerIdx, 10),
       'CoinType': coinType,
       'Capacity': parseInt(amount, 10),
+      'Data': this.hexStringToByte(data),
     })
       .then(reply => {
         this.updateChannelList();
@@ -629,6 +643,7 @@ class App extends Component {
           rpcPort={this.state.rpcPort}
           rpcRefresh={this.state.rpcRefresh}
           handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
+          hexStringToByte={this.hexStringToByte.bind(this)}
         />
         <Balances
           balances={this.state.Balances}

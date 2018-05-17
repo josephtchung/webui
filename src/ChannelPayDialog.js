@@ -35,18 +35,20 @@ class ChannelPayDialog extends PopUpDialog {
     this.state = Object.assign(this.state,
       {
         amount: 0,
+        data: "",
       });
   }
 
   resetState() {
     this.setState({
       amount: 0,
+      data: "",
     });
     super.resetState();
   }
 
   handleSubmit () {
-    this.props.handlePaySubmit(Math.round(parseFloat(this.state.amount) * coinInfo[this.props.coinType].factor));
+    this.props.handlePaySubmit(Math.round(parseFloat(this.state.amount) * coinInfo[this.props.coinType].factor), this.state.data);
     super.handleSubmit();
   };
 
@@ -78,6 +80,17 @@ class ChannelPayDialog extends PopUpDialog {
                 className={classes.amount}
               />
             </FormControl>
+            <DialogContentText>
+              Enter channel data
+            </DialogContentText>
+            <Input
+              autoFocus
+              id="data"
+              label="Data"
+              type="text"
+              fullWidth
+              onChange={this.handleChange('data').bind(this)}
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose.bind(this)} color="primary">

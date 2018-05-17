@@ -328,7 +328,7 @@ class App extends Component {
       'Peer': parseInt(peerIdx, 10),
       'CoinType': coinType,
       'Capacity': parseInt(amount, 10),
-      'Data': this.hexStringToByte(data),
+      'Data': Array.from(this.hexStringToByte(data)),
     })
       .then(reply => {
         this.updateChannelList();
@@ -390,12 +390,13 @@ class App extends Component {
    * click handler for channel commands: push, close, break
    * amount is optional and only used for push
    */
-  handleChannelCommand(channel, command, amount) {
+  handleChannelCommand(channel, command, amount, data) {
     switch (command) {
       case 'push':
         this.state.lc.send('LitRPC.Push', {
           'ChanIdx': channel.CIdx,
           'Amt': amount,
+          'Data': Array.from(this.hexStringToByte(data)),
         })
           .then(reply => {
             this.updateBalances();

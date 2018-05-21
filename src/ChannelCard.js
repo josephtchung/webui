@@ -86,9 +86,9 @@ class ChannelCard extends React.Component {
   };
 
   // handler to pass down to ChannelPayDialog that invokes props.handleChannelCommand
-  handlePaySubmit(amount) {
+  handlePaySubmit(amount, data) {
     // note that the func passed down through props needs the channel
-    this.props.handleChannelCommand(this.props.channel, 'push', amount);
+    this.props.handleChannelCommand(this.props.channel, 'push', amount, data);
   }
 
   // handler to pass down to ChannelMenu that invokes props.handleChannelCommand

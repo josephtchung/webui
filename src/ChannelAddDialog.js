@@ -44,6 +44,7 @@ class ChannelAddDialog extends PopUpDialog {
       {
         amount: 0,
         coinselect: 1,
+        data: "",
       });
   }
 
@@ -51,6 +52,7 @@ class ChannelAddDialog extends PopUpDialog {
     this.setState({
       amount: 0,
       coinselect: 1,
+      data: "",
     });
     super.resetState();
   }
@@ -103,6 +105,19 @@ class ChannelAddDialog extends PopUpDialog {
                 onChange={this.handleChange('amount').bind(this)}
               />
             </div>
+          </DialogContent>
+          <DialogContent className={classes.content}>
+            <DialogContentText>
+              Enter channel data
+            </DialogContentText>
+            <Input
+              autoFocus
+              id="data"
+              label="Data"
+              type="text"
+              fullWidth
+              onChange={this.handleChange('data').bind(this)}
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose.bind(this)} color="primary">

@@ -307,14 +307,28 @@ class App extends Component {
   }
 
 
+  hexStringToByte(str) {
+      if (!str) {
+        return [];
+      }
+      
+      var a = [];
+      for (var i = 0, len = str.length; i < len; i+=2) {
+        a.push(parseInt(str.substr(i,2),16));
+      }
+      
+      return a;
+  }
+
   /*
    * click handler for funding a new channel
    */
-  handleChannelAddSubmit(peerIdx, coinType, amount) {
+  handleChannelAddSubmit(peerIdx, coinType, amount, data) {
     this.state.lc.send('LitRPC.FundChannel', {
       'Peer': parseInt(peerIdx, 10),
       'CoinType': coinType,
       'Capacity': parseInt(amount, 10),
+      'Data': this.hexStringToByte(data),
     })
       .then(reply => {
         this.updateChannelList();
@@ -376,12 +390,13 @@ class App extends Component {
    * click handler for channel commands: push, close, break
    * amount is optional and only used for push
    */
-  handleChannelCommand(channel, command, amount) {
+  handleChannelCommand(channel, command, amount, data) {
     switch (command) {
       case 'push':
         this.state.lc.send('LitRPC.Push', {
           'ChanIdx': channel.CIdx,
           'Amt': amount,
+          'Data': this.hexStringToByte(data),
         })
           .then(reply => {
             this.updateBalances();
@@ -654,6 +669,7 @@ class App extends Component {
             hideClosedChannels: this.state.hideClosedChannels,
           }}
           handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
+          hexStringToByte={this.hexStringToByte.bind(this)}
         />
         <Balances
           balances={this.state.Balances}

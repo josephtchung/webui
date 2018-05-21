@@ -129,15 +129,18 @@ function Channels(props) {
             <Grid item xs={12}>
               <Grid container>
                 <Grid item xs={12} className={classes.peerInfo}>
-                  <Avatar className={classes.avatar}>
-                    <Blockies
-                      seed={key}
-                      size={10}
-                      scale={3}
-                      color="#FF5733"
-                      bgColor="#FFC300"
-                    />
-                  </Avatar>
+                  { /*
+                    <Avatar className={classes.avatar}>
+                      <Blockies
+                        seed={key}
+                        size={10}
+                        scale={3}
+                        color="#FF5733"
+                        bgColor="#FFC300"
+                      />
+                    </Avatar>
+                    */
+                  }
                   <Typography variant="title">
                     <EditableField
                       string={channelsByPeer[key].nickname !== "" ?

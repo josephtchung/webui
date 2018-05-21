@@ -19,12 +19,16 @@ import PopUpDialog from './PopUpDialog.js'
 const styles = theme => ({
   content: {
     margin: theme.spacing.unit,
+    minWidth: 350,
   },
   formControl: {
     marginTop: theme.spacing.unit,
   },
   amount: {
     maxWidth: 200,
+  },
+  data: {
+    minWidth: 300,
   },
 });
 
@@ -65,12 +69,8 @@ class ChannelPayDialog extends PopUpDialog {
         >
           <DialogTitle id="form-dialog-title">Pay to Channel</DialogTitle>
           <DialogContent className={classes.content}>
-            <DialogContentText>
-              Enter the amount to pay in {coinInfo[this.props.coinType].denomination}
-            </DialogContentText>
-
             <FormControl className={classes.formControl}>
-              <InputLabel htmlFor="amount">{coinInfo[this.props.coinType].denomination}</InputLabel>
+              <InputLabel htmlFor="amount">Amount in {coinInfo[this.props.coinType].denomination}</InputLabel>
               <Input
                 autoFocus
                 id="amount"
@@ -80,17 +80,18 @@ class ChannelPayDialog extends PopUpDialog {
                 className={classes.amount}
               />
             </FormControl>
-            <DialogContentText>
-              Enter channel data
-            </DialogContentText>
+            <p/>
+            <FormControl className={classes.formControl}>
+            <InputLabel htmlFor="data">Channel Data (optional)</InputLabel>
             <Input
-              autoFocus
               id="data"
               label="Data"
               type="text"
               fullWidth
               onChange={this.handleChange('data').bind(this)}
+              className={classes.data}
             />
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose.bind(this)} color="primary">

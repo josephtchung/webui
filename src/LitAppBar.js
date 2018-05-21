@@ -4,20 +4,24 @@ import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
+import Blockies from 'react-blockies';
+import Avatar from 'material-ui/Avatar';
 import SettingsDialog from './SettingsDialog.js';
 
-const styles = {
+const styles = theme => ({
   root: {
     flexGrow: 1,
+  },
+  avatar: {
+    marginRight: theme.spacing.unit,
   },
   flex: {
     flex: 1,
   },
   menuButton: {
-    marginLeft: -12,
-    marginRight: 20,
+   // marginRight: theme.spacing.unit,
   },
-};
+});
 
 function LitAppBar(props) {
   const { classes } = props;
@@ -28,6 +32,15 @@ function LitAppBar(props) {
         color={props.settings.appBarColorPrimary ? "primary" : "secondary"}
       >
         <Toolbar>
+          <Avatar className={classes.avatar}>
+            <Blockies
+              seed={props.address}
+              size={10}
+              scale={3}
+              color="#FF5733"
+              bgColor="#FFC300"
+            />
+          </Avatar>
           <Typography variant="title" color="inherit" className={classes.flex}>
             Lit Node {props.address}
           </Typography>

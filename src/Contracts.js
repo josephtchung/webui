@@ -74,7 +74,7 @@ function Contracts(props) {
           {offers}
           {contracts}
           <Zoom in key="AddDialog">
-            <Grid item xs={4} className={classes.addButtonBox}>
+            <Grid item xs={4} className={classes.addButtonBox} style={{background: '#EFEFEF'}}>
               <ContractAddDialog
                 connections={props.connections}
                 handleCreateContract={props.handleCreateContract}

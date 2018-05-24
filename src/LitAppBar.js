@@ -7,6 +7,7 @@ import Typography from 'material-ui/Typography';
 import Blockies from 'react-blockies';
 import Avatar from 'material-ui/Avatar';
 import SettingsDialog from './SettingsDialog.js';
+import './customStyles.css';
 
 const styles = theme => ({
   root: {

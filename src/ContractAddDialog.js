@@ -180,7 +180,7 @@ class ContractAddDialog extends React.Component {
                 Futures contract
               </MenuItem>
           </Menu>
-     
+
         <Dialog
           open={this.state.open}
           onClose={this.handleClose}
@@ -192,13 +192,13 @@ class ContractAddDialog extends React.Component {
               <Grid item xs={3}>
                 <FormControl id="buyorsellfc" className={classes.formControl}>
                   <InputLabel htmlFor="buyorsell">I am:</InputLabel>
-                  <Select 
+                  <Select
                   inputProps={{
                     name: 'buyorsell',
                     id: 'buyorsell',
-                  }} 
+                  }}
                   fullWidth
-                  value={imSelling} 
+                  value={imSelling}
                   onChange={this.handleChange('imSelling')}>
                     <MenuItem value={false}>Buying</MenuItem>
                     <MenuItem value={true}>Selling</MenuItem>
@@ -214,15 +214,15 @@ class ContractAddDialog extends React.Component {
                fullWidth
                   inputProps={{style:{textAlign:'right'}}}
                   type="text"
-                  value={amount} 
-                  onChange={this.handleChange('amount')} 
+                  value={amount}
+                  onChange={this.handleChange('amount')}
                   />
                 </FormControl>
               </Grid>
               <Grid item xs={3}>
                 <FormControl id="assetfc" className={classes.formControl}>
                   <InputLabel htmlFor="asset">Asset:</InputLabel>
-                  <Select 
+                  <Select
                     inputProps={{
                       name: 'asset',
                       id: 'asset',
@@ -233,7 +233,7 @@ class ContractAddDialog extends React.Component {
                     {this.props.assets.map((option, index) => (
                       <MenuItem value={index}>{option.name}</MenuItem>
                     ))}
-                    
+
                   </Select>
                 </FormControl>
               </Grid>
@@ -261,27 +261,27 @@ class ContractAddDialog extends React.Component {
                   <InputLabel htmlFor="price">Priced at:</InputLabel>
                   <Input id="price"
                      inputProps={{style:{textAlign:'right'}}}
-                     
+
                   type="text"
-                  value={price} 
-                  onChange={this.handlePriceChange} 
+                  value={price}
+                  onChange={this.handlePriceChange}
                   endAdornment={<InputAdornment position='end'>
                   <IconButton className={classes.button} aria-label="Fetch current price from oracle" onClick={this.refreshAsset}>
                     <RefreshIcon />
                   </IconButton></InputAdornment>}
                   />
-                  
+
                 </FormControl>
               </Grid>
               <Grid item xs={5}>
               <FormControl id="priceTypefc" className={classes.formControl}>
                 <InputLabel>&nbsp;</InputLabel>
-                  <Select 
+                  <Select
                     inputProps={{
                       name: 'priceType',
                       id: 'priceType',
-                    }} 
-                    value={priceType} 
+                    }}
+                    value={priceType}
                     onChange={this.handlePriceTypeChange}>
                     <MenuItem value={0}>{this.props.assets[asset] ? this.props.assets[asset].name : ""} per BTC</MenuItem>
                     <MenuItem value={1}>BTC per {this.props.assets[asset] ? this.props.assets[asset].name : ""}</MenuItem>
@@ -293,16 +293,16 @@ class ContractAddDialog extends React.Component {
           <DialogContent>
             <Grid container spacing={8}>
               <Grid item xs={12}>
-              
+
                 <FormControl id="peerfc" className={classes.formControl}>
                   <InputLabel>Peer</InputLabel>
-                    <Select 
+                    <Select
                       inputProps={{
                         name: 'peer',
                         id: 'peer',
-                      }} 
+                      }}
                       fullWidth
-                      value={peerIdx} 
+                      value={peerIdx}
                       onChange={this.handlePeerChange}>
                       {this.props.connections.map((conn, index) => (
                         <MenuItem value={conn.PeerNumber}>{

@@ -72,7 +72,7 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
   // add the + button for adding an additional channel to this Peer
   disabledChannels.push(
     <Zoom in key="AddDialog">
-      <Grid item xs={3} className={classes.addButtonBox}>
+      <Grid item xs={3} className={classes.addButtonBox} style={{background: '#EFEFEF'}}>
         <ChannelAddDialog
           peerIndex={props.peerIndex}
           handleAddSubmit={props.handleChannelAddSubmit}
@@ -124,11 +124,11 @@ function Channels(props) {
 
   let peerChannels = Object.keys(channelsByPeer).map(key => {
       return (
-        <div className={classes.peerGroup} key={key}>
+        <div className={classes.peerGroup} key={key} class={channelsByPeer[key].connected? 'connected' : 'notconnected'}>
           <Grid container>
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{backgroundColor: 'none'}}>
               <Grid container>
-                <Grid item xs={12} className={classes.peerInfo}>
+                <Grid item xs={12} className={classes.peerInfo} style={{backgroundColor: 'none'}}>
                   { /*
                     <Avatar className={classes.avatar}>
                       <Blockies
@@ -176,7 +176,7 @@ function Channels(props) {
       {peerChannels}
       <div className={classes.peerGroup}>
         <Grid container>
-          <Grid item xs={3}>
+          <Grid item xs={3} style={{background: 'white'}}>
             <div className={classes.addButtonBox}>
               <PeerAddDialog
                 handleAddSubmit={props.handlePeerAddSubmit}

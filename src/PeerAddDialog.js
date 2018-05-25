@@ -63,7 +63,7 @@ class PeerAddDialog extends PopUpDialog {
             <AddIcon />
           </Button>
           <Typography variant="caption" className={classes.caption}>
-            Connection
+            Peer Connection
           </Typography>
         </div>
         <Dialog
@@ -104,4 +104,3 @@ PeerAddDialog.propTypes = {
 };
 
 export default withStyles(styles)(PeerAddDialog);
-

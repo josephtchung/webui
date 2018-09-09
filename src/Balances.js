@@ -7,15 +7,26 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import BalanceCard from './BalanceCard';
+import BalanceReceiveDialog from './BalanceReceiveDialog';
+import BalanceSendDialog from './BalanceSendDialog';
 
 
 const styles = theme => ({
-  balancesGroup: {
-    marginTop: 8,
-    padding: 10,
+  root: {
+    margin: theme.spacing.unit,
   },
-  cardBox: {
-    minWidth: 450,
+  title: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  cards: {
+  },
+  buttons: {
+    marginTop: theme.spacing.unit,
+    display: 'flex',
+    justifyContent: 'space-around',
+    position: 'sticky',
+    bottom: 64, // FIXME -- needed to show above the bottom nav, but obviously kind of gross
   },
 });
 
@@ -23,7 +34,7 @@ function Balances(props) {
   const {classes} = props;
   let balances = props.balances.map((balance, index) => {
     return (
-      <Grid item xs={4} key={index} className={classes.cardBox}>
+      <Grid item xs={12} key={index} className={classes.cardBox}>
         <BalanceCard
           balance={balance}
           coinRates={props.coinRates}
@@ -34,15 +45,20 @@ function Balances(props) {
     );
   });
   return (
-    <div className={classes.balancesGroup}>
-      <Grid container>
-        <Grid item xs={12}>
-          <Typography variant="title">
-            Balances
-          </Typography>
-        </Grid>
+    <div className={classes.root}>
+      <Grid container className={classes.cards}>
         {balances}
       </Grid>
+      <div className={classes.buttons}>
+        <BalanceReceiveDialog
+          coinType="257"
+          newAddress={props.newAddress}
+        />
+        <BalanceSendDialog
+          coinType="257"
+          handleSendSubmit={props.handleSendSubmit}
+        />
+      </div>
     </div>
   );
 }

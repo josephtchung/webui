@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import { withStyles } from 'material-ui/styles';
 import CssBaseline from 'material-ui/CssBaseline';
 import LitAfClient from './LitClient'
 import LitAppBar from './LitAppBar'
@@ -7,7 +8,27 @@ import Channels from './Channels'
 import Contracts from './Contracts'
 import {coinInfo} from './CoinTypes'
 import ErrorDialog from './ErrorDialog'
+import BottomNav from './BottomNav'
 
+
+const styles = theme => ({
+  app: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  appBar: {
+    position: 'sticky',
+    top: 0,
+  },
+  content: {
+  },
+  bottomNav: {
+    position: 'fixed',
+    bottom: 0,
+  },
+});
+
+const screenNames = ["Balances", "Exchange", "Settings"];
 
 class App extends Component {
 
@@ -23,6 +44,8 @@ class App extends Component {
     if(queryPort) port = parseInt(queryPort, 10);
 
     this.state = {
+      mobileScreenState: 0,
+
       lc: null,
       rpcAddress: host,
       rpcPort: port,
@@ -74,8 +97,8 @@ class App extends Component {
    */
   update() {
     this.updateLit();
-    this.updateOraclesAndAssets();
-    this.updateCoinRates();
+    // this.updateOraclesAndAssets();
+    // this.updateCoinRates();
   }
 
   updateLit() {
@@ -85,7 +108,7 @@ class App extends Component {
     this.updateTxoList();
     this.updateBalances();
     this.updateContractList();
-    this.updateOfferList();
+    // this.updateOfferList();
   }
 
   updateCoinRates() {
@@ -651,55 +674,6 @@ class App extends Component {
     }
   }
 
-  render() {
-    return (
-      <div className="App">
-        <CssBaseline />
-        <ErrorDialog
-          errorMessage={this.state.errorMessage}
-          handleSubmit={this.handleErrorDialogSubmit.bind(this)}
-          />
-        <LitAppBar
-          address={this.state.Adr}
-          settings={{
-            rpcAddress: this.state.rpcAddress,
-            rpcPort: this.state.rpcPort,
-            rpcRefresh: this.state.rpcRefresh,
-            appBarColorPrimary: this.state.appBarColorPrimary,
-            hideClosedChannels: this.state.hideClosedChannels,
-          }}
-          handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
-          hexStringToByte={this.hexStringToByte.bind(this)}
-        />
-        <Balances
-          balances={this.state.Balances}
-          handleSendSubmit={this.handleSendSubmit.bind(this)}
-          coinRates={this.state.CoinRates}
-          newAddress={this.address.bind(this)}
-        />
-        <Channels
-          channels={this.state.Channels}
-          connections={this.state.Connections}
-          hideClosedChannels={this.state.hideClosedChannels}
-          handleChannelCommand={this.handleChannelCommand.bind(this)}
-          handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
-          handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
-          handlePeerNicknameSubmit={this.handlePeerNicknameSubmit.bind(this)}
-        />
-        <Contracts
-          contracts={this.state.Contracts}
-          offers={this.state.Offers}
-          assets={this.state.Assets}
-          connections={this.state.Connections}
-          fetchAssetValue={this.fetchAssetValue.bind(this)}
-          handleContractCommand={this.handleContractCommand.bind(this)}
-          handleOfferCommand={this.handleOfferCommand.bind(this)}
-          handleCreateContract={this.handleCreateContract.bind(this)}
-        />
-      </div>
-    );
-  }
-
   /*
    * Handler for settings Dialog
    */
@@ -744,7 +718,113 @@ class App extends Component {
   componentDidMount() {
     this.resetLitConnection(this.state.rpcAddress, this.state.rpcPort, this.state.rpcRefresh);
   }
+
+  desktopApp() {
+    return (
+      <div className="App">
+        <CssBaseline />
+        <ErrorDialog
+          errorMessage={this.state.errorMessage}
+          handleSubmit={this.handleErrorDialogSubmit.bind(this)}
+        />
+        <LitAppBar
+          address={this.state.Adr}
+          settings={{
+            rpcAddress: this.state.rpcAddress,
+            rpcPort: this.state.rpcPort,
+            rpcRefresh: this.state.rpcRefresh,
+            appBarColorPrimary: this.state.appBarColorPrimary,
+            hideClosedChannels: this.state.hideClosedChannels,
+          }}
+          handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
+          hexStringToByte={this.hexStringToByte.bind(this)}
+        />
+        <Balances
+          balances={this.state.Balances}
+          handleSendSubmit={this.handleSendSubmit.bind(this)}
+          coinRates={this.state.CoinRates}
+          newAddress={this.address.bind(this)}
+        />
+        <Channels
+          channels={this.state.Channels}
+          connections={this.state.Connections}
+          hideClosedChannels={this.state.hideClosedChannels}
+          handleChannelCommand={this.handleChannelCommand.bind(this)}
+          handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
+          handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
+          handlePeerNicknameSubmit={this.handlePeerNicknameSubmit.bind(this)}
+        />
+        <Contracts
+          contracts={this.state.Contracts}
+          offers={this.state.Offers}
+          assets={this.state.Assets}
+          connections={this.state.Connections}
+          fetchAssetValue={this.fetchAssetValue.bind(this)}
+          handleContractCommand={this.handleContractCommand.bind(this)}
+          handleOfferCommand={this.handleOfferCommand.bind(this)}
+          handleCreateContract={this.handleCreateContract.bind(this)}
+        />
+      </div>
+    );
+  }
+
+
+  handleMobileScreenChange (event, value) {
+    this.setState({mobileScreenState: value});
+  }
+
+  render() {
+    const {classes} = this.props;
+    return (
+      <div className={classes.app}>
+        <CssBaseline/>
+        <div className={classes.appBar}>
+          <LitAppBar
+            title={screenNames[this.state.mobileScreenState]}
+            address={this.state.Adr}
+            settings={{
+              rpcAddress: this.state.rpcAddress,
+              rpcPort: this.state.rpcPort,
+              rpcRefresh: this.state.rpcRefresh,
+              appBarColorPrimary: this.state.appBarColorPrimary,
+              hideClosedChannels: this.state.hideClosedChannels,
+            }}
+            handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
+            hexStringToByte={this.hexStringToByte.bind(this)}
+          />
+        </div>
+        <div className={classes.content}>
+          {this.state.mobileScreenState == 0 &&
+          <Balances
+            balances={this.state.Balances}
+            handleSendSubmit={this.handleSendSubmit.bind(this)}
+            coinRates={this.state.CoinRates}
+            newAddress={this.address.bind(this)}
+          />
+          }
+          {this.state.mobileScreenState == 1 &&
+          <Channels
+            channels={this.state.Channels}
+            connections={this.state.Connections}
+            hideClosedChannels={this.state.hideClosedChannels}
+            handleChannelCommand={this.handleChannelCommand.bind(this)}
+            handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
+            handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
+            handlePeerNicknameSubmit={this.handlePeerNicknameSubmit.bind(this)}
+          />
+          }
+        </div>
+        <div className={classes.bottomNav}>
+          <BottomNav
+            selected={this.state.mobileScreenState}
+            handleChange={this.handleMobileScreenChange.bind(this)}
+          />
+        </div>
+      </div>
+    );
+  }
+
 }
 
 
-export default App;
+export default withStyles(styles)(App);

@@ -10,7 +10,6 @@ import SettingsDialog from './SettingsDialog.js';
 
 const styles = theme => ({
   root: {
-    flexGrow: 1,
   },
   avatar: {
     marginRight: theme.spacing.unit,
@@ -42,7 +41,7 @@ function LitAppBar(props) {
             />
           </Avatar>
           <Typography variant="title" color="inherit" className={classes.flex}>
-            Lit Node {props.address}
+            {props.title}
           </Typography>
         <SettingsDialog
           settings={props.settings}
@@ -56,6 +55,7 @@ function LitAppBar(props) {
 
 LitAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
+  title: PropTypes.string.isRequired,
   address: PropTypes.string.isRequired,
   settings: PropTypes.object.isRequired,
   handleSettingsSubmit: PropTypes.func.isRequired,

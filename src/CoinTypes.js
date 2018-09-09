@@ -51,17 +51,26 @@ const coinTypes = Object.keys(coinInfo).map(key => {
   return parseInt(key, 10);
 });
 
-function formatCoin(amount, coinType) {
+function formatCoin(amount, coinType, showDenomination = true) {
   let info = coinInfo[coinType];
+  let denomination = "";
 
   if (info === null || info === undefined) {
-    return Number(amount).toLocaleString() + " Type " + coinType;
+    if (showDenomination) {
+      denomination = " Type " + coinType;
+    }
+
+    return Number(amount).toLocaleString() + denomination;
+  }
+
+  if  (showDenomination) {
+    denomination = " " + info.denomination;
   }
 
   return Number(amount / info.factor).toLocaleString(undefined, {
     minimumFractionDigits: info.decimals,
     maximumFractionDigits: info.decimals
-  }) + " " + info.denomination;
+  }) + denomination;
 }
 
 function formatUSD(coinAmount, coinType, exchangeRates) {

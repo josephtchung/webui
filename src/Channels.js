@@ -17,12 +17,12 @@ import EditableField from './EditableField.js'
 
 const channelGroupStyles = theme => ({
   cardBox: {
-    minWidth: 300,
-    minHeight: 200,
+    // minWidth: 300,
+    // minHeight: 200,
   },
   addButtonBox: {
-    minWidth: 300,
-    minHeight: 200,
+    // minWidth: 300,
+    // minHeight: 200,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -51,7 +51,7 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
     if (!props.disabled && !channel.Closed) { // normal open channel
       channels.push(
         <Zoom in key={channel.CIdx}>
-          <Grid item xs={3} className={classes.cardBox}>
+          <Grid item xs={12} className={classes.cardBox}>
             <ChannelCard
               disabled={channel.Height <= 0 ? true : false}
               channel={channel}
@@ -62,7 +62,7 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
     } else { // show a disabled channel
       disabledChannels.push(
         <Zoom in key={channel.CIdx}>
-          <Grid item xs={3} className={classes.cardBox}>
+          <Grid item xs={12} className={classes.cardBox}>
             <ChannelCard disabled channel={channel}/>
           </Grid>
         </Zoom>
@@ -72,7 +72,7 @@ const ChannelGroup = withStyles(channelGroupStyles)((props) => {
   // add the + button for adding an additional channel to this Peer
   disabledChannels.push(
     <Zoom in key="AddDialog">
-      <Grid item xs={3} className={classes.addButtonBox}>
+      <Grid item xs={12} className={classes.addButtonBox}>
         <ChannelAddDialog
           peerIndex={props.peerIndex}
           handleAddSubmit={props.handleChannelAddSubmit}
@@ -176,7 +176,7 @@ function Channels(props) {
       {peerChannels}
       <div className={classes.peerGroup}>
         <Grid container>
-          <Grid item xs={3}>
+          <Grid item xs={12}>
             <div className={classes.addButtonBox}>
               <PeerAddDialog
                 handleAddSubmit={props.handlePeerAddSubmit}

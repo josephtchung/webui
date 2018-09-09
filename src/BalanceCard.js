@@ -27,31 +27,24 @@ class BalanceCard extends React.Component {
 
     return (
 
-      <Card raised={true}>
-        <CardHeader
-          title={
-            formatCoin(balance.ChanTotal + balance.TxoTotal,
-              balance.CoinType) + " (" + formatUSD(balance.ChanTotal + balance.TxoTotal, balance.CoinType, this.props.coinRates) + ")"
-          }
-        />
+      <Card raised={false}>
+
         <CardContent className={classes.content}>
-          <Typography className={classes.balance}>
-            Channel: {formatCoin(balance.ChanTotal, balance.CoinType)}
+
+          <Typography variant="title">
+            {formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)}
           </Typography>
-          <Typography className={classes.balance}>
-            Txo: {formatCoin(balance.TxoTotal, balance.CoinType)}
+
+          <Typography>
+            Channel: {formatCoin(balance.ChanTotal, balance.CoinType, false)}
           </Typography>
+
+          <Typography>
+            Txo: {formatCoin(balance.TxoTotal, balance.CoinType, false)}
+          </Typography>
+
         </CardContent>
-        <CardActions className={classes.action} disableActionSpacing>
-          <BalanceReceiveDialog
-            coinType={balance.CoinType}
-            newAddress={this.props.newAddress}
-          />
-          <BalanceSendDialog
-            handleSendSubmit={this.props.handleSendSubmit}
-            coinType={balance.CoinType}
-          />
-        </CardActions>
+
       </Card>
     );
   }

@@ -3,7 +3,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from 'material-ui/Button';
+import {withStyles} from 'material-ui/styles/index';
+import Button from '@material-ui/core/Button';
 import Input from 'material-ui/Input';
 import Dialog, {
   DialogActions,
@@ -13,11 +14,16 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import {coinInfo} from './CoinTypes.js'
 import PopUpDialog from './PopUpDialog.js'
-import {withStyles} from "material-ui/styles/index";
+import SendIcon from '@material-ui/icons/ArrowUpward';
 
 const styles = theme => ({
   content: {
-    minWidth: 500,
+  },
+  button: {
+    margin: theme.spacing.unit,
+  },
+  extendedIcon: {
+    marginRight: theme.spacing.unit,
   },
 });
 
@@ -51,7 +57,16 @@ class BalanceSendDialog extends PopUpDialog {
 
     return (
       <div>
-        <Button onClick={this.handleClickOpen.bind(this)}>Send</Button>
+        <Button
+          variant="extendedFab"
+          aria-label="Send"
+          color="primary"
+          className={classes.button}
+          onClick={this.handleClickOpen.bind(this)}
+        >
+          <SendIcon className={classes.extendedIcon} />
+          Send
+        </Button>
         <Dialog
           open={this.state.open}
           onClose={this.handleClose.bind(this)}

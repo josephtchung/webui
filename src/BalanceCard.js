@@ -1,13 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from 'material-ui/styles';
-import Card, {CardActions, CardContent, CardHeader} from 'material-ui/Card';
-import Typography from 'material-ui/Typography';
+import { withStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
 import {formatCoin, formatUSD} from './CoinTypes.js';
-import BalanceSendDialog from './BalanceSendDialog.js'
-import BalanceReceiveDialog from './BalanceReceiveDialog.js'
 
 const styles = theme => ({
+  card: {
+    margin: theme.spacing.unit,
+    marginBottom: 0,
+  },
   content: {
   },
   balances: {},
@@ -27,7 +30,7 @@ class BalanceCard extends React.Component {
 
     return (
 
-      <Card raised={false}>
+      <Card raised={false} className={classes.card}>
 
         <CardContent className={classes.content}>
 
@@ -54,7 +57,6 @@ BalanceCard.propTypes = {
   balance: PropTypes.object.isRequired,
   handleSendSubmit: PropTypes.func.isRequired,
   coinRates: PropTypes.object.isRequired,
-  newAddress: PropTypes.func.isRequired,
 };
 
 

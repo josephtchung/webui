@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import Typography from 'material-ui/Typography';
+import { withStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Avatar from '@material-ui/core/Avatar';
 import Blockies from 'react-blockies';
-import Avatar from 'material-ui/Avatar';
-import SettingsDialog from './SettingsDialog.js';
+import SettingsDialog from './Settings.js';
 
 const styles = theme => ({
   root: {
@@ -28,7 +28,7 @@ function LitAppBar(props) {
     <div className={classes.root}>
       <AppBar
         position="static"
-        color={props.settings.appBarColorPrimary ? "primary" : "secondary"}
+        color={props.appBarColorPrimary ? "primary" : "secondary"}
       >
         <Toolbar>
           <Avatar className={classes.avatar}>
@@ -43,10 +43,6 @@ function LitAppBar(props) {
           <Typography variant="title" color="inherit" className={classes.flex}>
             {props.title}
           </Typography>
-        <SettingsDialog
-          settings={props.settings}
-          handleSettingsSubmit={props.handleSettingsSubmit}
-          />
         </Toolbar>
       </AppBar>
     </div>
@@ -57,8 +53,7 @@ LitAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
   address: PropTypes.string.isRequired,
-  settings: PropTypes.object.isRequired,
-  handleSettingsSubmit: PropTypes.func.isRequired,
+  appBarColorPrimary: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(LitAppBar);

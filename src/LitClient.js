@@ -20,7 +20,7 @@ class LitAfClient {
     // set up the received message callback to resolve or reject the sending promise
     this.rpccon.onmessage = (message) => {
       let data = JSON.parse(message.data);
-      if(data.error !== null) {
+      if (data.error) {
         callbacks[data.id].reject(data.error);
         delete callbacks[data.id];
       } else if(data.id === null) {

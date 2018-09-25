@@ -3,27 +3,48 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from 'material-ui/styles/index';
+import {withStyles} from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import Input from 'material-ui/Input';
-import Dialog, {
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from 'material-ui/Dialog';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import TextField from '@material-ui/core/TextField';
+import SendIcon from '@material-ui/icons/ArrowUpward';
 import {coinInfo} from './CoinTypes.js'
 import PopUpDialog from './PopUpDialog.js'
-import SendIcon from '@material-ui/icons/ArrowUpward';
+import CoinMenu from './CoinMenu.js'
+import QrSendReader from './QrSendReader.js'
 
 const styles = theme => ({
+  dialog: {},
   content: {
+    display: 'flex',
+    flexDirection: 'column',
   },
-  button: {
-    margin: theme.spacing.unit,
+  typeAndAmount: {
+    display: 'flex',
+    justifyContent: 'space-between',
   },
+  type: {},
+  amount: {
+    width: 120,
+  },
+  qr: {
+    marginTop: theme.spacing.unit * 4,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  button: {},
   extendedIcon: {
     marginRight: theme.spacing.unit,
+  },
+  buttons: {
+    marginTop: theme.spacing.unit,
+    display: 'flex',
+    justifyContent: 'space-around',
   },
 });
 
@@ -34,21 +55,31 @@ class BalanceSendDialog extends PopUpDialog {
     super(props);
     this.state = Object.assign(this.state,
       {
-        amount: 0,
+        amount: "",
+        coinType: -1,
         address: "",
       });
   }
 
   resetState() {
     this.setState({
-      amount: 0,
+      amount: "",
+      coinType: -1,
       address: "",
     });
     super.resetState();
   }
 
-  handleSubmit () {
-    this.props.handleSendSubmit(this.state.address, Math.round(parseFloat(this.state.amount) * coinInfo[this.props.coinType].factor));
+  handleQrScan(data) {
+    if (data !== null) {
+      this.setState({
+        address: data,
+      });
+    }
+  }
+
+  handleSubmit() {
+    this.props.handleSendSubmit(this.state.address, Math.round(parseFloat(this.state.amount) * coinInfo[this.state.coinType].factor));
     super.handleSubmit();
   };
 
@@ -64,43 +95,62 @@ class BalanceSendDialog extends PopUpDialog {
           className={classes.button}
           onClick={this.handleClickOpen.bind(this)}
         >
-          <SendIcon className={classes.extendedIcon} />
+          <SendIcon className={classes.extendedIcon}/>
           Send
         </Button>
         <Dialog
+          fullScreen
+          className={classes.dialog}
           open={this.state.open}
           onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Send to Address</DialogTitle>
           <DialogContent className={classes.content}>
-            <DialogContentText>
-              Enter the amount to send in {coinInfo[this.props.coinType].denomination}
-            </DialogContentText>
-            <Input
-              autoFocus
-              id="amount"
-              label="Amount"
-              type="text"
-              onChange={this.handleChange('amount').bind(this)}
-            />
-            <p/>
-            <DialogContentText>
-              Enter the Address to send to
-            </DialogContentText>
-            <Input
+            <div className={classes.typeAndAmount}>
+              <div className={classes.type}>
+                <CoinMenu
+                  onChange={this.handleChange('coinType').bind(this)}
+                />
+              </div>
+              <TextField
+                className={classes.amount}
+                id="amount"
+                label="Amount"
+                type="number"
+                onChange={this.handleChange('amount').bind(this)}
+              />
+            </div>
+
+            <TextField
               id="address"
-              label="Address"
+              label="Address to Send to"
               type="text"
               fullWidth
+              value={this.state.address}
               onChange={this.handleChange('address').bind(this)}
             />
+            <div className={classes.qr}>
+              <QrSendReader
+                delay={200}
+                handleScan={this.handleQrScan.bind(this)}
+              />
+            </div>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleClose.bind(this)} color="primary">
+          <DialogActions className={classes.buttons}>
+            <Button
+              variant="contained"
+              onClick={this.handleClose.bind(this)}
+              color="default"
+            >
               Cancel
             </Button>
-            <Button onClick={this.handleSubmit.bind(this)} color="primary">
+            <Button
+              disabled={this.state.amount === "" || this.state.address === "" || this.state.coinType === -1}
+              variant="contained"
+              onClick={this.handleSubmit.bind(this)}
+              color="primary"
+            >
               Send
             </Button>
           </DialogActions>
@@ -112,7 +162,6 @@ class BalanceSendDialog extends PopUpDialog {
 
 BalanceSendDialog.propTypes = {
   handleSendSubmit: PropTypes.func.isRequired,
-  coinType: PropTypes.number.isRequired,
 };
 
 export default withStyles(styles)(BalanceSendDialog);

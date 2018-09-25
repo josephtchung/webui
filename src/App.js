@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import { withStyles } from 'material-ui/styles';
-import CssBaseline from 'material-ui/CssBaseline';
+import { withStyles } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import LitAfClient from './LitClient'
 import LitAppBar from './LitAppBar'
 import Balances from './Balances'
-import Channels from './Channels'
-import Contracts from './Contracts'
+import Settings from './Settings'
+// import Contracts from './Contracts'
 import {coinInfo} from './CoinTypes'
 import ErrorDialog from './ErrorDialog'
 import BottomNav from './BottomNav'
@@ -255,7 +255,6 @@ class App extends Component {
         this.displayError(err);
       });
   }
-
   updateBalances() {
     this.state.lc.send('LitRPC.Balance')
       .then(reply => {
@@ -719,56 +718,6 @@ class App extends Component {
     this.resetLitConnection(this.state.rpcAddress, this.state.rpcPort, this.state.rpcRefresh);
   }
 
-  desktopApp() {
-    return (
-      <div className="App">
-        <CssBaseline />
-        <ErrorDialog
-          errorMessage={this.state.errorMessage}
-          handleSubmit={this.handleErrorDialogSubmit.bind(this)}
-        />
-        <LitAppBar
-          address={this.state.Adr}
-          settings={{
-            rpcAddress: this.state.rpcAddress,
-            rpcPort: this.state.rpcPort,
-            rpcRefresh: this.state.rpcRefresh,
-            appBarColorPrimary: this.state.appBarColorPrimary,
-            hideClosedChannels: this.state.hideClosedChannels,
-          }}
-          handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
-          hexStringToByte={this.hexStringToByte.bind(this)}
-        />
-        <Balances
-          balances={this.state.Balances}
-          handleSendSubmit={this.handleSendSubmit.bind(this)}
-          coinRates={this.state.CoinRates}
-          newAddress={this.address.bind(this)}
-        />
-        <Channels
-          channels={this.state.Channels}
-          connections={this.state.Connections}
-          hideClosedChannels={this.state.hideClosedChannels}
-          handleChannelCommand={this.handleChannelCommand.bind(this)}
-          handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
-          handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
-          handlePeerNicknameSubmit={this.handlePeerNicknameSubmit.bind(this)}
-        />
-        <Contracts
-          contracts={this.state.Contracts}
-          offers={this.state.Offers}
-          assets={this.state.Assets}
-          connections={this.state.Connections}
-          fetchAssetValue={this.fetchAssetValue.bind(this)}
-          handleContractCommand={this.handleContractCommand.bind(this)}
-          handleOfferCommand={this.handleOfferCommand.bind(this)}
-          handleCreateContract={this.handleCreateContract.bind(this)}
-        />
-      </div>
-    );
-  }
-
-
   handleMobileScreenChange (event, value) {
     this.setState({mobileScreenState: value});
   }
@@ -782,14 +731,7 @@ class App extends Component {
           <LitAppBar
             title={screenNames[this.state.mobileScreenState]}
             address={this.state.Adr}
-            settings={{
-              rpcAddress: this.state.rpcAddress,
-              rpcPort: this.state.rpcPort,
-              rpcRefresh: this.state.rpcRefresh,
-              appBarColorPrimary: this.state.appBarColorPrimary,
-              hideClosedChannels: this.state.hideClosedChannels,
-            }}
-            handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
+            appBarColorPrimary={this.state.appBarColorPrimary}
             hexStringToByte={this.hexStringToByte.bind(this)}
           />
         </div>
@@ -799,18 +741,24 @@ class App extends Component {
             balances={this.state.Balances}
             handleSendSubmit={this.handleSendSubmit.bind(this)}
             coinRates={this.state.CoinRates}
-            newAddress={this.address.bind(this)}
+            receiveAddress={this.state.Adr}
           />
           }
           {this.state.mobileScreenState == 1 &&
-          <Channels
-            channels={this.state.Channels}
-            connections={this.state.Connections}
-            hideClosedChannels={this.state.hideClosedChannels}
-            handleChannelCommand={this.handleChannelCommand.bind(this)}
-            handleChannelAddSubmit={this.handleChannelAddSubmit.bind(this)}
-            handlePeerAddSubmit={this.handlePeerAddSubmit.bind(this)}
-            handlePeerNicknameSubmit={this.handlePeerNicknameSubmit.bind(this)}
+          <div>
+            Exchange Goes Here
+          </div>
+          }
+          {this.state.mobileScreenState == 2 &&
+          <Settings
+            settings={{
+              rpcAddress: this.state.rpcAddress,
+              rpcPort: this.state.rpcPort,
+              rpcRefresh: this.state.rpcRefresh,
+              appBarColorPrimary: this.state.appBarColorPrimary,
+              hideClosedChannels: this.state.hideClosedChannels,
+            }}
+            handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
           />
           }
         </div>

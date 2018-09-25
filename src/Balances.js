@@ -3,9 +3,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import Grid from 'material-ui/Grid';
-import Typography from 'material-ui/Typography';
+import { withStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core//Grid';
 import BalanceCard from './BalanceCard';
 import BalanceReceiveDialog from './BalanceReceiveDialog';
 import BalanceSendDialog from './BalanceSendDialog';
@@ -13,7 +12,6 @@ import BalanceSendDialog from './BalanceSendDialog';
 
 const styles = theme => ({
   root: {
-    margin: theme.spacing.unit,
   },
   title: {
     display: 'flex',
@@ -39,7 +37,6 @@ function Balances(props) {
           balance={balance}
           coinRates={props.coinRates}
           handleSendSubmit={props.handleSendSubmit}
-          newAddress={props.newAddress}
         />
       </Grid>
     );
@@ -51,11 +48,9 @@ function Balances(props) {
       </Grid>
       <div className={classes.buttons}>
         <BalanceReceiveDialog
-          coinType="257"
-          newAddress={props.newAddress}
+          address={props.receiveAddress}
         />
         <BalanceSendDialog
-          coinType="257"
           handleSendSubmit={props.handleSendSubmit}
         />
       </div>
@@ -66,9 +61,9 @@ function Balances(props) {
 Balances.propTypes = {
   classes: PropTypes.object.isRequired,
   balances: PropTypes.array.isRequired,
+  receiveAddress: PropTypes.string.isRequired,
   handleSendSubmit: PropTypes.func.isRequired,
   coinRates: PropTypes.object.isRequired,
-  newAddress: PropTypes.func.isRequired,
 };
 
 

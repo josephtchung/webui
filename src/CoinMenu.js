@@ -4,89 +4,74 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from 'material-ui/styles';
-import List, {ListItem, ListItemText} from 'material-ui/List';
-import Menu, {MenuItem} from 'material-ui/Menu';
+import { withStyles } from '@material-ui/core/styles';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
 import {coinDenominations} from './CoinTypes.js'
 
 
-const coinStyles = theme => ({
+const styles = theme => ({
   root: {
-    width: '100%',
-    maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
+    display: 'flex',
+  },
+  formControl: {
+    width: 100,
   },
 });
 
-const coinOptions = ['Coin Type'].concat(Object.keys(coinDenominations));
+console.log(coinDenominations);
 
 class CoinMenu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      anchorEl: null,
-      selectedIndex: props.selected,
+      denomination: "",
     };
-    this.button = undefined;
   }
 
-  handleClickListItem = event => {
-    this.setState({anchorEl: event.currentTarget});
-  };
-
-  handleMenuItemClick = (event, index) => {
-    this.setState({selectedIndex: index, anchorEl: null});
-    this.props.onSelect(index);
-  };
-
-  handleClose = () => {
-    this.setState({anchorEl: null});
+  handleChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
+    this.props.onChange(event);
   };
 
   render() {
     const {classes} = this.props;
-    const {anchorEl} = this.state;
 
     return (
       <div className={classes.root}>
-        <List component="nav">
-          <ListItem
-            button
-            aria-haspopup="true"
-            aria-controls="lock-menu"
-            aria-label="When device is locked"
-            onClick={this.handleClickListItem}
-          >
-            <ListItemText
-              primary={coinOptions[this.state.selectedIndex]}
-            />
-          </ListItem>
-        </List>
-        <Menu
-          id="lock-menu"
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={this.handleClose}
+        <FormControl className={classes.formControl}>
+        <InputLabel htmlFor="coin">Type</InputLabel>
+        <Select
+          value={this.state.denomination}
+          onChange={this.handleChange}
+          inputProps={{
+            name: 'denomination',
+            id: 'coin',
+          }}
         >
-          {coinOptions.map((option, index) => (
+          {Object.keys(coinDenominations).map(denomination => (
             <MenuItem
-              key={option}
-              disabled={index === 0}
-              selected={index === this.state.selectedIndex}
-              onClick={event => this.handleMenuItemClick(event, index)}
+              key={denomination}
+              value={coinDenominations[denomination]}
             >
-              {option}
+              {denomination}
             </MenuItem>
           ))}
-        </Menu>
+        </Select>
+      </FormControl>
       </div>
     );
   }
 }
 
 CoinMenu.propTypes = {
-  selected: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
 };
 
 
-export default withStyles(coinStyles)(CoinMenu);
+export default withStyles(styles)(CoinMenu);

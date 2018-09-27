@@ -49,7 +49,7 @@ class App extends Component {
       lc: null,
       rpcAddress: host,
       rpcPort: port,
-      rpcRefresh: true,
+      rpcRefresh: false,
       rpcRefreshReference: -1,
       appBarColorPrimary: true,
       hideClosedChannels: true,
@@ -70,6 +70,16 @@ class App extends Component {
     };
   }
 
+  /*
+   * Send RPC call to lit node
+   */
+  sendRpc(method, ...args) {
+    return this.state.lc.send(method, ...args);
+  }
+
+  /*
+   * Decode URL argument
+   */
    getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -84,7 +94,9 @@ class App extends Component {
    * Error Handling
    */
   displayError(errorMessage) {
-    this.setState({errorMessage: errorMessage});
+    console.log("Error: ");
+    console.log(errorMessage);
+    this.setState({errorMessage: errorMessage.message + ": " + errorMessage.data + " (" + errorMessage.code + ")"});
   }
 
   handleErrorDialogSubmit() {
@@ -96,6 +108,7 @@ class App extends Component {
    * Note that we unpack the replies into their individual keyword items
    */
   update() {
+
     this.updateLit();
     // this.updateOraclesAndAssets();
     // this.updateCoinRates();
@@ -259,6 +272,8 @@ class App extends Component {
     this.state.lc.send('LitRPC.Balance')
       .then(reply => {
         let balances = reply.Balances !== null ? reply.Balances : [];
+        // sort balances by coin type
+        balances.sort((a, b) => {return a.CoinType - b.CoinType});
         this.setState({Balances: balances});
       })
       .catch(err => {
@@ -389,16 +404,35 @@ class App extends Component {
         .catch(err => {
           this.displayError(err);
         });
-    }
+  }
 
   /*
- * click handler for traditional send to address
- */
+   * click handler for traditional send to address
+   */
   handleSendSubmit(address, amount) {
     // console.log("Send " + address + " " + amount);
     this.state.lc.send('LitRPC.Send', {
       'DestAddrs': [address],
       'Amts': [amount],
+    })
+      .then(reply => {
+        this.updateBalances();
+      })
+      .catch(err => {
+        this.displayError(err);
+      });
+  }
+
+  /*
+  * click handler for lightning multihop send
+  */
+  handleLnSendSubmit(address, destCoinType, originCoinType, amount) {
+    console.log("LnSend " + address + ", " + destCoinType + ", " + originCoinType + ", " + amount);
+    this.state.lc.send('LitRPC.PayMultihop', {
+      'DestLNAdr': address,
+      'DestCoinType': destCoinType,
+      'OriginCoinType': originCoinType,
+      'Amt': amount,
     })
       .then(reply => {
         this.updateBalances();
@@ -720,6 +754,7 @@ class App extends Component {
 
   handleMobileScreenChange (event, value) {
     this.setState({mobileScreenState: value});
+    this.update();
   }
 
   render() {
@@ -739,7 +774,7 @@ class App extends Component {
           {this.state.mobileScreenState == 0 &&
           <Balances
             balances={this.state.Balances}
-            handleSendSubmit={this.handleSendSubmit.bind(this)}
+            handleSendSubmit={this.handleLnSendSubmit.bind(this)}
             coinRates={this.state.CoinRates}
             receiveAddress={this.state.Adr}
           />
@@ -762,6 +797,10 @@ class App extends Component {
           />
           }
         </div>
+        <ErrorDialog
+          errorMessage={this.state.errorMessage}
+          handleSubmit={this.handleErrorDialogSubmit.bind(this)}
+          />
         <div className={classes.bottomNav}>
           <BottomNav
             selected={this.state.mobileScreenState}

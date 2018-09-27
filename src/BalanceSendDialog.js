@@ -43,6 +43,7 @@ const styles = theme => ({
   },
   buttons: {
     marginTop: theme.spacing.unit,
+    marginBottom: 32,
     display: 'flex',
     justifyContent: 'space-around',
   },
@@ -79,7 +80,8 @@ class BalanceSendDialog extends PopUpDialog {
   }
 
   handleSubmit() {
-    this.props.handleSendSubmit(this.state.address, Math.round(parseFloat(this.state.amount) * coinInfo[this.state.coinType].factor));
+    this.props.handleSendSubmit(this.state.address, this.state.coinType, this.state.coinType,
+      Math.round(parseFloat(this.state.amount) * coinInfo[this.state.coinType].factor));
     super.handleSubmit();
   };
 
@@ -140,16 +142,16 @@ class BalanceSendDialog extends PopUpDialog {
           <DialogActions className={classes.buttons}>
             <Button
               variant="contained"
-              onClick={this.handleClose.bind(this)}
               color="default"
+              onClick={this.handleClose.bind(this)}
             >
               Cancel
             </Button>
             <Button
               disabled={this.state.amount === "" || this.state.address === "" || this.state.coinType === -1}
               variant="contained"
-              onClick={this.handleSubmit.bind(this)}
               color="primary"
+              onClick={this.handleSubmit.bind(this)}
             >
               Send
             </Button>

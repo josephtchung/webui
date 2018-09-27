@@ -12,6 +12,11 @@ const styles = theme => ({
     marginBottom: 0,
   },
   content: {
+    paddingBottom: 16,
+    paddingLeft: 24,
+    paddingRight: 24,
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   balances: {},
   action: {
@@ -34,6 +39,10 @@ class BalanceCard extends React.Component {
 
         <CardContent className={classes.content}>
 
+          <div>
+            <img height="50" width="50" src={'/coinicons/' + balance.CoinType + '.png'}/>
+          </div>
+          <div>
           <Typography variant="title">
             {formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)}
           </Typography>
@@ -45,6 +54,7 @@ class BalanceCard extends React.Component {
           <Typography>
             Txo: {formatCoin(balance.TxoTotal, balance.CoinType, false)}
           </Typography>
+          </div>
 
         </CardContent>
 

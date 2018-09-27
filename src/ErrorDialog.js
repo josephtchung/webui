@@ -34,7 +34,11 @@ class ErrorDialog extends React.Component {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.props.handleSubmit.bind(this)} color="primary">
+            <Button
+              onClick={this.props.handleSubmit.bind(this)}
+              color="primary"
+              variant="contained"
+            >
               OK
             </Button>
           </DialogActions>

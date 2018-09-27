@@ -9,6 +9,7 @@
 // TODO - still needs some thinking!
 
 const coinInfo = {
+  /*
   0: {
     name: 'Bitcoin',
     denomination: 'mBTC',
@@ -30,19 +31,37 @@ const coinInfo = {
     factor: 100000000,
     decimals: 2,
   },
+  */
   257: {
     name: 'Bitcoin Regtest',
-    denomination: 'mBTC-r',
+    denomination: 'BTC',
     exchangeSymbol: 'BTC',
-    factor: 100000,
+    factor: 100000000,
+    decimals: 4,
+  },
+  258: {
+    name: 'Litecoin Regtest',
+    denomination: 'LTC',
+    exchangeSymbol: 'LTC',
+    factor: 100000000,
+    decimals: 4,
+  },
+  262: {
+    name: 'US Dollars',
+    denomination: 'USD',
+    exchangeSymbol: 'USD',
+    factor: 100000000,
     decimals: 2,
   },
 };
 
+/*
+ * coinDenominations is a an object that maps the textual denomination (e.g. "BTC") to is numerical coinType (0)
+ */
 const coinDenominations = (() => {
   let result = {};
   for (let i in coinInfo) {
-    result[coinInfo[i].denomination] = i;
+    result[coinInfo[i].denomination] = parseInt(i);
   }
   return result;
 })();

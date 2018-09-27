@@ -29,6 +29,12 @@ const styles = theme => ({
   },
   button: {
   },
+  buttons: {
+    marginTop: theme.spacing.unit,
+    marginBottom: 32,
+    display: 'flex',
+    justifyContent: 'space-around',
+  },
   extendedIcon: {
     marginRight: theme.spacing.unit,
   },
@@ -83,8 +89,12 @@ class BalanceReceiveDialog extends PopUpDialog {
               />
             </div>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleClose.bind(this)} color="primary">
+          <DialogActions className={classes.buttons}>
+            <Button
+              onClick={this.handleClose.bind(this)}
+              variant="contained"
+              color="primary"
+            >
               Done
             </Button>
           </DialogActions>
@@ -95,7 +105,7 @@ class BalanceReceiveDialog extends PopUpDialog {
 }
 
 BalanceReceiveDialog.propTypes = {
-  address: PropTypes.func.isRequired,
+  address: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(BalanceReceiveDialog);

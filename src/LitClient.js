@@ -39,6 +39,9 @@ class LitAfClient {
     let id = requestNonce++;
     let promise = new Promise((resolve, reject) => {
       this.waitForConnection.then(() => {
+        if (args !== null) {
+          args = [args];
+        }
         let json = JSON.stringify({'method': method, 'params': args, 'id': id});
         console.log("RPC Send: " + json);
         this.rpccon.send(json);

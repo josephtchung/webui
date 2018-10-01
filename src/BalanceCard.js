@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import {withStyles} from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -18,7 +18,15 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
-  balances: {},
+  balances: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+  },
+  numbers: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
   action: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -42,18 +50,25 @@ class BalanceCard extends React.Component {
           <div>
             <img height="50" width="50" src={'/coinicons/' + balance.CoinType + '.png'}/>
           </div>
-          <div>
-          <Typography variant="title">
-            {formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)}
-          </Typography>
+          <div className={classes.balances}>
 
-          <Typography>
-            Channel: {formatCoin(balance.ChanTotal, balance.CoinType, false)}
-          </Typography>
+            <div className={classes.numbers}>
+              <Typography variant="title">
+                {formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)}
+              </Typography>
+            </div>
 
-          <Typography>
-            Txo: {formatCoin(balance.TxoTotal, balance.CoinType, false)}
-          </Typography>
+            <div className={classes.numbers}>
+              <Typography>
+                Channel: {formatCoin(balance.ChanTotal, balance.CoinType, false)}
+              </Typography>
+            </div>
+
+            <div className={classes.numbers}>
+              <Typography>
+                On Chain: {formatCoin(balance.TxoTotal, balance.CoinType, false)}
+              </Typography>
+            </div>
           </div>
 
         </CardContent>

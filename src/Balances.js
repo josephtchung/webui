@@ -13,10 +13,6 @@ import BalanceSendDialog from './BalanceSendDialog';
 const styles = theme => ({
   root: {
   },
-  title: {
-    display: 'flex',
-    justifyContent: 'center',
-  },
   cards: {
   },
   buttons: {

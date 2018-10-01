@@ -4,11 +4,9 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Input from '@material-ui/core/Input';
+import {withStyles} from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
@@ -18,9 +16,14 @@ import {coinDenominations} from './CoinTypes.js'
 const styles = theme => ({
   root: {
     display: 'flex',
+    minHeight: 60,
+    alignItems: 'flex-end',
   },
   formControl: {
-    width: 100,
+    width: 120,
+  },
+  denomination: {
+   // marginLeft: theme.spacing.unit,
   },
 });
 
@@ -35,7 +38,7 @@ class CoinMenu extends React.Component {
   }
 
   handleChange = event => {
-    this.setState({ [event.target.name]: event.target.value });
+    this.setState({[event.target.name]: event.target.value});
     this.props.onChange(event);
   };
 
@@ -45,25 +48,30 @@ class CoinMenu extends React.Component {
     return (
       <div className={classes.root}>
         <FormControl className={classes.formControl}>
-        <InputLabel htmlFor="coin">Type</InputLabel>
-        <Select
-          value={this.state.denomination}
-          onChange={this.handleChange}
-          inputProps={{
-            name: 'denomination',
-            id: 'coin',
-          }}
-        >
-          {Object.keys(coinDenominations).map(denomination => (
-            <MenuItem
-              key={denomination}
-              value={coinDenominations[denomination]}
-            >
-              {denomination}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          <InputLabel htmlFor="coin">Type</InputLabel>
+          <Select
+            value={this.state.denomination}
+            onChange={this.handleChange}
+            inputProps={{
+              name: 'denomination',
+              id: 'coin',
+            }}
+          >
+            {Object.keys(coinDenominations).map(denomination => (
+              <MenuItem
+                key={denomination}
+                value={coinDenominations[denomination]}
+              >
+                <img
+                  src={'/coinicons/' + coinDenominations[denomination] + '.png'}
+                  width="24"
+                  height="24"
+                />
+                {denomination}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </div>
     );
   }

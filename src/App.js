@@ -4,6 +4,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import LitAfClient from './LitClient'
 import LitAppBar from './LitAppBar'
 import Balances from './Balances'
+import Exchange from './Exchange'
 import Settings from './Settings'
 import ConnectPage from './ConnectPage'
 import Typography from '@material-ui/core/Typography';
@@ -43,8 +44,8 @@ class App extends Component {
     let queryHost = this.getParameterByName("host");
     let queryPort = this.getParameterByName("port");
 
-    if(queryHost) host = queryHost;
-    if(queryPort) port = parseInt(queryPort, 10);
+    if (queryHost) host = queryHost;
+    if (queryPort) port = parseInt(queryPort, 10);
 
     this.state = {
       mobileScreenState: 0,
@@ -167,7 +168,6 @@ class App extends Component {
     this.state.lc.send('LitRPC.ChannelList')
       .then(reply => {
         let channels = reply.Channels !== null ? reply.Channels : [];
-        console.log(this);
         // channels = channels.filter(chan => chan.PeerIdx == this.state.selectedPeerIdx);
         this.setState({Channels: channels});
       })
@@ -772,7 +772,7 @@ class App extends Component {
         } else {
           this.setState({isConnectedToLitNode:false, isAuthorizedOnLitNode:false})
         }
-      }).bind(this)).catch((err) => { 
+      }).bind(this)).catch((err) => {
         console.log("Caught error on IsConnected:", err);
       });
     });
@@ -805,7 +805,7 @@ class App extends Component {
     } else if(!this.state.isAuthorizedOnLitNode) {
       title = "Waiting for authorization"
     }
-    
+
     return (
       <div className={classes.app}>
         <CssBaseline/>
@@ -835,9 +835,9 @@ class App extends Component {
           />
           }
           {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 1 &&
-          <div>
-            Exchange Goes Here
-          </div>
+          <Exchange
+            balances={this.state.Balances}
+            />
           }
           {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 2 &&
           <Settings

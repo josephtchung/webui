@@ -7,8 +7,10 @@ import {withStyles} from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Card from '@material-ui/core/Card';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import SendIcon from '@material-ui/icons/ArrowUpward';
@@ -19,17 +21,13 @@ import QrSendReader from './QrSendReader.js'
 
 const styles = theme => ({
   dialog: {},
-  content: {
-    display: 'flex',
-    flexDirection: 'column',
+  card: {
+    margin: theme.spacing.unit,
+    // padding: theme.spacing.unit * 2,
   },
-  typeAndAmount: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-  type: {},
   amount: {
-    width: 120,
+    display: 'flex',
+    alignItems: 'flex-end',
   },
   qr: {
     marginTop: theme.spacing.unit * 4,
@@ -107,14 +105,20 @@ class BalanceSendDialog extends PopUpDialog {
           onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
-          <DialogTitle id="form-dialog-title">Send to Address</DialogTitle>
-          <DialogContent className={classes.content}>
-            <div className={classes.typeAndAmount}>
-              <div className={classes.type}>
+        <Card raised className={classes.card}>
+          <DialogContent>
+          <Grid container alignContent="flex-end">
+            <Grid item xs={12}>
+              <Typography variant="title">
+                Send to Lightning Address
+              </Typography>
+            </Grid>
+            <Grid item xs={6} className={classes.type}>
                 <CoinMenu
                   onChange={this.handleChange('coinType').bind(this)}
                 />
-              </div>
+            </Grid>
+            <Grid item xs={6} className={classes.amount}>
               <TextField
                 className={classes.amount}
                 id="amount"
@@ -122,7 +126,8 @@ class BalanceSendDialog extends PopUpDialog {
                 type="number"
                 onChange={this.handleChange('amount').bind(this)}
               />
-            </div>
+            </Grid>
+            <Grid item xs={12} className={classes.address}>
 
             <TextField
               id="address"
@@ -132,12 +137,15 @@ class BalanceSendDialog extends PopUpDialog {
               value={this.state.address}
               onChange={this.handleChange('address').bind(this)}
             />
-            <div className={classes.qr}>
+            </Grid>
+
+            <Grid item xs={12} className={classes.qr}>
               <QrSendReader
                 delay={200}
                 handleScan={this.handleQrScan.bind(this)}
               />
-            </div>
+            </Grid>
+          </Grid>
           </DialogContent>
           <DialogActions className={classes.buttons}>
             <Button
@@ -156,6 +164,7 @@ class BalanceSendDialog extends PopUpDialog {
               Send
             </Button>
           </DialogActions>
+        </Card>
         </Dialog>
       </div>
     );

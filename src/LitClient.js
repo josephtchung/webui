@@ -5,9 +5,15 @@ let callbacks = {};
 let requestNonce = 0;
 
 class LitAfClient {
-  constructor (rpchost, rpcport) {
+  constructor (rpchost, rpcport, onUnauthorized, onUnconnected, onConnected) {
     this.host = rpchost;
     this.port = rpcport;
+
+    this.onUnauthorized = onUnauthorized;
+    this.onUnconnected = onUnconnected;
+    this.onConnected = onConnected;
+    this.authorizationRequested = false;
+    this.reconnectInterval = null;
 
     // open the connection by setting wait for connection to be a promise that is resolved when open
     this.waitForConnection = new Promise (resolve => {
@@ -21,6 +27,34 @@ class LitAfClient {
     this.rpccon.onmessage = (message) => {
       let data = JSON.parse(message.data);
       if (data.error) {
+        console.log("Error:", data.error)
+        if(data.error.code === -32001) {
+          console.log("Received unconnected error");
+          this.onUnconnected();
+          delete callbacks[data.id];
+          return;
+        }
+        if(data.error.code == -32003) {
+          console.log("Received unauthorized error");
+          this.onUnauthorized();
+          if(!this.authorizationRequested) {
+            this.send("LitRPC.RequestRemoteControlAuthorization");
+            // issue RCReq
+            this.authorizationRequested = true;
+            // Keep pinging to see if we're connected
+            if( this.reconnectInterval !== null) {
+              clearInterval(this.reconnectInterval);
+            }
+
+            this.reconnectInterval = setInterval(() => {
+              this.send("LitRPC.Balances").then((result) => {
+                this.onConnected();
+              });
+            }, 2000);
+          }
+          delete callbacks[data.id];
+          return;    
+        }
         callbacks[data.id].reject(data.error);
         delete callbacks[data.id];
       } else if(data.id === null) {

@@ -5,10 +5,13 @@ import LitAfClient from './LitClient'
 import LitAppBar from './LitAppBar'
 import Balances from './Balances'
 import Settings from './Settings'
+import ConnectPage from './ConnectPage'
+import Typography from '@material-ui/core/Typography';
 // import Contracts from './Contracts'
 import {coinInfo} from './CoinTypes'
 import ErrorDialog from './ErrorDialog'
 import BottomNav from './BottomNav'
+
 
 
 const styles = theme => ({
@@ -54,6 +57,9 @@ class App extends Component {
       appBarColorPrimary: true,
       hideClosedChannels: true,
       errorMessage: null,
+      isConnectedToLitNode: true,
+      isAuthorizedOnLitNode: true,
+      isConnectingToLitNode: false,
 
       Connections: [],
       MyPKH: "",
@@ -108,7 +114,6 @@ class App extends Component {
    * Note that we unpack the replies into their individual keyword items
    */
   update() {
-
     this.updateLit();
     // this.updateOraclesAndAssets();
     // this.updateCoinRates();
@@ -162,6 +167,7 @@ class App extends Component {
     this.state.lc.send('LitRPC.ChannelList')
       .then(reply => {
         let channels = reply.Channels !== null ? reply.Channels : [];
+        console.log(this);
         // channels = channels.filter(chan => chan.PeerIdx == this.state.selectedPeerIdx);
         this.setState({Channels: channels});
       })
@@ -722,11 +728,23 @@ class App extends Component {
    * Resets all the host connections including refreshing.
    */
   resetLitConnection(address, port, refresh) {
-
     let lc = this.state.lc;
     let rpcRefreshReference = this.state.rpcRefreshReference;
 
-    lc = new LitAfClient(address, port);
+    var onUnconnected = () => {
+      this.setState({isConnectedToLitNode:false});
+    }
+
+    var onUnauthorized = () => {
+      this.setState({isAuthorizedOnLitNode:false});
+    }
+
+    var onConnected = () => {
+      if(this.state.isAuthorizedOnLitNode === false || this.state.isConnectedToLitNode === false)
+        this.setState({isAuthorizedOnLitNode:true, isConnectedToLitNode:true});
+    }
+
+    lc = new LitAfClient(address, port, onUnauthorized, onUnconnected, onConnected);
 
     if (this.state.rpcRefreshReference === -1) {
       if (refresh) {
@@ -745,7 +763,29 @@ class App extends Component {
       rpcRefresh: refresh,
       lc: lc,
       rpcRefreshReference: rpcRefreshReference,
-    }, this.update.bind(this));
+    }, () => {
+      lc.send("LitRPCProxy.IsConnected").then(((res) => {
+        if(res === true) {
+          console.log(this);
+          this.setState({isConnectedToLitNode:true, isAuthorizedOnLitNode:true});
+          this.update();
+        } else {
+          this.setState({isConnectedToLitNode:false, isAuthorizedOnLitNode:false})
+        }
+      }).bind(this)).catch((err) => { 
+        console.log("Caught error on IsConnected:", err);
+      });
+    });
+  }
+
+  handleConnectSubmit(adr) {
+    this.setState({isConnectingToLitNode:true});
+    this.state.lc.send("LitRPCProxy.Connect", {adr : adr}).then((res) => {
+      if(res) {
+        this.setState({isConnectedToLitNode:true,isAuthorizedOnLitNode:false,isConnectingToLitNode:false});
+        this.state.lc.send("LitRPC.Balances");
+      }
+    });
   }
 
   componentDidMount() {
@@ -759,19 +799,34 @@ class App extends Component {
 
   render() {
     const {classes} = this.props;
+    var title = screenNames[this.state.mobileScreenState]
+    if(!this.state.isConnectedToLitNode) {
+      title = "Connect to your lit node"
+    } else if(!this.state.isAuthorizedOnLitNode) {
+      title = "Waiting for authorization"
+    }
+    
     return (
       <div className={classes.app}>
         <CssBaseline/>
         <div className={classes.appBar}>
           <LitAppBar
-            title={screenNames[this.state.mobileScreenState]}
+            title={title}
             address={this.state.Adr}
             appBarColorPrimary={this.state.appBarColorPrimary}
             hexStringToByte={this.hexStringToByte.bind(this)}
           />
         </div>
         <div className={classes.content}>
-          {this.state.mobileScreenState == 0 &&
+          {!this.state.isConnectedToLitNode && !this.state.isConnectingToLitNode &&
+            <ConnectPage
+            handleConnectSubmit={this.handleConnectSubmit.bind(this)}
+            />
+          }
+          {!this.state.isAuthorizedOnLitNode &&
+            <Typography>Your client is not yet authorized to control the lit node you have connected to. Authorize the client on the lit node to continue</Typography>
+          }
+          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 0 &&
           <Balances
             balances={this.state.Balances}
             handleSendSubmit={this.handleLnSendSubmit.bind(this)}
@@ -779,12 +834,12 @@ class App extends Component {
             receiveAddress={this.state.Adr}
           />
           }
-          {this.state.mobileScreenState == 1 &&
+          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 1 &&
           <div>
             Exchange Goes Here
           </div>
           }
-          {this.state.mobileScreenState == 2 &&
+          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 2 &&
           <Settings
             settings={{
               rpcAddress: this.state.rpcAddress,
@@ -802,10 +857,12 @@ class App extends Component {
           handleSubmit={this.handleErrorDialogSubmit.bind(this)}
           />
         <div className={classes.bottomNav}>
+          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode &&
           <BottomNav
             selected={this.state.mobileScreenState}
             handleChange={this.handleMobileScreenChange.bind(this)}
           />
+          }
         </div>
       </div>
     );

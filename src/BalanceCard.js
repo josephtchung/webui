@@ -48,7 +48,7 @@ class BalanceCard extends React.Component {
         <CardContent className={classes.content}>
 
           <div>
-            <img height="50" width="50" src={'/coinicons/' + balance.CoinType + '.png'}/>
+            <img height="50" width="50" src={'coinicons/' + balance.CoinType + '.png'}/>
           </div>
           <div className={classes.balances}>
 

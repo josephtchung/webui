@@ -740,8 +740,10 @@ class App extends Component {
     }
 
     var onConnected = () => {
-      if(this.state.isAuthorizedOnLitNode === false || this.state.isConnectedToLitNode === false)
+      if(this.state.isAuthorizedOnLitNode === false || this.state.isConnectedToLitNode === false) {
         this.setState({isAuthorizedOnLitNode:true, isConnectedToLitNode:true});
+        this.update();
+      }
     }
 
     lc = new LitAfClient(address, port, onUnauthorized, onUnconnected, onConnected);

@@ -68,6 +68,11 @@ class Exchange extends React.Component {
     });
   }
 
+  handleExchangeSubmit() {
+    this.props.handleSubmit(this.state.toCoinType, this.state.fromCoinType, 
+      Math.round(parseFloat(this.state.fromAmount) * coinInfo[this.state.fromCoinType].factor));
+  }
+
   render() {
     const {classes} = this.props;
 
@@ -146,6 +151,7 @@ class Exchange extends React.Component {
           <Button
             variant="extendedFab"
             color="primary"
+            onClick={this.handleExchangeSubmit.bind(this)}
             disabled={this.state.fromCoinType === -1 || this.state.toCoinType === -1 ||
                       this.state.amount === 0  || this.state.fromCoinType === this.state.toCoinType}
           >
@@ -160,6 +166,7 @@ class Exchange extends React.Component {
 Exchange.propTypes = {
   classes: PropTypes.object.isRequired,
   balances: PropTypes.array.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(Exchange);

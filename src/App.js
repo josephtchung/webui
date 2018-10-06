@@ -14,7 +14,6 @@ import ErrorDialog from './ErrorDialog'
 import BottomNav from './BottomNav'
 
 
-
 const styles = theme => ({
   app: {
     display: 'flex',
@@ -836,7 +835,9 @@ class App extends Component {
           }
           {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 1 &&
           <Exchange
+            address={this.state.Adr}
             balances={this.state.Balances}
+            handleSendSubmit={this.handleLnSendSubmit.bind(this)}
             />
           }
           {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 2 &&
@@ -856,14 +857,6 @@ class App extends Component {
           errorMessage={this.state.errorMessage}
           handleSubmit={this.handleErrorDialogSubmit.bind(this)}
           />
-        <div className={classes.bottomNav}>
-          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode &&
-          <BottomNav
-            selected={this.state.mobileScreenState}
-            handleChange={this.handleMobileScreenChange.bind(this)}
-          />
-          }
-        </div>
       </div>
     );
   }

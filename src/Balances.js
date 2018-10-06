@@ -8,7 +8,7 @@ import Grid from '@material-ui/core//Grid';
 import BalanceCard from './BalanceCard';
 import BalanceReceiveDialog from './BalanceReceiveDialog';
 import BalanceSendDialog from './BalanceSendDialog';
-
+import ExchangeDialog from './ExchangeDialog';
 
 const styles = theme => ({
   root: {
@@ -43,10 +43,16 @@ function Balances(props) {
         {balances}
       </Grid>
       <div className={classes.buttons}>
+        <BalanceSendDialog
+          balances={props.balances}
+          handleSendSubmit={props.handleSendSubmit}
+        />
         <BalanceReceiveDialog
           address={props.receiveAddress}
         />
-        <BalanceSendDialog
+        <ExchangeDialog
+          address={props.receiveAddress}
+          balances={props.balances}
           handleSendSubmit={props.handleSendSubmit}
         />
       </div>

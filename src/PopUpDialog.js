@@ -19,17 +19,16 @@ class PopUpDialog extends React.Component {
   }
 
   handleClickOpen() {
+    this.resetState();
     this.setState({open: true});
   };
 
   handleClose() {
     this.setState({open: false});
-    this.resetState();
   };
 
   handleSubmit() {
     this.setState({open: false});
-    this.resetState();
   };
 
   handleChange(name) {

@@ -39,7 +39,7 @@ function LitAppBar(props) {
 
           <Grid item xs={4} className={classes.logo}>
             <img
-              src="/litlogo145.png"
+              src="/images/litlogo145.png"
               height="40"
               width="40"
               />

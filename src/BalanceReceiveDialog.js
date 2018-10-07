@@ -10,8 +10,7 @@ import Dialog from '@material-ui/core/Dialog';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-
-import ReceiveIcon from '@material-ui/icons/ArrowDownward';
+import {ArrowDownBoldOutline} from 'mdi-material-ui';
 import CopyIcon from '@material-ui/icons/Input';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import QRCode from 'qrcode.react';
@@ -68,7 +67,7 @@ class BalanceReceiveDialog extends PopUpDialog {
           className={classes.button}
           onClick={this.handleClickOpen.bind(this)}
         >
-          <ReceiveIcon className={classes.extendedIcon}/>
+          <ArrowDownBoldOutline className={classes.extendedIcon}/>
           Recv
         </Button>
         <Dialog

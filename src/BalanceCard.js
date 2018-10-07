@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import {formatCoin, formatUSD} from './CoinTypes.js';
+import {formatCoin} from './CoinTypes.js';
 
 const styles = theme => ({
   card: {
@@ -12,11 +11,12 @@ const styles = theme => ({
     marginBottom: 0,
   },
   content: {
-    paddingBottom: 16,
-    paddingLeft: 24,
-    paddingRight: 24,
+    padding: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit * 2,
+    paddingRight: theme.spacing.unit * 2,
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   balances: {
     display: 'flex',
@@ -45,7 +45,7 @@ class BalanceCard extends React.Component {
 
       <Card raised={false} className={classes.card}>
 
-        <CardContent className={classes.content}>
+        <div className={classes.content}>
 
           <div>
             <img height="50" width="50" src={'/coinicons/' + balance.CoinType + '.png'}/>
@@ -71,7 +71,7 @@ class BalanceCard extends React.Component {
             </div>
           </div>
 
-        </CardContent>
+        </div>
 
       </Card>
     );
@@ -81,7 +81,6 @@ class BalanceCard extends React.Component {
 BalanceCard.propTypes = {
   balance: PropTypes.object.isRequired,
   handleSendSubmit: PropTypes.func.isRequired,
-  coinRates: PropTypes.object.isRequired,
 };
 
 

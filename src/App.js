@@ -11,23 +11,16 @@ import Typography from '@material-ui/core/Typography';
 // import Contracts from './Contracts'
 import {coinInfo} from './CoinTypes'
 import ErrorDialog from './ErrorDialog'
-import BottomNav from './BottomNav'
 
 
 const styles = theme => ({
   app: {
-    display: 'flex',
-    flexDirection: 'column',
   },
   appBar: {
     position: 'sticky',
     top: 0,
   },
   content: {
-  },
-  bottomNav: {
-    position: 'fixed',
-    bottom: 0,
   },
 });
 
@@ -61,26 +54,22 @@ class App extends Component {
       isAuthorizedOnLitNode: true,
       isConnectingToLitNode: false,
 
+
+      Adr: "",
+      LisIpPorts: null,
+      Balances: [],
+      MultihopPayments: [],
+
       Connections: [],
       MyPKH: "",
       Channels: [],
-      Adr: "",
-      LisIpPorts: null,
       Txos: [],
-      Balances: [],
       Contracts: [],
       Oracles: [],
       Assets: [],
       Offers: [],
       CoinRates: {},
     };
-  }
-
-  /*
-   * Send RPC call to lit node
-   */
-  sendRpc(method, ...args) {
-    return this.state.lc.send(method, ...args);
   }
 
   /*
@@ -120,13 +109,51 @@ class App extends Component {
   }
 
   updateLit() {
-    this.updateListConnections();
-    this.updateChannelList();
     this.updateListeningPorts();
-    this.updateTxoList();
     this.updateBalances();
-    this.updateContractList();
+    this.updateMultihopPayments();
+    // this.updateListConnections();
+    // this.updateChannelList();
+    // this.updateTxoList();
+    // this.updateContractList();
     // this.updateOfferList();
+  }
+
+  updateListeningPorts() {
+    this.state.lc.send('LitRPC.GetListeningPorts')
+      .then(reply => {
+        let adr = reply.Adr !== null ? reply.Adr : "";
+        this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
+      })
+      .catch(err => {
+        this.displayError(err);
+      });
+  }
+
+  updateBalances() {
+    this.state.lc.send('LitRPC.Balance')
+      .then(reply => {
+        let balances = reply.Balances !== null ? reply.Balances : [];
+        // sort balances by coin type
+        balances.sort((a, b) => {return a.CoinType - b.CoinType});
+        this.setState({Balances: balances});
+      })
+      .catch(err => {
+        this.displayError(err);
+      });
+  }
+
+  updateMultihopPayments() {
+    this.state.lc.send('LitRPC.ListMultihopPayments')
+      .then(reply => {
+        let payments = reply.Payments !== null ? reply.Payments : [];
+        this.setState({
+          MultihopPayments: payments,
+        });
+      })
+      .catch(err => {
+        this.displayError(err);
+      });
   }
 
   updateCoinRates() {
@@ -252,17 +279,6 @@ class App extends Component {
       });
   }
 
-  updateListeningPorts() {
-    this.state.lc.send('LitRPC.GetListeningPorts')
-      .then(reply => {
-        let adr = reply.Adr !== null ? reply.Adr : "";
-        this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
-      })
-      .catch(err => {
-        this.displayError(err);
-      });
-  }
-
   updateTxoList() {
     this.state.lc.send('LitRPC.TxoList')
       .then(reply => {
@@ -273,19 +289,6 @@ class App extends Component {
         this.displayError(err);
       });
   }
-  updateBalances() {
-    this.state.lc.send('LitRPC.Balance')
-      .then(reply => {
-        let balances = reply.Balances !== null ? reply.Balances : [];
-        // sort balances by coin type
-        balances.sort((a, b) => {return a.CoinType - b.CoinType});
-        this.setState({Balances: balances});
-      })
-      .catch(err => {
-        this.displayError(err);
-      });
-  }
-
 
   listen() {
     this.state.lc.send('LitRPC.Listen')
@@ -793,12 +796,11 @@ class App extends Component {
 
   handleMobileScreenChange (event, value) {
     this.setState({mobileScreenState: value});
-    this.update();
   }
 
   render() {
     const {classes} = this.props;
-    var title = screenNames[this.state.mobileScreenState]
+    var title = "Lightning Network"
     if(!this.state.isConnectedToLitNode) {
       title = "Connect to your lit node"
     } else if(!this.state.isAuthorizedOnLitNode) {
@@ -812,8 +814,8 @@ class App extends Component {
           <LitAppBar
             title={title}
             address={this.state.Adr}
-            appBarColorPrimary={this.state.appBarColorPrimary}
-            hexStringToByte={this.hexStringToByte.bind(this)}
+            handleUpdate={this.update.bind(this)}
+            handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
           />
         </div>
         <div className={classes.content}>
@@ -825,31 +827,12 @@ class App extends Component {
           {!this.state.isAuthorizedOnLitNode &&
             <Typography>Your client is not yet authorized to control the lit node you have connected to. Authorize the client on the lit node to continue</Typography>
           }
-          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 0 &&
+          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode &&
           <Balances
             balances={this.state.Balances}
+            payments={this.state.MultihopPayments}
             handleSendSubmit={this.handleLnSendSubmit.bind(this)}
-            coinRates={this.state.CoinRates}
             receiveAddress={this.state.Adr}
-          />
-          }
-          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 1 &&
-          <Exchange
-            address={this.state.Adr}
-            balances={this.state.Balances}
-            handleSendSubmit={this.handleLnSendSubmit.bind(this)}
-            />
-          }
-          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode && this.state.mobileScreenState == 2 &&
-          <Settings
-            settings={{
-              rpcAddress: this.state.rpcAddress,
-              rpcPort: this.state.rpcPort,
-              rpcRefresh: this.state.rpcRefresh,
-              appBarColorPrimary: this.state.appBarColorPrimary,
-              hideClosedChannels: this.state.hideClosedChannels,
-            }}
-            handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
           />
           }
         </div>

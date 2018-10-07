@@ -11,7 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import TextField from '@material-ui/core/TextField';
-import SendIcon from '@material-ui/icons/ArrowUpward';
+import {ArrowUpBoldOutline} from 'mdi-material-ui';
 import {coinInfo} from './CoinTypes.js'
 import PopUpDialog from './PopUpDialog.js'
 import CoinMenu from './CoinMenu.js'
@@ -111,7 +111,7 @@ class BalanceSendDialog extends PopUpDialog {
           className={classes.button}
           onClick={this.handleClickOpen.bind(this)}
         >
-          <SendIcon className={classes.extendedIcon}/>
+          <ArrowUpBoldOutline className={classes.extendedIcon}/>
           Send
         </Button>
         <Dialog

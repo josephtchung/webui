@@ -6,20 +6,17 @@ import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
-
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import {ArrowUpDownBoldOutline} from 'mdi-material-ui';
 
 import PopUpDialog from './PopUpDialog.js'
 import CoinMenu from './CoinMenu';
 import {coinInfo} from './CoinTypes.js'
-import {formatCoin, formatUSD} from './CoinTypes.js';
-
-import ExchangeIcon from '@material-ui/icons/CompareArrows';
+import {formatCoin} from './CoinTypes.js';
 
 
 const styles = theme => ({
@@ -100,7 +97,7 @@ class ExchangeDialog extends PopUpDialog {
           className={classes.button}
           onClick={this.handleClickOpen.bind(this)}
         >
-          <ExchangeIcon className={classes.extendedIcon}/>
+          <ArrowUpDownBoldOutline className={classes.extendedIcon}/>
           XCHG
         </Button>
         <Dialog

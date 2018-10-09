@@ -6,6 +6,7 @@ import Grid from '@material-ui/core//Grid';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Blockies from 'react-blockies';
+import AboutDialog from './AboutDialog.js'
 
 const styles = theme => ({
   root: {
@@ -46,12 +47,14 @@ class LitAppBar extends React.Component {
           <Grid container alignItems="center" className={classes.grid}>
 
             <Grid item xs={3} className={classes.logo}>
+              <AboutDialog>
                 <img
                   src="/images/litlogo145.png"
                   height="40"
                   width="40"
                   onClick={this.handleLogoClick.bind(this)}
                 />
+              </AboutDialog>
             </Grid>
 
             <Grid item xs={6} className={classes.title}>

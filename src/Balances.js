@@ -61,6 +61,7 @@ function Balances(props) {
         </Grid>
       );
     }
+    return null; //return value is unused
   });
 
   return (

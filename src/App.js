@@ -4,7 +4,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import LitAfClient from './LitClient'
 import LitAppBar from './LitAppBar'
 import Balances from './Balances'
-import Exchange from './Exchange'
 import Settings from './Settings'
 import ConnectPage from './ConnectPage'
 import Typography from '@material-ui/core/Typography';

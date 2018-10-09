@@ -34,7 +34,7 @@ class LitAfClient {
           delete callbacks[data.id];
           return;
         }
-        if(data.error.code == -32003) {
+        if(data.error.code === -32003) {
           console.log("Received unauthorized error");
           this.onUnauthorized();
           if(!this.authorizationRequested) {

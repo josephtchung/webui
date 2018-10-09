@@ -177,7 +177,8 @@ class ExchangeDialog extends PopUpDialog {
               variant="contained"
               color="primary"
               disabled={this.state.fromCoinType === -1 || this.state.toCoinType === -1 ||
-              this.state.amount === 0 || this.state.fromCoinType === this.state.toCoinType}
+              this.state.fromAmount <= 0 || this.state.fromAmount > avail ||
+              this.state.fromCoinType === this.state.toCoinType}
               onClick={this.handleSubmit.bind(this)}
             >
               Exchange

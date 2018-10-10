@@ -44,7 +44,7 @@ class App extends Component {
       lc: null,
       rpcAddress: host,
       rpcPort: port,
-      rpcRefresh: false,
+      rpcRefresh: true,
       rpcRefreshReference: -1,
       appBarColorPrimary: true,
       hideClosedChannels: true,
@@ -122,7 +122,9 @@ class App extends Component {
     this.state.lc.send('LitRPC.GetListeningPorts')
       .then(reply => {
         let adr = reply.Adr !== null ? reply.Adr : "";
-        this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
+        if (adr !== this.state.Adr) {
+          this.setState({Adr: adr, LisIpPorts: reply.LisIpPorts});
+        }
       })
       .catch(err => {
         this.displayError(err);
@@ -134,8 +136,12 @@ class App extends Component {
       .then(reply => {
         let balances = reply.Balances !== null ? reply.Balances : [];
         // sort balances by coin type
-        balances.sort((a, b) => {return a.CoinType - b.CoinType});
-        this.setState({Balances: balances});
+        balances.sort((a, b) => {
+          return a.CoinType - b.CoinType
+        });
+        if (JSON.stringify(balances) !== JSON.stringify(this.state.Balances)) { // kind of gross, but...
+          this.setState({Balances: balances});
+        }
       })
       .catch(err => {
         this.displayError(err);
@@ -146,9 +152,11 @@ class App extends Component {
     this.state.lc.send('LitRPC.ListMultihopPayments')
       .then(reply => {
         let payments = reply.Payments !== null ? reply.Payments : [];
-        this.setState({
-          MultihopPayments: payments,
-        });
+        if (payments.length !== this.state.MultihopPayments.length) {
+          this.setState({
+            MultihopPayments: payments.reverse(),
+          });
+        }
       })
       .catch(err => {
         this.displayError(err);

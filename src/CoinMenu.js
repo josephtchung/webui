@@ -27,8 +27,6 @@ const styles = theme => ({
   },
 });
 
-console.log(coinDenominations);
-
 class CoinMenu extends React.Component {
   constructor(props) {
     super(props);

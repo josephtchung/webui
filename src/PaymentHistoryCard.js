@@ -2,13 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import Avatar from '@material-ui/core/Avatar';
+import Fade from '@material-ui/core/Fade';
+import Divider from '@material-ui/core/Divider';
 import {ArrowDownBoldOutline} from 'mdi-material-ui';
 import {ArrowUpBoldOutline} from 'mdi-material-ui';
 import {ArrowUpDownBoldOutline} from 'mdi-material-ui';
+import Blockies from 'react-blockies';
 import {formatCoin, coinInfo} from './CoinTypes.js';
 
-import Avatar from '@material-ui/core/Avatar';
-import Blockies from 'react-blockies';
 
 const styles = theme => ({
   card: {
@@ -35,6 +37,10 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  divider: {
+    marginLeft: theme.spacing.unit * 2,
+    marginRight: theme.spacing.unit * 2,
   },
 });
 
@@ -77,32 +83,38 @@ class PaymentHistoryCard extends React.Component {
     }
 
     return (
-      <Grid container className={classes.content}>
-        <Grid item xs={1} className={classes.icon}>
-          {icon}
-        </Grid>
+      <Fade in={true} timeout={750}>
+        <div>
+          {this.props.divider &&
+          <Divider light />
+          }
+          <Grid container className={classes.content}>
+            <Grid item xs={1} className={classes.icon}>
+              {icon}
+            </Grid>
 
-        <Grid item xs={10} className={classes.message}>
-          {message}
-          <br/>
-          <span className={classes.address}>
-            {address}
-          </span>
-        </Grid>
+            <Grid item xs={10} className={classes.message}>
+              {message}
+              <br/>
+              <span className={classes.address}>
+                {address}
+              </span>
+            </Grid>
 
-        <Grid item xs={1} className={classes.avatar}>
-          <Avatar>
-            <Blockies
-              seed={address}
-              size={10}
-              scale={3}
-              color="#FF5733"
-              bgColor="#FFC300"
-            />
-          </Avatar>
-        </Grid>
-
-      </Grid>
+            <Grid item xs={1} className={classes.avatar}>
+              <Avatar>
+                <Blockies
+                  seed={address}
+                  size={10}
+                  scale={3}
+                  color="#FF5733"
+                  bgColor="#FFC300"
+                />
+              </Avatar>
+            </Grid>
+          </Grid>
+        </div>
+      </Fade>
 
     );
   }
@@ -110,6 +122,7 @@ class PaymentHistoryCard extends React.Component {
 
 PaymentHistoryCard.propTypes = {
   payment: PropTypes.object.isRequired,
+  divider: PropTypes.bool.isRequired,
 };
 
 

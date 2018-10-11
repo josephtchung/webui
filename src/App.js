@@ -152,7 +152,7 @@ class App extends Component {
     this.state.lc.send('LitRPC.ListMultihopPayments')
       .then(reply => {
         let payments = reply.Payments !== null ? reply.Payments : [];
-        if (payments.length !== this.state.MultihopPayments.length) {
+        if (JSON.stringify(payments) !== JSON.stringify(this.state.MultihopPayments)) {
           this.setState({
             MultihopPayments: payments.reverse(),
           });

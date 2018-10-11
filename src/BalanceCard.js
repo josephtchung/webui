@@ -4,6 +4,7 @@ import {withStyles} from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
 import {formatCoin} from './CoinTypes.js';
+import './BalanceCard.css' // highlight css style (@keyframes can't be done in MUI styles)
 
 const styles = theme => ({
   card: {
@@ -36,6 +37,27 @@ const styles = theme => ({
 
 class BalanceCard extends React.Component {
 
+  state = {
+    myBalance: 0,
+    highlight: false,
+  };
+
+  // Notice when a new balance is coming in so we can trigger the highlight animation
+  componentWillReceiveProps(nextProps) {
+    if (this.state.myBalance === 0) { // don't highlight if it's the first real balance
+      this.setState({myBalance: nextProps.balance.ChanTotal + nextProps.balance.TxoTotal});
+    } else if (this.state.myBalance !==  nextProps.balance.ChanTotal + nextProps.balance.TxoTotal) {
+      this.setState({
+        myBalance: nextProps.balance.ChanTotal + nextProps.balance.TxoTotal,
+        highlight: true
+      });
+      setTimeout(() => {
+        this.setState({highlight: false})
+      }, 1000); // bit icky, but reset the highlight state
+    }
+  }
+
+
   render() {
 
     const {classes} = this.props;
@@ -43,7 +65,7 @@ class BalanceCard extends React.Component {
 
     return (
 
-      <Card raised={false} className={classes.card}>
+      <Card raised={false} className={classes.card + (this.state.highlight ? " BackHighlight" : "")}>
 
         <div className={classes.content}>
 

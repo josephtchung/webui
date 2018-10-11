@@ -5,7 +5,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
 import Grid from '@material-ui/core//Grid'
-import Divider from '@material-ui/core/Divider';
 import BalanceCard from './BalanceCard';
 import PaymentHistoryCard from './PaymentHistoryCard';
 import BalanceReceiveDialog from './BalanceReceiveDialog';
@@ -27,10 +26,6 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'space-around',
   },
-  divider: {
-    marginLeft: theme.spacing.unit * 2,
-    marginRight: theme.spacing.unit * 2,
-  },
 });
 
 function Balances(props) {
@@ -51,12 +46,10 @@ function Balances(props) {
   props.payments.map((payment, index) => {
     if (payment.Succeeded) {
       payments.push(
-        <Grid item xs={12} key={index}>
-          {payments.length > 0 &&
-            <Divider light className={classes.divider}/>
-          }
+        <Grid item xs={12} key={JSON.stringify(payment)}>
           <PaymentHistoryCard
             payment={payment}
+            divider={payments.length > 0}
           />
         </Grid>
       );

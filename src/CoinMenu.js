@@ -61,7 +61,7 @@ class CoinMenu extends React.Component {
                 value={coinDenominations[denomination]}
               >
                 <img
-                  src={'/coinicons/' + coinDenominations[denomination] + '.png'}
+                  src={'coinicons/' + coinDenominations[denomination] + '.png'}
                   width="24"
                   height="24"
                 />

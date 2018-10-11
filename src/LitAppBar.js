@@ -49,7 +49,7 @@ class LitAppBar extends React.Component {
             <Grid item xs={3} className={classes.logo}>
               <AboutDialog>
                 <img
-                  src="/images/litlogo145.png"
+                  src="images/litlogo145.png"
                   height="40"
                   width="40"
                   onClick={this.handleLogoClick.bind(this)}

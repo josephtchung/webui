@@ -22,8 +22,8 @@ const styles = theme => ({
   formControl: {
     width: 120,
   },
-  denomination: {
-   // marginLeft: theme.spacing.unit,
+  icon: {
+   marginRight: theme.spacing.unit,
   },
 });
 
@@ -55,17 +55,18 @@ class CoinMenu extends React.Component {
               id: 'coin',
             }}
           >
-            {Object.keys(coinDenominations).map(denomination => (
+            {Object.keys(coinDenominations).map(symbol => (
               <MenuItem
-                key={denomination}
-                value={coinDenominations[denomination]}
+                key={coinDenominations[symbol]}
+                value={coinDenominations[symbol]}
               >
                 <img
-                  src={'coinicons/' + coinDenominations[denomination] + '.png'}
+                  className={classes.icon}
+                  src={'coinicons/' + coinDenominations[symbol] + '.png'}
                   width="24"
                   height="24"
                 />
-                {denomination}
+                {symbol}
               </MenuItem>
             ))}
           </Select>

@@ -92,7 +92,7 @@ class BalanceSendDialog extends PopUpDialog {
   render() {
     const {classes} = this.props;
 
-    let avail = "";
+    let avail = "0";
     if (this.state.coinType !== -1) {
       this.props.balances.forEach(
         b => {

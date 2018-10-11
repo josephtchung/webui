@@ -78,7 +78,7 @@ class ExchangeDialog extends PopUpDialog {
   render() {
     const {classes} = this.props;
 
-    let avail = "";
+    let avail = "0";
     if (this.state.fromCoinType !== -1) {
       this.props.balances.forEach(
         b => {

@@ -47,7 +47,7 @@ class LitAfClient {
             }
 
             this.reconnectInterval = setInterval(() => {
-              this.send("LitRPC.Balances").then((result) => {
+              this.send("LitRPC.Balance").then((result) => {
                 this.onConnected();
               });
             }, 2000);

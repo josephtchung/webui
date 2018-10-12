@@ -457,6 +457,21 @@ class App extends Component {
       });
   }
 
+  handleExchangeSubmit(destCoinType, originCoinType, amount) {
+    this.state.lc.send('LitRPC.PayMultihop', {
+      'DestLNAdr': this.state.Adr,
+      'DestCoinType': destCoinType,
+      'OriginCoinType': originCoinType,
+      'Amt': amount,
+    })
+      .then(reply => {
+        this.updateBalances();
+      })
+      .catch(err => {
+        this.displayError(err);
+      });
+  }
+
   /*
    * click handler for channel commands: push, close, break
    * amount is optional and only used for push
@@ -749,8 +764,10 @@ class App extends Component {
     }
 
     var onConnected = () => {
-      if(this.state.isAuthorizedOnLitNode === false || this.state.isConnectedToLitNode === false)
+      if(this.state.isAuthorizedOnLitNode === false || this.state.isConnectedToLitNode === false) {
         this.setState({isAuthorizedOnLitNode:true, isConnectedToLitNode:true});
+        this.update();
+      }
     }
 
     lc = new LitAfClient(address, port, onUnauthorized, onUnconnected, onConnected);

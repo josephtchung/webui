@@ -34,7 +34,7 @@ class LitAfClient {
           delete callbacks[data.id];
           return;
         }
-        if(data.error.code == -32003) {
+        if(data.error.code === -32003) {
           console.log("Received unauthorized error");
           this.onUnauthorized();
           if(!this.authorizationRequested) {
@@ -74,7 +74,7 @@ class LitAfClient {
     let promise = new Promise((resolve, reject) => {
       this.waitForConnection.then(() => {
         let json = JSON.stringify({'method': method, 'params': args, 'id': id});
-        console.log("RPC Send: " + json);
+        // console.log("RPC Send: " + json);
         this.rpccon.send(json);
       });
       callbacks[id] = {resolve: resolve, reject: reject};

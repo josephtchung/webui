@@ -3,50 +3,79 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core//Grid';
+import {withStyles} from '@material-ui/core/styles';
+import Grid from '@material-ui/core//Grid'
 import BalanceCard from './BalanceCard';
+import PaymentHistoryCard from './PaymentHistoryCard';
 import BalanceReceiveDialog from './BalanceReceiveDialog';
 import BalanceSendDialog from './BalanceSendDialog';
-
+import ExchangeDialog from './ExchangeDialog';
 
 const styles = theme => ({
-  root: {
-  },
-  cards: {
+  root: {},
+  balances: {},
+  payments: {
+    marginTop: theme.spacing.unit,
+    paddingBottom: 80,
   },
   buttons: {
+    position: 'fixed',
+    width: '100vw',
+    bottom: theme.spacing.unit * 2,
     marginTop: theme.spacing.unit,
     display: 'flex',
     justifyContent: 'space-around',
-    position: 'sticky',
-    bottom: 64, // FIXME -- needed to show above the bottom nav, but obviously kind of gross
   },
 });
 
 function Balances(props) {
   const {classes} = props;
+
   let balances = props.balances.map((balance, index) => {
     return (
       <Grid item xs={12} key={index} className={classes.cardBox}>
         <BalanceCard
           balance={balance}
-          coinRates={props.coinRates}
           handleSendSubmit={props.handleSendSubmit}
         />
       </Grid>
     );
   });
+
+  let payments = [];
+  props.payments.map((payment, index) => {
+    if (payment.Succeeded) {
+      payments.push(
+        <Grid item xs={12} key={JSON.stringify(payment)}>
+          <PaymentHistoryCard
+            payment={payment}
+            divider={payments.length > 0}
+          />
+        </Grid>
+      );
+    }
+    return null; //return value is unused
+  });
+
   return (
     <div className={classes.root}>
-      <Grid container className={classes.cards}>
+      <Grid container className={classes.balances}>
         {balances}
       </Grid>
+      <Grid container className={classes.payments}>
+        {payments}
+      </Grid>
       <div className={classes.buttons}>
+        <BalanceSendDialog
+          balances={props.balances}
+          handleSendSubmit={props.handleSendSubmit}
+        />
         <BalanceReceiveDialog
           address={props.receiveAddress}
         />
-        <BalanceSendDialog
+        <ExchangeDialog
+          address={props.receiveAddress}
+          balances={props.balances}
           handleSendSubmit={props.handleSendSubmit}
         />
       </div>
@@ -59,9 +88,7 @@ Balances.propTypes = {
   balances: PropTypes.array.isRequired,
   receiveAddress: PropTypes.string.isRequired,
   handleSendSubmit: PropTypes.func.isRequired,
-  coinRates: PropTypes.object.isRequired,
 };
-
 
 
 export default withStyles(styles)(Balances);

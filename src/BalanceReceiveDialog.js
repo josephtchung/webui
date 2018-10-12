@@ -7,13 +7,10 @@ import {withStyles} from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
-
-import ReceiveIcon from '@material-ui/icons/ArrowDownward';
+import CardContent from '@material-ui/core/CardContent';
+import {ArrowDownBoldOutline} from 'mdi-material-ui';
 import CopyIcon from '@material-ui/icons/Input';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import QRCode from 'qrcode.react';
@@ -23,7 +20,8 @@ const styles = theme => ({
   dialog: {},
   card: {
     margin: theme.spacing.unit,
-    // padding: theme.spacing.unit * 2,
+  },
+  content: {
   },
   title: {
   },
@@ -38,14 +36,14 @@ const styles = theme => ({
 
   qr: {
     marginTop: theme.spacing.unit * 4,
+    marginBottom: theme.spacing.unit * 2,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
   button: {},
   buttons: {
-    marginTop: theme.spacing.unit,
-    marginBottom: 32,
+    marginTop: theme.spacing.unit * 2,
     display: 'flex',
     justifyContent: 'space-around',
   },
@@ -69,8 +67,8 @@ class BalanceReceiveDialog extends PopUpDialog {
           className={classes.button}
           onClick={this.handleClickOpen.bind(this)}
         >
-          <ReceiveIcon className={classes.extendedIcon}/>
-          Receive
+          <ArrowDownBoldOutline className={classes.extendedIcon}/>
+          Recv
         </Button>
         <Dialog
           fullScreen
@@ -79,8 +77,8 @@ class BalanceReceiveDialog extends PopUpDialog {
           onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
-          <Card raised className={classes.card}>
-            <DialogContent>
+          <Card className={classes.card}>
+            <CardContent className={classes.content}>
               <Grid container alignContent="flex-end">
                 <Grid item xs={12} className={classes.title}>
                   <Typography variant="title">
@@ -115,8 +113,10 @@ class BalanceReceiveDialog extends PopUpDialog {
                   />
                 </Grid>
               </Grid>
-            </DialogContent>
-            <DialogActions className={classes.buttons}>
+            </CardContent>
+
+          </Card>
+            <div className={classes.buttons}>
               <Button
                 onClick={this.handleClose.bind(this)}
                 variant="contained"
@@ -124,8 +124,7 @@ class BalanceReceiveDialog extends PopUpDialog {
               >
                 Done
               </Button>
-            </DialogActions>
-          </Card>
+            </div>
         </Dialog>
       </div>
     );

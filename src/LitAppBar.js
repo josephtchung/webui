@@ -6,6 +6,7 @@ import Grid from '@material-ui/core//Grid';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Blockies from 'react-blockies';
+import AboutDialog from './AboutDialog.js'
 
 const styles = theme => ({
   root: {
@@ -20,6 +21,7 @@ const styles = theme => ({
   title: {
     display: 'flex',
     justifyContent: 'center',
+    textAlign: 'center',
   },
   avatar: {
     display: 'flex',
@@ -27,53 +29,65 @@ const styles = theme => ({
   },
 });
 
-function LitAppBar(props) {
-  const {classes} = props;
-  return (
-    <div className={classes.root}>
-      <AppBar
-        position="static"
-        color={props.appBarColorPrimary ? "primary" : "secondary"}
-      >
-        <Grid container alignItems="center" className={classes.grid}>
+class LitAppBar extends React.Component {
 
-          <Grid item xs={4} className={classes.logo}>
-            <img
-              src="litlogo145.png"
-              height="40"
-              width="40"
-              />
+  handleLogoClick() {
+    // force an update when you click on the logo
+    this.props.handleUpdate();
+  }
+
+  render() {
+    const {classes} = this.props;
+    return (
+      <div className={classes.root}>
+        <AppBar
+          position="static"
+          color= "primary"
+        >
+          <Grid container alignItems="center" className={classes.grid}>
+
+            <Grid item xs={3} className={classes.logo}>
+              <AboutDialog>
+                <img
+                  src="images/litlogo145.png"
+                  height="40"
+                  width="40"
+                  onClick={this.handleLogoClick.bind(this)}
+                />
+              </AboutDialog>
+            </Grid>
+
+            <Grid item xs={6} className={classes.title}>
+              <Typography variant="title" color="inherit">
+                {this.props.title}
+              </Typography>
+            </Grid>
+
+            <Grid item xs={3} className={classes.avatar}>
+              <Avatar>
+                <Blockies
+                  seed={this.props.address}
+                  size={10}
+                  scale={3}
+                  color="#FF5733"
+                  bgColor="#FFC300"
+                />
+              </Avatar>
+            </Grid>
+
           </Grid>
-
-          <Grid item xs={4} className={classes.title}>
-            <Typography variant="title" color="inherit">
-              {props.title}
-            </Typography>
-          </Grid>
-
-          <Grid item xs={4} className={classes.avatar}>
-            <Avatar>
-              <Blockies
-                seed={props.address}
-                size={10}
-                scale={3}
-                color="#FF5733"
-                bgColor="#FFC300"
-              />
-            </Avatar>
-          </Grid>
-
-        </Grid>
-      </AppBar>
-    </div>
-  );
+        </AppBar>
+      </div>
+    );
+  }
 }
 
 LitAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
   address: PropTypes.string.isRequired,
-  appBarColorPrimary: PropTypes.bool.isRequired,
+  handleUpdate: PropTypes.func.isRequired,
+  handleSettingsSubmit: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(LitAppBar);

@@ -46,6 +46,13 @@ const coinInfo = {
     factor: 100000000,
     decimals: 4,
   },
+  261: {
+    name: 'Vertcoin Regtest',
+    denomination: 'VTC',
+    exchangeSymbol: 'VTC',
+    factor: 100000000,
+    decimals: 4,
+  },
   262: {
     name: 'US Dollars',
     denomination: 'USD',

@@ -6,67 +6,73 @@ import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import CardContent from '@material-ui/core/CardContent';
 import TextField from '@material-ui/core/TextField';
-import SendIcon from '@material-ui/icons/ArrowUpward';
+import {ArrowUpBoldOutline} from 'mdi-material-ui';
 import {coinInfo} from './CoinTypes.js'
 import PopUpDialog from './PopUpDialog.js'
 import CoinMenu from './CoinMenu.js'
 import QrSendReader from './QrSendReader.js'
+import {QrcodeScan} from 'mdi-material-ui'
+import {formatCoin} from "./CoinTypes";
 
 const styles = theme => ({
   dialog: {},
   card: {
     margin: theme.spacing.unit,
-    // padding: theme.spacing.unit * 2,
+  },
+  content: {
+  },
+  avail: {
+    marginTop: theme.spacing.unit,
   },
   amount: {
     display: 'flex',
     alignItems: 'flex-end',
   },
+  qrIcon: {
+    marginRight: theme.spacing.unit,
+  },
   qr: {
     marginTop: theme.spacing.unit * 4,
+    marginBottom: theme.spacing.unit * 2,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
+    height: 250,
+    width: 250,
   },
   button: {},
   extendedIcon: {
     marginRight: theme.spacing.unit,
   },
   buttons: {
-    marginTop: theme.spacing.unit,
-    marginBottom: 32,
+    marginTop: theme.spacing.unit * 2,
     display: 'flex',
     justifyContent: 'space-around',
   },
 });
 
-
 class BalanceSendDialog extends PopUpDialog {
-
-  constructor(props) {
-    super(props);
-    this.state = Object.assign(this.state,
-      {
-        amount: "",
-        coinType: -1,
-        address: "",
-      });
-  }
 
   resetState() {
     this.setState({
       amount: "",
       coinType: -1,
       address: "",
+      qrOpen: false,
     });
     super.resetState();
+  }
+
+  handleOpenQr() {
+    this.setState({
+      qrOpen: true,
+    });
   }
 
   handleQrScan(data) {
@@ -86,6 +92,16 @@ class BalanceSendDialog extends PopUpDialog {
   render() {
     const {classes} = this.props;
 
+    let avail = "0";
+    if (this.state.coinType !== -1) {
+      this.props.balances.forEach(
+        b => {
+          if (b.CoinType == this.state.coinType) {
+            avail = formatCoin(b.ChanTotal, b.CoinType, false);
+          }
+        });
+    }
+
     return (
       <div>
         <Button
@@ -95,7 +111,7 @@ class BalanceSendDialog extends PopUpDialog {
           className={classes.button}
           onClick={this.handleClickOpen.bind(this)}
         >
-          <SendIcon className={classes.extendedIcon}/>
+          <ArrowUpBoldOutline className={classes.extendedIcon}/>
           Send
         </Button>
         <Dialog
@@ -105,66 +121,88 @@ class BalanceSendDialog extends PopUpDialog {
           onClose={this.handleClose.bind(this)}
           aria-labelledby="form-dialog-title"
         >
-        <Card raised className={classes.card}>
-          <DialogContent>
-          <Grid container alignContent="flex-end">
-            <Grid item xs={12}>
-              <Typography variant="title">
-                Send to Lightning Address
-              </Typography>
-            </Grid>
-            <Grid item xs={6} className={classes.type}>
-                <CoinMenu
-                  onChange={this.handleChange('coinType').bind(this)}
-                />
-            </Grid>
-            <Grid item xs={6} className={classes.amount}>
-              <TextField
-                className={classes.amount}
-                id="amount"
-                label="Amount"
-                type="number"
-                onChange={this.handleChange('amount').bind(this)}
-              />
-            </Grid>
-            <Grid item xs={12} className={classes.address}>
+          <Card className={classes.card}>
+            <CardContent className={classes.content}>
+              <Grid container alignContent="flex-end">
+                <Grid item xs={12}>
+                  <Typography variant="title">
+                    Send to Lightning Address
+                  </Typography>
+                </Grid>
+                <Grid item xs={6} className={classes.type}>
+                  <CoinMenu
+                    onChange={this.handleChange('coinType').bind(this)}
+                  />
+                </Grid>
+                <Grid item xs={6} className={classes.amount}>
+                  <TextField
+                    id="amount"
+                    label="Amount"
+                    type="number"
+                    onChange={this.handleChange('amount').bind(this)}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                </Grid>
+                <Grid item xs={6} className={classes.avail}>
+                  <Typography variant="caption">
+                    Avail: {avail}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} className={classes.address}>
 
-            <TextField
-              id="address"
-              label="Address to Send to"
-              type="text"
-              fullWidth
-              value={this.state.address}
-              onChange={this.handleChange('address').bind(this)}
-            />
-            </Grid>
+                  <TextField
+                    id="address"
+                    label="Address to Send to"
+                    type="text"
+                    fullWidth
+                    value={this.state.address}
+                    onChange={this.handleChange('address').bind(this)}
+                  />
+                </Grid>
 
-            <Grid item xs={12} className={classes.qr}>
-              <QrSendReader
-                delay={200}
-                handleScan={this.handleQrScan.bind(this)}
-              />
-            </Grid>
-          </Grid>
-          </DialogContent>
-          <DialogActions className={classes.buttons}>
-            <Button
-              variant="contained"
-              color="default"
-              onClick={this.handleClose.bind(this)}
-            >
-              Cancel
-            </Button>
-            <Button
-              disabled={this.state.amount === "" || this.state.address === "" || this.state.coinType === -1}
-              variant="contained"
-              color="primary"
-              onClick={this.handleSubmit.bind(this)}
-            >
-              Send
-            </Button>
-          </DialogActions>
-        </Card>
+                <Grid item xs={12} className={classes.qr}>
+                  {!this.state.qrOpen &&
+                  <Button
+                    variant="contained"
+                    color="default"
+                    size="large"
+                    onClick={this.handleOpenQr.bind(this)}
+                  >
+                    <QrcodeScan className={classes.qrIcon}/>
+                    Scan QR Code
+                  </Button>
+                  }
+                  {this.state.qrOpen &&
+                  <QrSendReader
+                    delay={200}
+                    handleScan={this.handleQrScan.bind(this)}
+                  />
+                  }
+                </Grid>
+              </Grid>
+            </CardContent>
+
+          </Card>
+            <div className={classes.buttons}>
+              <Button
+                variant="contained"
+                color="default"
+                onClick={this.handleClose.bind(this)}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={this.state.amount <= 0 || parseFloat(this.state.amount, 10) > parseFloat(avail,10) ||
+                (typeof(this.state.address) === "string" && !this.state.address.startsWith("ln1")) ||
+                this.state.coinType === -1}
+                variant="contained"
+                color="primary"
+                onClick={this.handleSubmit.bind(this)}
+              >
+                Send
+              </Button>
+            </div>
         </Dialog>
       </div>
     );

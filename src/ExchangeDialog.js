@@ -70,7 +70,7 @@ class ExchangeDialog extends PopUpDialog {
   }
 
   handleSubmit() {
-    this.props.handleSendSubmit(this.props.address, this.state.fromCoinType, this.state.toCoinType,
+    this.props.handleSendSubmit(this.props.address, this.state.toCoinType, this.state.fromCoinType,
       Math.round(parseFloat(this.state.fromAmount) * coinInfo[this.state.fromCoinType].factor));
     super.handleSubmit();
   };

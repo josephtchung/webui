@@ -62,6 +62,15 @@ class ConnectPage extends React.Component {
       };
   }
 
+  componentWillMount() {
+    var pairedNode = localStorage.getItem('pairedNode');
+    if(pairedNode !== undefined && pairedNode !== null && pairedNode.substring(0,3) === "ln1") {
+      this.submitted = true;
+      console.log("Connecting to previously connected node", pairedNode);
+      this.props.handleConnectSubmit(pairedNode);
+    }
+  }
+
   resetState() {
     this.setState({
       address: "",
@@ -73,6 +82,7 @@ class ConnectPage extends React.Component {
     if (data !== null) {
       if(data.substring(0,3) === "ln1" && !this.submitted)
       {
+        localStorage.setItem('pairedNode', data);
         this.submitted = true;
         this.props.handleConnectSubmit(data);
       }

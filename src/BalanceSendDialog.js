@@ -102,6 +102,9 @@ class BalanceSendDialog extends PopUpDialog {
         });
     }
 
+    var qrx = Math.abs((window.innerWidth - 250) / 2);
+
+
     return (
       <div>
         <Button
@@ -177,6 +180,7 @@ class BalanceSendDialog extends PopUpDialog {
                   <QrSendReader
                     delay={200}
                     handleScan={this.handleQrScan.bind(this)}
+                    nativeRect={qrx + ',260,250,250'}
                   />
                   }
                 </Grid>

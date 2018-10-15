@@ -34,17 +34,17 @@ const coinInfo = {
   */
   257: {
     name: 'Bitcoin Regtest',
-    denomination: 'BTC',
+    denomination: 'mBTC',
     exchangeSymbol: 'BTC',
-    factor: 100000000,
-    decimals: 4,
+    factor: 100000,
+    decimals: 2,
   },
   258: {
     name: 'Litecoin Regtest',
-    denomination: 'LTC',
+    denomination: 'mLTC',
     exchangeSymbol: 'LTC',
-    factor: 100000000,
-    decimals: 4,
+    factor: 100000,
+    decimals: 2,
   },
   261: {
     name: 'Vertcoin Regtest',

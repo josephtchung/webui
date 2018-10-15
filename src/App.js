@@ -49,8 +49,8 @@ class App extends Component {
       appBarColorPrimary: true,
       hideClosedChannels: true,
       errorMessage: null,
-      isConnectedToLitNode: true,
-      isAuthorizedOnLitNode: true,
+      isConnectedToLitNode: null,
+      isAuthorizedOnLitNode: false,
       isConnectingToLitNode: false,
 
 
@@ -778,10 +778,10 @@ class App extends Component {
       lc.send("LitRPCProxy.IsConnected").then(((res) => {
         if(res === true) {
           console.log(this);
-          this.setState({isConnectedToLitNode:true, isAuthorizedOnLitNode:false});
+          this.setState({isConnectedToLitNode:true});
           this.state.lc.send("LitRPC.Balances");
         } else {
-          this.setState({isConnectedToLitNode:false, isAuthorizedOnLitNode:false})
+          this.setState({isConnectedToLitNode:false})
         }
       }).bind(this)).catch((err) => {
         console.log("Caught error on IsConnected:", err);
@@ -793,7 +793,7 @@ class App extends Component {
     this.setState({isConnectingToLitNode:true});
     this.state.lc.send("LitRPCProxy.Connect", {adr : adr}).then((res) => {
       if(res) {
-        this.setState({isConnectedToLitNode:true,isAuthorizedOnLitNode:false,isConnectingToLitNode:false});
+        this.setState({isConnectedToLitNode:true,isConnectingToLitNode:false});
         this.state.lc.send("LitRPC.Balances");
       }
     });
@@ -828,15 +828,15 @@ class App extends Component {
           />
         </div>
         <div className={classes.content}>
-          {!this.state.isConnectedToLitNode && !this.state.isConnectingToLitNode &&
+          {this.state.isConnectedToLitNode === false && this.state.isConnectingToLitNode === false &&
             <ConnectPage
             handleConnectSubmit={this.handleConnectSubmit.bind(this)}
             />
           }
-          {!this.state.isAuthorizedOnLitNode &&
+          {this.state.isConnectedToLitNode === true && this.state.isAuthorizedOnLitNode === false &&
             <Typography>Your client is not yet authorized to control the lit node you have connected to. Authorize the client on the lit node to continue</Typography>
           }
-          {this.state.isConnectedToLitNode && this.state.isAuthorizedOnLitNode &&
+          {this.state.isConnectedToLitNode === true && this.state.isAuthorizedOnLitNode === true &&
           <Balances
             balances={this.state.Balances}
             payments={this.state.MultihopPayments}

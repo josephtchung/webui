@@ -5,11 +5,9 @@ import Grid from '@material-ui/core/Grid';
 import Avatar from '@material-ui/core/Avatar';
 import Fade from '@material-ui/core/Fade';
 import Divider from '@material-ui/core/Divider';
-import {ArrowDownBoldOutline} from 'mdi-material-ui';
-import {ArrowUpBoldOutline} from 'mdi-material-ui';
-import {ArrowUpDownBoldOutline} from 'mdi-material-ui';
+import {ArrowDownBoldOutline, ArrowUpBoldOutline, ArrowUpDownBoldOutline} from "mdi-material-ui";
 import Blockies from 'react-blockies';
-import {formatCoin, coinInfo} from './CoinTypes.js';
+import {coinInfo, formatCoin} from "./CoinTypes";
 
 
 const styles = theme => ({
@@ -44,43 +42,56 @@ const styles = theme => ({
   },
 });
 
-function pathAddress(path) {
+
+export function pathAddress(path) {
   return path.split(":")[0];
 }
 
 function pathCoinType(path) {
-  return parseInt(path.split(":")[1]);
+  return parseInt(path.split(":")[1], 10);
 }
+
 
 class PaymentHistoryCard extends React.Component {
 
-
   render() {
-
     const {classes} = this.props;
 
     let payment = this.props.payment;
-    let lastPath = payment.Path[payment.Path.length - 1];;
     let icon = null;
-    let message = null;
-    let address = null;
+    let message = "";
+    let address = "";
 
-    if (payment.Amt === 0) { // 0 amount means receive for some reason
+    // check if it's an exchange (from & to are same address)
+    if (payment.Path.length > 1 &&
+      pathAddress(payment.Path[0]) === pathAddress(payment.Path[payment.Path.length - 1])) {
+      icon = <ArrowUpDownBoldOutline/>;
+      message =
+        <span>
+          Exchanged {formatCoin(payment.Amt, pathCoinType(payment.Path[0]))} for {
+          coinInfo[pathCoinType(payment.Path[payment.Path.length - 1])].denomination}
+        </span>;
+      address = pathAddress(payment.Path[0]);
+    }
+
+    else if (payment.Amt === 0) { // 0 amount means receive for some reason
       icon = <ArrowDownBoldOutline/>;
       message =
         <span>
-          Received {coinInfo[pathCoinType(lastPath)].denomination}
+          Received {coinInfo[pathCoinType(payment.Path[payment.Path.length - 1])].denomination}
         </span>;
-      address = pathAddress(lastPath);
+      address = pathAddress(payment.Path[0]);
     }
+
     else {
       icon = <ArrowUpBoldOutline/>;
       message =
         <span>
-          Sent {formatCoin(payment.Amt, pathCoinType(lastPath))}
+          Sent {formatCoin(payment.Amt, pathCoinType(payment.Path[0]))}
         </span>;
-      address = pathAddress(lastPath);
+      address = pathAddress(payment.Path[payment.Path.length - 1]);
     }
+
 
     return (
       <Fade in={true} timeout={750}>
@@ -121,9 +132,9 @@ class PaymentHistoryCard extends React.Component {
 }
 
 PaymentHistoryCard.propTypes = {
+  classes: PropTypes.object.isRequired,
   payment: PropTypes.object.isRequired,
   divider: PropTypes.bool.isRequired,
 };
-
 
 export default withStyles(styles)(PaymentHistoryCard);

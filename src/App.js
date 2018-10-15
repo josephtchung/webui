@@ -18,6 +18,7 @@ const styles = theme => ({
   appBar: {
     position: 'sticky',
     top: 0,
+    zIndex: 100,
   },
   content: {
   },

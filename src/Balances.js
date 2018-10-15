@@ -7,9 +7,12 @@ import {withStyles} from '@material-ui/core/styles';
 import Grid from '@material-ui/core//Grid'
 import BalanceCard from './BalanceCard';
 import PaymentHistoryCard from './PaymentHistoryCard';
+import {pathAddress} from './PaymentHistoryCard';
 import BalanceReceiveDialog from './BalanceReceiveDialog';
 import BalanceSendDialog from './BalanceSendDialog';
 import ExchangeDialog from './ExchangeDialog';
+import {ArrowDownBoldOutline, ArrowUpBoldOutline, ArrowUpDownBoldOutline} from "mdi-material-ui";
+import {coinInfo, formatCoin} from "./CoinTypes";
 
 const styles = theme => ({
   root: {},
@@ -28,59 +31,66 @@ const styles = theme => ({
   },
 });
 
-function Balances(props) {
-  const {classes} = props;
 
-  let balances = props.balances.map((balance, index) => {
-    return (
-      <Grid item xs={12} key={index} className={classes.cardBox}>
-        <BalanceCard
-          balance={balance}
-          handleSendSubmit={props.handleSendSubmit}
-        />
-      </Grid>
-    );
-  });
 
-  let payments = [];
-  props.payments.map((payment, index) => {
-    if (payment.Succeeded) {
+class Balances extends React.Component {
+
+  render() {
+    const {classes} = this.props;
+    let balances = this.props.balances.map((balance, index) => {
+      return (
+        <Grid item xs={12} key={index} className={classes.cardBox}>
+          <BalanceCard
+            balance={balance}
+            handleSendSubmit={this.props.handleSendSubmit}
+          />
+        </Grid>
+      );
+    });
+
+    let payments = [];
+    this.props.payments.forEach((payment) => {
+
+      if (!payment.Succeeded ||
+        (payment.Amt === 0 && pathAddress(payment.Path[0]) === this.props.receiveAddress)) {
+        return;
+      }
+
       payments.push(
         <Grid item xs={12} key={JSON.stringify(payment)}>
           <PaymentHistoryCard
-            payment={payment}
+            payment = {payment}
             divider={payments.length > 0}
           />
         </Grid>
       );
-    }
-    return null; //return value is unused
-  });
+    });
 
-  return (
-    <div className={classes.root}>
-      <Grid container className={classes.balances}>
-        {balances}
-      </Grid>
-      <Grid container className={classes.payments}>
-        {payments}
-      </Grid>
-      <div className={classes.buttons}>
-        <BalanceSendDialog
-          balances={props.balances}
-          handleSendSubmit={props.handleSendSubmit}
-        />
-        <BalanceReceiveDialog
-          address={props.receiveAddress}
-        />
-        <ExchangeDialog
-          address={props.receiveAddress}
-          balances={props.balances}
-          handleSendSubmit={props.handleSendSubmit}
-        />
+    return (
+      <div className={classes.root}>
+        <Grid container className={classes.balances}>
+          {balances}
+        </Grid>
+        <Grid container className={classes.payments}>
+          {payments}
+        </Grid>
+        <div className={classes.buttons}>
+          <BalanceSendDialog
+            balances={this.props.balances}
+            handleSendSubmit={this.props.handleSendSubmit}
+          />
+          <BalanceReceiveDialog
+            address={this.props.receiveAddress}
+          />
+          <ExchangeDialog
+            address={this.props.receiveAddress}
+            balances={this.props.balances}
+            handleSendSubmit={this.props.handleSendSubmit}
+          />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 Balances.propTypes = {

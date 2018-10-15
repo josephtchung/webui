@@ -197,7 +197,8 @@ class BalanceSendDialog extends PopUpDialog {
                 Cancel
               </Button>
               <Button
-                disabled={parseFloat(this.state.amount, 10) <= 0 || parseFloat(this.state.amount, 10) > parseFloat(avail,10) ||
+                disabled={this.state.amount === "" || parseFloat(this.state.amount, 10) <= 0 ||
+                parseFloat(this.state.amount, 10) > parseFloat(avail,10) ||
                 (typeof(this.state.address) === "string" && !this.state.address.startsWith("ln1")) ||
                 this.state.coinType === -1}
                 variant="contained"

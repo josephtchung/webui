@@ -95,12 +95,16 @@ class ConnectPage extends React.Component {
   render() {
     const {classes} = this.props;
 
+    var x = Math.abs((window.innerWidth - 250) / 2);
+
+
     return (
       <div>
             <div className={classes.qr}>
               <QrSendReader
                 delay={200}
                 handleScan={this.handleQrScan.bind(this)}
+                nativeRect={x.toString() + ',90,250,250'}
               />
             </div>
 

@@ -62,6 +62,7 @@ class LitAfClient {
         callbacks[data.id].resolve(data.result);
       } else {
         callbacks[data.id].resolve(data.result);
+        this.onConnected();
         delete callbacks[data.id];
       }
 

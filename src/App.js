@@ -749,8 +749,10 @@ class App extends Component {
     }
 
     var onConnected = () => {
-      if(this.state.isAuthorizedOnLitNode === false || this.state.isConnectedToLitNode === false)
+      if(this.state.isAuthorizedOnLitNode === false || this.state.isConnectedToLitNode === false) {
         this.setState({isAuthorizedOnLitNode:true, isConnectedToLitNode:true});
+        this.update();
+      }
     }
 
     lc = new LitAfClient(address, port, onUnauthorized, onUnconnected, onConnected);
@@ -776,8 +778,8 @@ class App extends Component {
       lc.send("LitRPCProxy.IsConnected").then(((res) => {
         if(res === true) {
           console.log(this);
-          this.setState({isConnectedToLitNode:true, isAuthorizedOnLitNode:true});
-          this.update();
+          this.setState({isConnectedToLitNode:true, isAuthorizedOnLitNode:false});
+          this.state.lc.send("LitRPC.Balances");
         } else {
           this.setState({isConnectedToLitNode:false, isAuthorizedOnLitNode:false})
         }

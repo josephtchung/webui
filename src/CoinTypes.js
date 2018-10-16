@@ -68,7 +68,7 @@ const coinInfo = {
 const coinDenominations = (() => {
   let result = {};
   for (let i in coinInfo) {
-    result[coinInfo[i].denomination] = parseInt(i);
+    result[coinInfo[i].denomination] = parseInt(i, 10);
   }
   return result;
 })();

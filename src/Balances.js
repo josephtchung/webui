@@ -11,8 +11,6 @@ import {pathAddress} from './PaymentHistoryCard';
 import BalanceReceiveDialog from './BalanceReceiveDialog';
 import BalanceSendDialog from './BalanceSendDialog';
 import ExchangeDialog from './ExchangeDialog';
-import {ArrowDownBoldOutline, ArrowUpBoldOutline, ArrowUpDownBoldOutline} from "mdi-material-ui";
-import {coinInfo, formatCoin} from "./CoinTypes";
 
 const styles = theme => ({
   root: {},

@@ -7,9 +7,17 @@ import Balances from './Balances'
 import Settings from './Settings'
 import ConnectPage from './ConnectPage'
 import Typography from '@material-ui/core/Typography';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 // import Contracts from './Contracts'
 import {coinInfo} from './CoinTypes'
 import ErrorDialog from './ErrorDialog'
+
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#a31f34' },
+  },
+});
 
 
 const styles = theme => ({
@@ -818,6 +826,7 @@ class App extends Component {
     }
 
     return (
+      <MuiThemeProvider theme={theme}>
       <div className={classes.app}>
         <CssBaseline/>
         <div className={classes.appBar}>
@@ -851,6 +860,7 @@ class App extends Component {
           handleSubmit={this.handleErrorDialogSubmit.bind(this)}
           />
       </div>
+      </MuiThemeProvider>
     );
   }
 

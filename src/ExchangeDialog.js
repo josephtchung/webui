@@ -50,6 +50,24 @@ const styles = theme => ({
   },
 });
 
+const exchangeRates = {
+  257: {
+    257: 1,
+    258: 112,
+    262: 6295,
+  },
+  258: {
+    257: 1 / 118,
+    258: 1,
+    262: 52,
+  },
+  262: {
+    257: 1 / 6495,
+    258: 1 / 58,
+    262: 1,
+  },
+};
+
 class ExchangeDialog extends PopUpDialog {
 
   resetState() {
@@ -79,13 +97,24 @@ class ExchangeDialog extends PopUpDialog {
     const {classes} = this.props;
 
     let avail = "0";
-    if (this.state.fromCoinType !== -1) {
-      this.props.balances.forEach(
-        b => {
-          if (b.CoinType == this.state.fromCoinType) {
-            avail = formatCoin(b.ChanTotal, b.CoinType, false);
-          }
-        });
+    let quantity = "";
+
+    if (this.state.open) {
+      if (this.state.fromCoinType !== -1) {
+        this.props.balances.forEach(
+          b => {
+            if (b.CoinType == this.state.fromCoinType) {
+              avail = formatCoin(b.ChanTotal, b.CoinType, false);
+            }
+          });
+      }
+
+      if (this.state.fromCoinType !== -1 && this.state.toCoinType !== -1 &&
+        this.state.fromAmount !== "") {
+        let exchange = exchangeRates[this.state.fromCoinType][this.state.toCoinType];
+        quantity = formatCoin(parseFloat(this.state.fromAmount) *
+          coinInfo[this.state.fromCoinType].factor * exchange, this.state.toCoinType, false);
+      }
     }
 
     return (
@@ -130,8 +159,7 @@ class ExchangeDialog extends PopUpDialog {
                         onChange={this.handleChange('fromAmount').bind(this)}
                       />
                     </Grid>
-                    <Grid item xs={6}>
-                    </Grid>
+                    <Grid item xs={6}></Grid>
                     <Grid item xs={6} className={classes.avail}>
                       <Typography variant="caption">
                         Avail: {avail}
@@ -157,7 +185,7 @@ class ExchangeDialog extends PopUpDialog {
                     </Grid>
                     <Grid item xs={6} className={classes.amount}>
                       <Typography variant="subheading">
-                        Qty: 0.000
+                        Qty: {quantity}
                       </Typography>
                     </Grid>
                   </Grid>

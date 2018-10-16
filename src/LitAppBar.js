@@ -9,7 +9,8 @@ import Blockies from 'react-blockies';
 import AboutDialog from './AboutDialog.js'
 
 const styles = theme => ({
-  root: {
+  appBar: {
+    backgroundColor: '#c2c0bf',
   },
   grid: {
     padding: theme.spacing.unit,
@@ -17,15 +18,20 @@ const styles = theme => ({
   logo: {
     display: 'flex',
     justifyContent: 'flex-start',
+    paddingLeft: theme.spacing.unit,
   },
   title: {
     display: 'flex',
     justifyContent: 'center',
     textAlign: 'center',
   },
-  avatar: {
+  avatarBox: {
     display: 'flex',
     justifyContent: 'flex-end',
+    paddingRight: theme.spacing.unit,
+  },
+  avatar: {
+    backgroundColor: '#8a8b8c',
   },
 });
 
@@ -39,17 +45,18 @@ class LitAppBar extends React.Component {
   render() {
     const {classes} = this.props;
     return (
-      <div className={classes.root}>
         <AppBar
           position="static"
-          color= "primary"
+          color= "inherit"
+          className={classes.appBar}
         >
           <Grid container alignItems="center" className={classes.grid}>
 
             <Grid item xs={3} className={classes.logo}>
               <AboutDialog>
                 <img
-                  src="images/litlogo145.png"
+                  src="images/litlogo.png"
+                  alt="lit logo"
                   height="40"
                   width="40"
                   onClick={this.handleLogoClick.bind(this)}
@@ -63,8 +70,8 @@ class LitAppBar extends React.Component {
               </Typography>
             </Grid>
 
-            <Grid item xs={3} className={classes.avatar}>
-              <Avatar>
+            <Grid item xs={3} className={classes.avatarBox}>
+              <Avatar className={classes.avatar}>
                 <Blockies
                   seed={this.props.address}
                   size={10}
@@ -77,7 +84,6 @@ class LitAppBar extends React.Component {
 
           </Grid>
         </AppBar>
-      </div>
     );
   }
 }

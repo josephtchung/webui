@@ -31,10 +31,13 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
   },
-  avatar: {
+  avatarBox: {
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  avatar: {
+    backgroundColor: '#8a8b8c',
   },
   divider: {
     marginLeft: theme.spacing.unit * 2,
@@ -112,8 +115,8 @@ class PaymentHistoryCard extends React.Component {
               </span>
             </Grid>
 
-            <Grid item xs={1} className={classes.avatar}>
-              <Avatar>
+            <Grid item xs={1} className={classes.avatarBox}>
+              <Avatar className={classes.avatar}>
                 <Blockies
                   seed={address}
                   size={10}

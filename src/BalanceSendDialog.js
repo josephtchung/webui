@@ -17,7 +17,7 @@ import PopUpDialog from './PopUpDialog.js'
 import CoinMenu from './CoinMenu.js'
 import QrSendReader from './QrSendReader.js'
 import {QrcodeScan} from 'mdi-material-ui'
-import {formatCoin} from "./CoinTypes";
+import {formatCoin, parseCoin, exchangeRates, channelFee, minimumOutput} from './CoinTypes.js';
 
 const styles = theme => ({
   dialog: {},
@@ -59,14 +59,19 @@ const styles = theme => ({
 
 class BalanceSendDialog extends PopUpDialog {
 
-  resetState() {
-    this.setState({
+  constructor(props) {
+    super(props);
+    this.state = this.initialState();
+  }
+
+  // override to return the initial state for construction and resetting
+  initialState () {
+    return {
       amount: "",
       coinType: -1,
       address: "",
       qrOpen: false,
-    });
-    super.resetState();
+    }
   }
 
   handleOpenQr() {
@@ -92,12 +97,18 @@ class BalanceSendDialog extends PopUpDialog {
   render() {
     const {classes} = this.props;
 
-    let avail = "0";
+    let balance = 0;
+    let minPayment = 0;
+    let maxPayment = 0;
+
+
     if (this.state.coinType !== -1) {
       this.props.balances.forEach(
         b => {
-          if (b.CoinType == this.state.coinType) {
-            avail = formatCoin(b.ChanTotal, b.CoinType, false);
+          if (b.CoinType === this.state.coinType) {
+            balance = b.ChanTotal;
+            minPayment = channelFee + minimumOutput;
+            maxPayment = balance - (channelFee + minimumOutput);
           }
         });
     }
@@ -147,9 +158,14 @@ class BalanceSendDialog extends PopUpDialog {
                 </Grid>
                 <Grid item xs={6}>
                 </Grid>
-                <Grid item xs={6} className={classes.avail}>
+                <Grid item xs={3} className={classes.avail}>
                   <Typography variant="caption">
-                    Avail: {avail}
+                    Min: {minPayment > 0 && formatCoin(minPayment, this.state.coinType, false)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={3} className={classes.avail}>
+                  <Typography variant="caption">
+                    Max: {maxPayment > 0 && formatCoin(maxPayment, this.state.coinType, false)}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} className={classes.address}>
@@ -197,10 +213,10 @@ class BalanceSendDialog extends PopUpDialog {
                 Cancel
               </Button>
               <Button
-                disabled={this.state.amount === "" || parseFloat(this.state.amount, 10) <= 0 ||
-                parseFloat(this.state.amount, 10) > parseFloat(avail,10) ||
-                (typeof(this.state.address) === "string" && !this.state.address.startsWith("ln1")) ||
-                this.state.coinType === -1}
+                disabled={
+                  this.state.coinType === -1 || parseCoin(this.state.amount, this.state.coinType) < minPayment ||
+                  parseCoin(this.state.amount, this.state.coinType) > maxPayment ||
+                  (typeof(this.state.address) === "string" && !this.state.address.startsWith("ln1"))}
                 variant="contained"
                 color="primary"
                 onClick={this.handleSubmit.bind(this)}

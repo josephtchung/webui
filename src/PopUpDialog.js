@@ -15,7 +15,12 @@ class PopUpDialog extends React.Component {
   }
 
   // override this method to reset any states that get set by handleChange
-  resetState(state) {
+  initialState() {
+    return {};
+  }
+
+  resetState() {
+    this.setState(this.initialState());
   }
 
   handleClickOpen() {

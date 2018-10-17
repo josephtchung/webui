@@ -64,6 +64,29 @@ const coinInfo = {
   },
 };
 
+/* hardcoded values for exchange rates, fees, and min output  FIXME -- for demo purposes only! */
+
+const exchangeRates = {
+  257: {
+    257: 1,
+    258: 112,
+    262: 6295,
+  },
+  258: {
+    257: 1 / 118,
+    258: 1,
+    262: 52,
+  },
+  262: {
+    257: 1 / 6495,
+    258: 1 / 58,
+    262: 1,
+  },
+};
+const channelFee = 1000;
+const minimumOutput = 10000;
+
+
 /*
  * coinDenominations is a an object that maps the textual denomination (e.g. "BTC") to is numerical coinType (0)
  */
@@ -79,7 +102,8 @@ const coinTypes = Object.keys(coinInfo).map(key => {
   return parseInt(key, 10);
 });
 
-function formatCoin(amount, coinType, showDenomination = true) {
+// formats satoshis into a given coin's denomination
+function formatCoin(satoshis, coinType, showDenomination = true) {
   let info = coinInfo[coinType];
   let denomination = "";
 
@@ -87,18 +111,22 @@ function formatCoin(amount, coinType, showDenomination = true) {
     if (showDenomination) {
       denomination = " Type " + coinType;
     }
-
-    return Number(amount).toLocaleString() + denomination;
+    return Number(satoshis).toLocaleString() + denomination;
   }
 
   if  (showDenomination) {
     denomination = " " + info.denomination;
   }
 
-  return Number(amount / info.factor).toLocaleString(undefined, {
+  return Number(satoshis / info.factor).toLocaleString(undefined, {
     minimumFractionDigits: info.decimals,
     maximumFractionDigits: info.decimals
   }) + denomination;
+}
+
+// returns the number of satoshis from the output of formatCoin (with no denomination!)
+function parseCoin(amount, coinType) {
+  return Math.round(parseFloat(amount) * coinInfo[coinType].factor);
 }
 
 function formatUSD(coinAmount, coinType, exchangeRates) {
@@ -110,5 +138,6 @@ function formatUSD(coinAmount, coinType, exchangeRates) {
   });
 }
 
-export {coinInfo, coinDenominations, coinTypes, formatCoin, formatUSD};
+export {coinInfo, coinDenominations, coinTypes, formatCoin, parseCoin, formatUSD,
+  exchangeRates, channelFee, minimumOutput};
 

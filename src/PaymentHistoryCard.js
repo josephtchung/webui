@@ -97,7 +97,7 @@ class PaymentHistoryCard extends React.Component {
 
 
     return (
-      <Fade in={true} timeout={750}>
+      <Fade in={true} timeout={1000}>
         <div>
           {this.props.divider &&
           <Divider light />

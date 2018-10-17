@@ -9,14 +9,11 @@
 
 @keyframes BackHighlight {
     0% { background-color: white; }
-    50% { background-color: yellow; }
+    25% { background-color: yellow; }
     100% { background-color: white; }
 }
 
 @keyframes BalHighlight {
-    0% { transform: scale(1.0, 1.0); }
-    25% { transform: scale(1.0, 1.2); }
-    50% { transform: scale(1.0, 1.0); }
-    75% { transform: scale(1.0, 1.2); }
+    0% { transform: scale(1.1, 1.2); }
     100% { transform: scale(1.0, 1.0); }
 }

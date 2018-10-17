@@ -16,7 +16,7 @@ import {ArrowUpDownBoldOutline} from 'mdi-material-ui';
 import PopUpDialog from './PopUpDialog.js'
 import CoinMenu from './CoinMenu';
 import {coinInfo} from './CoinTypes.js'
-import {formatCoin} from './CoinTypes.js';
+import {formatCoin, parseCoin, exchangeRates, channelFee, minimumOutput} from './CoinTypes.js';
 
 
 const styles = theme => ({
@@ -50,33 +50,22 @@ const styles = theme => ({
   },
 });
 
-const exchangeRates = {
-  257: {
-    257: 1,
-    258: 112,
-    262: 6295,
-  },
-  258: {
-    257: 1 / 118,
-    258: 1,
-    262: 52,
-  },
-  262: {
-    257: 1 / 6495,
-    258: 1 / 58,
-    262: 1,
-  },
-};
 
 class ExchangeDialog extends PopUpDialog {
 
-  resetState() {
-    this.setState({
+
+  constructor(props) {
+    super(props);
+    this.state = this.initialState();
+  }
+
+  // override to return the initial state for construction and resetting
+  initialState () {
+    return {
       fromCoinType: -1,
       fromAmount: 0,
       toCoinType: -1,
-    });
-    super.resetState();
+    }
   }
 
   handleChange(name) {
@@ -93,28 +82,61 @@ class ExchangeDialog extends PopUpDialog {
     super.handleSubmit();
   };
 
+  // returns true if the paramaters to the exchange are valid
+  exchangeDisabled(avail, quantity) {
+
+    if (this.state.fromCoinType === -1 || this.state.toCoinType === -1 ||
+      this.state.fromAmount === "" || this.state.fromCoinType === this.state.toCoinType) {
+      return true;
+    }
+
+    let fromSatoshis = parseCoin(this.state.fromAmount, this.state.fromCoinType);
+    let availSatoshis = parseCoin(avail, this.state.fromCoinType);
+    let toSatoshis = parseCoin(quantity, this.state.toCoinType);
+
+    if (fromSatoshis < channelFee + minimumOutput) {
+      console.log("below minimum payment");
+      return true; // below minimum payment (11k)
+    }
+
+    if (availSatoshis - fromSatoshis < channelFee + minimumOutput) {
+      console.log("balance cannot go below minimum");
+      return true; // balance cannot go below minimum
+    }
+
+    if (toSatoshis < channelFee + minimumOutput) {
+      console.log("exchange would result in a too low amount of target currency");
+      return true; // exchange would result in a too low amount of target currency
+    }
+    return false;
+  }
+
   render() {
     const {classes} = this.props;
 
-    let avail = "0";
-    let quantity = "";
+    // all these are in satoshis
+    let balance = 0;
+    let exchange = 0;
+    let minPayment = 0;
+    let maxPayment = 0;
 
     if (this.state.open) {
       if (this.state.fromCoinType !== -1) {
         this.props.balances.forEach(
           b => {
-            if (b.CoinType == this.state.fromCoinType) {
-              avail = formatCoin(b.ChanTotal, b.CoinType, false);
+            if (b.CoinType === this.state.fromCoinType) {
+              balance = b.ChanTotal;
             }
           });
       }
 
-      if (this.state.fromCoinType !== -1 && this.state.toCoinType !== -1 &&
-        this.state.fromAmount !== "") {
-        let exchange = exchangeRates[this.state.fromCoinType][this.state.toCoinType];
-        quantity = formatCoin(parseFloat(this.state.fromAmount) *
-          coinInfo[this.state.fromCoinType].factor * exchange, this.state.toCoinType, false);
+      if (this.state.fromCoinType !== -1 && this.state.toCoinType !== -1) {
+        let rate = exchangeRates[this.state.fromCoinType][this.state.toCoinType];
+        exchange = Math.round(parseFloat(this.state.fromAmount) * coinInfo[this.state.fromCoinType].factor * rate);
+        minPayment = Math.max(channelFee + minimumOutput, (channelFee + minimumOutput) / rate);
+        maxPayment = balance - (channelFee + minimumOutput);
       }
+
     }
 
     return (
@@ -160,9 +182,14 @@ class ExchangeDialog extends PopUpDialog {
                       />
                     </Grid>
                     <Grid item xs={6}></Grid>
-                    <Grid item xs={6} className={classes.avail}>
+                    <Grid item xs={3} className={classes.avail}>
                       <Typography variant="caption">
-                        Avail: {avail}
+                        Min: {minPayment > 0 && formatCoin(minPayment, this.state.fromCoinType, false)}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={3} className={classes.avail}>
+                      <Typography variant="caption">
+                        Max: {maxPayment > 0 && formatCoin(maxPayment, this.state.fromCoinType, false)}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -185,7 +212,7 @@ class ExchangeDialog extends PopUpDialog {
                     </Grid>
                     <Grid item xs={6} className={classes.amount}>
                       <Typography variant="subheading">
-                        Qty: {quantity}
+                        Qty: {exchange > 0 && formatCoin(exchange, this.state.toCoinType, false)}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -204,11 +231,12 @@ class ExchangeDialog extends PopUpDialog {
             <Button
               variant="contained"
               color="primary"
-              disabled={this.state.fromCoinType === -1 || this.state.toCoinType === -1 ||
-              this.state.fromAmount === "" ||
-              parseFloat(this.state.fromAmount, 10) <= 0 ||
-              parseFloat(this.state.fromAmount, 10) > parseFloat(avail, 10) ||
-              this.state.fromCoinType === this.state.toCoinType}
+              disabled={
+                this.state.fromCoinType === -1 || this.state.toCoinType === -1 ||
+                this.state.fromAmount === "" || this.state.fromCoinType === this.state.toCoinType ||
+                parseCoin(this.state.fromAmount, this.state.fromCoinType) < minPayment ||
+                parseCoin(this.state.fromAmount, this.state.fromCoinType) > maxPayment
+              }
               onClick={this.handleSubmit.bind(this)}
             >
               Exchange

@@ -74,7 +74,7 @@ class BalanceCard extends React.Component {
           </div>
           <div className={classes.balances}>
 
-            <div className={classes.numbers}>
+            <div className={classes.numbers + (this.state.highlight ? " BalHighlight" : "")}>
               <Typography variant="title">
                 {formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)}
               </Typography>

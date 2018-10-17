@@ -14,6 +14,7 @@ class LitAfClient {
     this.onConnected = onConnected;
     this.authorizationRequested = false;
     this.reconnectInterval = null;
+    this.firstRpc = true; // flag to see if the very first rpc worked
 
     // open the connection by setting wait for connection to be a promise that is resolved when open
     this.waitForConnection = new Promise (resolve => {
@@ -27,6 +28,7 @@ class LitAfClient {
     this.rpccon.onmessage = (message) => {
       let data = JSON.parse(message.data);
       if (data.error) {
+        this.firstRpc = false;
         console.log("Error:", data.error)
         if(data.error.code === -32001) {
           console.log("Received unconnected error");
@@ -35,22 +37,25 @@ class LitAfClient {
           return;
         }
         if(data.error.code === -32003) {
+          this.firstRpc = false;
           console.log("Received unauthorized error");
           this.onUnauthorized();
           if(!this.authorizationRequested) {
+            console.log("Requesting authorization");
             this.send("LitRPC.RequestRemoteControlAuthorization");
             // issue RCReq
             this.authorizationRequested = true;
             // Keep pinging to see if we're connected
-            if( this.reconnectInterval !== null) {
+            if(this.reconnectInterval !== null) {
               clearInterval(this.reconnectInterval);
             }
 
             this.reconnectInterval = setInterval(() => {
-              this.send("LitRPC.Balances").then((result) => {
+              this.send("LitRPC.Balance").then((result) => {
                 this.onConnected();
+                clearInterval(this.reconnectInterval);
               });
-            }, 2000);
+            }, 4000);
           }
           delete callbacks[data.id];
           return;    
@@ -58,11 +63,15 @@ class LitAfClient {
         callbacks[data.id].reject(data.error);
         delete callbacks[data.id];
       } else if(data.id === null) {
+        this.firstRpc = false;
         //go to the special chat message handler, but don't delete the callback
         callbacks[data.id].resolve(data.result);
       } else {
+        if (this.firstRpc) { // if the very first RPC was successful then we're connected
+          this.onConnected();
+          this.firstRpc = false;
+        }
         callbacks[data.id].resolve(data.result);
-        this.onConnected();
         delete callbacks[data.id];
       }
 

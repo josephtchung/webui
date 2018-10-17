@@ -61,7 +61,7 @@ class BalanceSendDialog extends PopUpDialog {
 
   constructor(props) {
     super(props);
-    this.state = this.initialState();
+    this.state = Object.assign(this.state, this.initialState());
   }
 
   // override to return the initial state for construction and resetting

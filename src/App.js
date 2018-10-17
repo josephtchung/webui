@@ -117,6 +117,8 @@ class App extends Component {
   }
 
   updateLit() {
+    // console.trace("Update lit");
+
     this.updateListeningPorts();
     this.updateBalances();
     this.updateMultihopPayments();
@@ -759,18 +761,21 @@ class App extends Component {
 
     var onConnected = () => {
       if(this.state.isAuthorizedOnLitNode === false || this.state.isConnectedToLitNode === false) {
+        console.log("onConnected called! updating...");
         this.setState({isAuthorizedOnLitNode:true, isConnectedToLitNode:true});
         this.update();
+      }
+
+      if (this.state.rpcRefreshReference === -1) {
+        if (refresh) {
+          rpcRefreshReference = setInterval(this.updateLit.bind(this), 2000);
+        }
       }
     }
 
     lc = new LitAfClient(address, port, onUnauthorized, onUnconnected, onConnected);
 
-    if (this.state.rpcRefreshReference === -1) {
-      if (refresh) {
-        rpcRefreshReference = setInterval(this.updateLit.bind(this), 2000);
-      }
-    } else {
+    if (this.state.rpcRefreshReference !== -1) {
       if (!refresh) {
         clearInterval(this.state.rpcRefreshReference);
         rpcRefreshReference = -1;
@@ -788,7 +793,7 @@ class App extends Component {
         if(res === true) {
           console.log(this);
           this.setState({isConnectedToLitNode:true});
-          this.state.lc.send("LitRPC.Balances");
+          this.state.lc.send("LitRPC.Balance");
         } else {
           this.setState({isConnectedToLitNode:false})
         }

@@ -16,6 +16,7 @@ import {coinInfo} from './CoinTypes.js'
 import PopUpDialog from './PopUpDialog.js'
 import CoinMenu from './CoinMenu.js'
 import QrSendReader from './QrSendReader.js'
+import { Typography } from '@material-ui/core';
 
 const styles = theme => ({
   dialog: {},
@@ -36,6 +37,11 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    height: 300,
+  },
+  qrExplainer: {
+    padding: '0px 20px',
+    textAlign: 'justify',
   },
   button: {},
   extendedIcon: {
@@ -62,14 +68,6 @@ class ConnectPage extends React.Component {
       };
   }
 
-  componentWillMount() {
-    var pairedNode = localStorage.getItem('pairedNode');
-    if(pairedNode !== undefined && pairedNode !== null && pairedNode.substring(0,3) === "ln1") {
-      this.submitted = true;
-      console.log("Connecting to previously connected node", pairedNode);
-      this.props.handleConnectSubmit(pairedNode);
-    }
-  }
 
   resetState() {
     this.setState({
@@ -107,6 +105,21 @@ class ConnectPage extends React.Component {
 
     var x = Math.abs((window.innerWidth - 250) / 2);
 
+    var message = (
+      <Typography style={{fontSize:'12pt'}}>
+      In order to connect you to the Lightning Network, please pair this app
+      with a running lit node by scanning its pairing QR-code with the viewfinder above.
+      </Typography>
+    );
+
+    if(this.props.connectFailed === true) {
+      message = (
+        <Typography style={{fontSize:'12pt'}}>
+        The connection to lit failed. Check the lit node or use the viewfinder to
+        pair again.
+        </Typography>
+      );
+    }
 
     return (
       <div>
@@ -117,7 +130,9 @@ class ConnectPage extends React.Component {
                 nativeRect={x.toString() + ',90,250,250'}
               />
             </div>
-
+            <div className={classes.qrExplainer}>
+              {message}
+            </div>
       </div>
     );
   }

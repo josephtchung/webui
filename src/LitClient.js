@@ -32,9 +32,13 @@ class LitAfClient {
         console.log("Error:", data.error)
         if(data.error.code === -32001) {
           console.log("Received unconnected error");
-          this.onUnconnected();
+          this.onUnconnected(false);
           delete callbacks[data.id];
           return;
+        }
+        if(data.error.code === -32002) {
+          console.log("Proxy reported failure to connect");
+          this.onUnconnected(true);
         }
         if(data.error.code === -32003) {
           this.firstRpc = false;
@@ -67,7 +71,8 @@ class LitAfClient {
         //go to the special chat message handler, but don't delete the callback
         callbacks[data.id].resolve(data.result);
       } else {
-        if (this.firstRpc) { // if the very first RPC was successful then we're connected
+        console.log("RPC Reply:",data.result);
+        if ((!(callbacks[data.id].isProxyRequest === true)) && this.firstRpc === true) { // if the very first (real) RPC was successful then we're connected
           this.onConnected();
           this.firstRpc = false;
         }
@@ -84,10 +89,10 @@ class LitAfClient {
     let promise = new Promise((resolve, reject) => {
       this.waitForConnection.then(() => {
         let json = JSON.stringify({'method': method, 'params': args, 'id': id});
-        // console.log("RPC Send: " + json);
+        console.log("RPC Send: " + json);
         this.rpccon.send(json);
       });
-      callbacks[id] = {resolve: resolve, reject: reject};
+      callbacks[id] = {resolve: resolve, reject: reject, isProxyRequest: (method.substr(0,12) === "LitRPCProxy.")};
     });
     return promise;
   }

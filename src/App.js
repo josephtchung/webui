@@ -30,6 +30,10 @@ const styles = theme => ({
   },
   content: {
   },
+  authMessage: {
+    padding: '0px 20px',
+    textAlign: 'justify'
+  },
 });
 
 const screenNames = ["Balances", "Exchange", "Settings"];
@@ -59,7 +63,8 @@ class App extends Component {
       hideClosedChannels: true,
       errorMessage: null,
       isConnectedToLitNode: null,
-      isAuthorizedOnLitNode: false,
+      connectionToLitFailed: false,
+      isAuthorizedOnLitNode: null,
       isConnectingToLitNode: false,
 
 
@@ -751,8 +756,16 @@ class App extends Component {
     let lc = this.state.lc;
     let rpcRefreshReference = this.state.rpcRefreshReference;
 
-    var onUnconnected = () => {
-      this.setState({isConnectedToLitNode:false});
+    var onUnconnected = (failed) => {
+      if(failed) {
+        // If this was called from a failed connection attempt, also reset the
+        // "isConnectingToLitNode" state. Also clear any stored credentials to
+        // prevent endless retry.
+        localStorage.setItem('pairedNode', null);
+        this.setState({isConnectedToLitNode:false, isConnectingToLitNode:false, connectionToLitFailed: true});
+      } else {
+        this.setState({isConnectedToLitNode:false});
+      }
     }
 
     var onUnauthorized = () => {
@@ -760,8 +773,7 @@ class App extends Component {
     }
 
     var onConnected = () => {
-      if(this.state.isAuthorizedOnLitNode === false || this.state.isConnectedToLitNode === false) {
-        console.log("onConnected called! updating...");
+      if((!(this.state.isAuthorizedOnLitNode === true)) || (!(this.state.isConnectedToLitNode === true))) {
         this.setState({isAuthorizedOnLitNode:true, isConnectedToLitNode:true});
         this.update();
       }
@@ -795,7 +807,14 @@ class App extends Component {
           this.setState({isConnectedToLitNode:true});
           this.state.lc.send("LitRPC.Balance");
         } else {
-          this.setState({isConnectedToLitNode:false})
+          var pairedNode = localStorage.getItem('pairedNode');
+          if(pairedNode !== undefined && pairedNode !== null && pairedNode.substring(0,3) === "ln1") {
+            this.submitted = true;
+            console.log("Connecting to previously connected node", pairedNode);
+            this.handleConnectSubmit(pairedNode);
+          } else {
+            this.setState({isConnectedToLitNode:false});
+          }
         }
       }).bind(this)).catch((err) => {
         console.log("Caught error on IsConnected:", err);
@@ -804,11 +823,11 @@ class App extends Component {
   }
 
   handleConnectSubmit(adr) {
-    this.setState({isConnectingToLitNode:true});
+    this.setState({isConnectingToLitNode:true, connectionToLitFailed: false});
     this.state.lc.send("LitRPCProxy.Connect", {adr : adr}).then((res) => {
-      if(res) {
+      if(res.Success) {
         this.setState({isConnectedToLitNode:true,isConnectingToLitNode:false});
-        this.state.lc.send("LitRPC.Balances");
+        this.state.lc.send("LitRPC.Balance");
       }
     });
   }
@@ -824,9 +843,13 @@ class App extends Component {
   render() {
     const {classes} = this.props;
     var title = "Lightning Network"
-    if(!this.state.isConnectedToLitNode) {
+    if(this.state.isConnectedToLitNode === false && !(this.state.isConnectingToLitNode === true)) {
       title = "Connect to your lit node"
-    } else if(!this.state.isAuthorizedOnLitNode) {
+    } else if(this.state.isConnectedToLitNode === false && this.state.isConnectingToLitNode === true) {
+      title = "Connecting to your lit node"
+    } else if(this.state.isConnectedToLitNode === true && this.state.isAuthorizedOnLitNode === null) {
+      title = "Checking authorization"
+    } else if(this.state.isConnectedToLitNode === true && this.state.isAuthorizedOnLitNode === false) {
       title = "Waiting for authorization"
     }
 
@@ -846,10 +869,23 @@ class App extends Component {
           {this.state.isConnectedToLitNode === false && this.state.isConnectingToLitNode === false &&
             <ConnectPage
             handleConnectSubmit={this.handleConnectSubmit.bind(this)}
+            connectFailed={this.state.connectionToLitFailed}
             />
           }
+          {(this.state.isConnectedToLitNode === false && this.state.isConnectingToLitNode === true) && 
+            <div className={classes.authMessage}>
+            <Typography style={{fontSize:'12pt'}}>(Re)connecting to your lit node...</Typography>
+            </div>
+          }
           {this.state.isConnectedToLitNode === true && this.state.isAuthorizedOnLitNode === false &&
-            <Typography>Your client is not yet authorized to control the lit node you have connected to. Authorize the client on the lit node to continue</Typography>
+            <div className={classes.authMessage}>
+              <Typography style={{fontSize:'12pt'}}>Your client is not authorized (anymore) to control the lit node you have connected to. Authorize the client on the lit node to continue</Typography>
+            </div>
+          }
+          {this.state.isConnectedToLitNode === true && this.state.isAuthorizedOnLitNode === null &&
+            <div className={classes.authMessage}>
+              <Typography style={{fontSize:'12pt'}}>Please wait while we check if you're (still) authorized to control the lit node you have connected to.</Typography>
+            </div>
           }
           {this.state.isConnectedToLitNode === true && this.state.isAuthorizedOnLitNode === true &&
           <Balances

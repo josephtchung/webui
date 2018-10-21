@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Blockies from 'react-blockies';
 import AboutDialog from './AboutDialog.js'
+import SettingsDialog from './SettingsDialog.js'
 
 const styles = theme => ({
   appBar: {
@@ -71,6 +72,10 @@ class LitAppBar extends React.Component {
             </Grid>
 
             <Grid item xs={3} className={classes.avatarBox}>
+              <SettingsDialog
+                settings={this.props.settings}
+                handleSubmit = {this.props.handleSettingsSubmit}
+              >
               <Avatar className={classes.avatar}>
                 <Blockies
                   seed={this.props.address}
@@ -80,6 +85,7 @@ class LitAppBar extends React.Component {
                   bgColor="#FFC300"
                 />
               </Avatar>
+              </SettingsDialog>
             </Grid>
 
           </Grid>

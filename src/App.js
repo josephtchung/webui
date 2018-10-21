@@ -4,7 +4,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import LitAfClient from './LitClient'
 import LitAppBar from './LitAppBar'
 import Balances from './Balances'
-import Settings from './Settings'
 import ConnectPage from './ConnectPage'
 import Typography from '@material-ui/core/Typography';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
@@ -58,6 +57,7 @@ class App extends Component {
       rpcAddress: host,
       rpcPort: port,
       rpcRefresh: true,
+
       rpcRefreshReference: -1,
       appBarColorPrimary: true,
       hideClosedChannels: true,
@@ -742,11 +742,12 @@ class App extends Component {
    * Handler for settings Dialog
    */
   handleSettingsSubmit(settings) {
-    this.resetLitConnection(settings.rpcAddress, settings.rpcPort, settings.rpcRefresh);
+    if (settings.resetPairing) {
+      console.log ("reset pairing!");
+      localStorage.setItem('pairedNode', null);
+    }
     this.setState( {
-      appBarColorPrimary: settings.appBarColorPrimary,
-      hideClosedChannels: settings.hideClosedChannels,
-    })
+    });
   }
 
   /*
@@ -862,6 +863,9 @@ class App extends Component {
             title={title}
             address={this.state.Adr}
             handleUpdate={this.update.bind(this)}
+            settings={
+              {resetPairing: false}
+            }
             handleSettingsSubmit={this.handleSettingsSubmit.bind(this)}
           />
         </div>

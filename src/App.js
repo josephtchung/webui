@@ -741,14 +741,14 @@ class App extends Component {
   /*
    * Handler for settings Dialog
    */
-  handleSettingsSubmit(settings) {
-    if (settings.resetPairing) {
-      console.log ("reset pairing!");
-      localStorage.setItem('pairedNode', null);
+    handleSettingsSubmit(settings) {
+      if (settings.resetPairing) {
+        console.log ("reset pairing!");
+        localStorage.setItem('pairedNode', null);
+      }
+      this.setState( {
+      });
     }
-    this.setState( {
-    });
-  }
 
   /*
    * Resets all the host connections including refreshing.

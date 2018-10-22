@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Avatar from '@material-ui/core/Avatar';
 import Fade from '@material-ui/core/Fade';
 import Divider from '@material-ui/core/Divider';
+import Typography from '@material-ui/core/Typography';
 import {ArrowDownBoldOutline, ArrowUpBoldOutline, ArrowUpDownBoldOutline} from "mdi-material-ui";
 import Blockies from 'react-blockies';
 import {coinInfo, formatCoin} from "./CoinTypes";
@@ -22,6 +23,7 @@ const styles = theme => ({
     color: '#606060',
   },
   message: {
+    overflowX: 'hidden',
     paddingLeft: theme.spacing.unit,
   },
   address: {
@@ -108,11 +110,13 @@ class PaymentHistoryCard extends React.Component {
             </Grid>
 
             <Grid item xs={10} className={classes.message}>
+              <Typography variant="body1">
               {message}
               <br/>
               <span className={classes.address}>
                 {address}
               </span>
+              </Typography>
             </Grid>
 
             <Grid item xs={1} className={classes.avatarBox}>

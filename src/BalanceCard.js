@@ -70,16 +70,16 @@ class BalanceCard extends React.Component {
         <div className={classes.content}>
 
           <div>
-            <img height="50" width="50" src={'coinicons/' + balance.CoinType + '.png'}/>
+            <img height="40" width="40" alt="Coin Icon" src={'coinicons/' + balance.CoinType + '.png'}/>
           </div>
           <div className={classes.balances}>
 
             <div className={classes.numbers + (this.state.highlight ? " BalHighlight" : "")}>
-              <Typography variant="title">
+              <Typography variant="headline">
                 {formatCoin(balance.ChanTotal + balance.TxoTotal, balance.CoinType)}
               </Typography>
             </div>
-
+            { /*
             <div className={classes.numbers}>
               <Typography>
                 Channel: {formatCoin(balance.ChanTotal, balance.CoinType, false)}
@@ -91,6 +91,7 @@ class BalanceCard extends React.Component {
                 On Chain: {formatCoin(balance.TxoTotal, balance.CoinType, false)}
               </Typography>
             </div>
+            */ }
           </div>
 
         </div>

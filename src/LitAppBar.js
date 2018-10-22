@@ -66,7 +66,7 @@ class LitAppBar extends React.Component {
             </Grid>
 
             <Grid item xs={6} className={classes.title}>
-              <Typography variant="title" color="inherit">
+              <Typography variant="title" color="inherit" noWrap>
                 {this.props.title}
               </Typography>
             </Grid>
